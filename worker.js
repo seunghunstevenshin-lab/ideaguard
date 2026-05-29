@@ -14,7 +14,7 @@ function addSecurityHeaders(response, env) {
   const headers = new Headers(response.headers);
   const isProd = env.ENVIRONMENT === 'production';
 
-  headers.set('Access-Control-Allow-Origin', isProd ? 'https://ideaguard.app' : '*');
+  headers.set('Access-Control-Allow-Origin', isProd ? 'https://ideaguard.pages.dev' : '*');
   headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
