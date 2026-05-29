@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS ndas (
   record_id            UUID        NOT NULL REFERENCES records(id) ON DELETE CASCADE,
   proposer_id          UUID        NOT NULL REFERENCES auth.users(id),
   recipient_email      TEXT        NOT NULL,
+  recipient_name       TEXT        NOT NULL DEFAULT '',              -- 수령자 실명 (NDA 계약서 표기용)
   country_code         TEXT        NOT NULL DEFAULT 'KR',
   contract_text        TEXT        NOT NULL,
   is_custom_template   BOOLEAN     DEFAULT false,
@@ -75,6 +76,12 @@ ALTER TABLE ndas ENABLE ROW LEVEL SECURITY;
 -- (Supabase anon 키로는 ndas 접근 차단)
 CREATE POLICY "ndas_service_only" ON ndas
   FOR ALL USING (false);  -- 모든 anon/user 직접 접근 차단, service_role만 가능
+
+-- ──────────────────────────────────────────────────────────
+-- 3-1. 마이그레이션: recipient_name 컬럼 추가 (기존 테이블에 적용)
+-- 처음 스키마 생성 시에는 이미 포함되어 있으므로 실행 불필요
+-- ──────────────────────────────────────────────────────────
+-- ALTER TABLE ndas ADD COLUMN IF NOT EXISTS recipient_name TEXT NOT NULL DEFAULT '';
 
 -- ──────────────────────────────────────────────────────────
 -- 4. 만료 NDA 자동 처리 (선택 — Supabase pg_cron 활성화 필요)

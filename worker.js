@@ -78,6 +78,9 @@ function isValidNickname(nick) {
 function isValidEmail(email) {
   return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
+function isValidRecipientName(name) {
+  return typeof name === 'string' && name.trim().length >= 1 && name.trim().length <= 50;
+}
 const ALLOWED_COUNTRY_CODES = ['KR', 'US', 'UK', 'JP', 'SG', 'DE', 'FR', 'CN', 'AU', 'CA'];
 function isValidCountryCode(code) {
   return ALLOWED_COUNTRY_CODES.includes(code);
@@ -202,12 +205,13 @@ async function handleCreateNDA(request, env) {
   let body;
   try { body = await request.json(); } catch { return errorResponse('요청 형식 오류'); }
 
-  const { record_id, proposer_id, recipient_email, country_code, contract_text, is_custom_template } = body;
+  const { record_id, proposer_id, recipient_email, recipient_name, country_code, contract_text, is_custom_template } = body;
 
-  if (!record_id)                       return errorResponse('record_id 필요');
-  if (!proposer_id)                     return errorResponse('회원 전용 기능입니다', 401);
-  if (!isValidEmail(recipient_email))   return errorResponse('유효하지 않은 이메일');
-  if (!isValidCountryCode(country_code)) return errorResponse('지원하지 않는 국가 코드');
+  if (!record_id)                            return errorResponse('record_id 필요');
+  if (!proposer_id)                          return errorResponse('회원 전용 기능입니다', 401);
+  if (!isValidEmail(recipient_email))        return errorResponse('유효하지 않은 이메일');
+  if (!isValidRecipientName(recipient_name)) return errorResponse('수령자 이름은 1~50자');
+  if (!isValidCountryCode(country_code))     return errorResponse('지원하지 않는 국가 코드');
   if (!contract_text || contract_text.trim().length < 50) return errorResponse('계약서 내용이 너무 짧습니다');
 
   const rawToken  = crypto.randomUUID() + '-' + Date.now();
@@ -218,6 +222,7 @@ async function handleCreateNDA(request, env) {
     record_id,
     proposer_id,
     recipient_email,
+    recipient_name: recipient_name.trim(),
     country_code,
     contract_text: contract_text.trim(),
     is_custom_template: !!is_custom_template,
@@ -246,7 +251,7 @@ async function handleGetNDA(request, env, tokenOrId) {
   const isUUID = /^[0-9a-f-]{36}$/.test(tokenOrId);
 
   let query = db.from('ndas')
-    .select('id, record_id, recipient_email, country_code, contract_text, is_custom_template, status, created_at');
+    .select('id, record_id, recipient_email, recipient_name, country_code, contract_text, is_custom_template, status, created_at');
 
   query = isUUID
     ? query.eq('id', tokenOrId)
