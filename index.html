@@ -841,64 +841,6 @@
           <form class="register__form" id="register-form"
             aria-label="해시 등록 폼" novalidate>
 
-            <div class="form-row">
-              <!-- Nickname -->
-              <div class="form-field">
-                <label for="input-nickname" class="form-label">
-                  닉네임
-                  <span class="form-label__required" aria-hidden="true">*</span>
-                  <span class="sr-only">(필수)</span>
-                </label>
-                <div class="input-group">
-                  <i class="fa-regular fa-user input-group__icon" aria-hidden="true"></i>
-                  <input
-                    type="text" id="input-nickname" name="nickname"
-                    class="input" placeholder="ex) 홍길동 or Anonymous"
-                    maxlength="30" required aria-required="true"
-                    autocomplete="nickname"
-                    aria-describedby="nickname-hint">
-                </div>
-                <p class="input-hint" id="nickname-hint">1~30자. 공개 타일에 표시됩니다.</p>
-              </div>
-
-              <!-- Title -->
-              <div class="form-field">
-                <label for="input-title" class="form-label">
-                  아이디어 제목
-                  <span class="form-label__required" aria-hidden="true">*</span>
-                  <span class="sr-only">(필수)</span>
-                </label>
-                <div class="input-group">
-                  <i class="fa-solid fa-lightbulb input-group__icon" aria-hidden="true"></i>
-                  <input
-                    type="text" id="input-title" name="title"
-                    class="input" placeholder="공개될 아이디어 제목 (원본 내용 기재 금지)"
-                    maxlength="100" required aria-required="true"
-                    aria-describedby="title-hint">
-                </div>
-                <p class="input-hint" id="title-hint">최대 100자. 원본 내용은 절대 입력하지 마세요.</p>
-              </div>
-            </div>
-
-            <!-- Keywords -->
-            <div class="form-field">
-              <label for="input-keywords" class="form-label">
-                공개 키워드
-                <span class="form-label__optional">(선택, 최대 5개)</span>
-              </label>
-              <div class="input-group">
-                <i class="fa-solid fa-tags input-group__icon" aria-hidden="true"></i>
-                <input
-                  type="text" id="input-keywords"
-                  class="input" placeholder="예: AI 스마트홈 IoT — 스페이스로 구분"
-                  aria-describedby="keywords-hint">
-              </div>
-              <!-- Keyword chips rendered by JS -->
-              <div class="keyword-chips" id="keyword-chips"
-                role="list" aria-label="등록된 키워드" aria-live="polite"></div>
-              <p class="input-hint" id="keywords-hint">최대 5개. 타일에 #태그로 표시됩니다.</p>
-            </div>
-
             <!-- Alert: Error -->
             <div class="form-alert form-alert--error" id="form-error" role="alert" hidden>
               <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
@@ -908,23 +850,29 @@
             <!-- Alert: Success -->
             <div class="form-alert form-alert--success" id="form-success" role="status" hidden>
               <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
-              해시가 성공적으로 등록되었습니다! 타일 보드에서 확인하세요.
+              해시가 성공적으로 등록되었습니다! 타임스탬프가 공표되었습니다.
             </div>
 
             <!-- Submit -->
             <div class="form-actions">
-              <button type="submit" class="btn btn--primary btn--lg btn--block"
-                id="btn-register" disabled>
-                <i class="fa-solid fa-shield-halved btn__icon" aria-hidden="true"></i>
-                <span class="btn__label">해시 등록하기</span>
-                <span class="btn__spinner" hidden aria-hidden="true">
-                  <i class="fa-solid fa-spinner fa-spin"></i>
-                </span>
-              </button>
+              <div class="register__submit-row">
+                <button type="submit" class="btn btn--primary btn--lg btn--block"
+                  id="btn-register" disabled>
+                  <i class="fa-solid fa-shield-halved btn__icon" aria-hidden="true"></i>
+                  <span class="btn__label">해시 등록하기</span>
+                  <span class="btn__spinner" hidden aria-hidden="true">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                  </span>
+                </button>
+                <p class="register__member-hint">
+                  <i class="fa-solid fa-user-check" aria-hidden="true"></i>
+                  로그인하면 내 목록에서 관리하고 NDA 이메일을 발송할 수 있습니다.
+                </p>
+              </div>
               <p class="form-footnote">
                 <i class="fa-solid fa-lock-keyhole" aria-hidden="true"></i>
                 원본 파일·텍스트는 절대 서버로 전송되지 않습니다.
-                해시값과 메타데이터만 저장됩니다.
+                해시값만 저장됩니다.
               </p>
             </div>
           </form>
@@ -1136,7 +1084,9 @@
     'use strict';
 
     /* ── Config ──────────────────────────────────────────────────── */
-    const API   = 'https://ideaguard-worker.nalbadaju.workers.dev';
+    // ⚠️ TODO: Cloudflare Worker 배포 후 실제 URL로 교체
+    // wrangler deploy 완료 후 CF 대시보드에서 Worker URL 확인
+    const API   = 'https://ideaguard-worker.seunghunstevenshin-lab.workers.dev';
     const LIMIT = 12;
 
     /* ── State ───────────────────────────────────────────────────── */
@@ -1166,12 +1116,8 @@
       hashPreview:  $('hash-preview'),
       hashDisplay:  $('hash-display'),
       btnCopyHash:  $('btn-copy-hash'),
-      // Form
+      // Form (해시 등록 단순화 — nickname/title/keywords 폼 제거됨)
       form:         $('register-form'),
-      nickname:     $('input-nickname'),
-      title:        $('input-title'),
-      keywords:     $('input-keywords'),
-      keywordChips: $('keyword-chips'),
       formError:    $('form-error'),
       formErrorMsg: $('form-error-msg'),
       formSuccess:  $('form-success'),
@@ -1233,10 +1179,8 @@
     }
 
     function updateRegisterBtn() {
-      const hasHash     = !!state.currentHash;
-      const hasNickname = el.nickname.value.trim().length > 0;
-      const hasTitle    = el.title.value.trim().length > 0;
-      el.btnRegister.disabled = !(hasHash && hasNickname && hasTitle);
+      // 해시 등록 단순화: 해시값만 있으면 등록 가능
+      el.btnRegister.disabled = !state.currentHash;
     }
 
     /* ═════════════════════════════════════════════════════════════
@@ -1344,11 +1288,16 @@
        4. KEYWORDS CHIPS
     ═════════════════════════════════════════════════════════════ */
     function setupKeywords() {
-      el.keywords.addEventListener('keydown', e => {
+      // 키워드 입력 필드는 해시 등록 단순화로 폼에서 제거됨.
+      // 이후 NDA 생성 단계에서 제목/키워드를 입력받음.
+      if (!$('input-keywords')) return;
+      el._keywords = $('input-keywords');
+      el._keywordChips = $('keyword-chips');
+      el._keywords.addEventListener('keydown', e => {
         if (e.key === ' ' || e.key === 'Enter') {
           e.preventDefault();
-          addKeyword(el.keywords.value.trim().replace(/^#/, ''));
-          el.keywords.value = '';
+          addKeyword(el._keywords.value.trim().replace(/^#/, ''));
+          el._keywords.value = '';
         }
       });
     }
@@ -1366,7 +1315,9 @@
     }
 
     function renderKeywordChips() {
-      el.keywordChips.innerHTML = '';
+      // 키워드 칩 컨테이너가 현재 폼에 없으면 아무것도 하지 않음
+      if (!el._keywordChips) return;
+      el._keywordChips.innerHTML = '';
       state.keywords.forEach(word => {
         const chip = document.createElement('span');
         chip.className = 'keyword-chip';
@@ -1379,10 +1330,10 @@
           </button>`;
         chip.querySelector('.keyword-chip__remove')
           .addEventListener('click', () => removeKeyword(word));
-        el.keywordChips.appendChild(chip);
+        el._keywordChips.appendChild(chip);
       });
       // 5개 도달 시 입력 비활성화
-      el.keywords.disabled = state.keywords.length >= 5;
+      if (el._keywords) el._keywords.disabled = state.keywords.length >= 5;
     }
 
     /* ═════════════════════════════════════════════════════════════
@@ -1404,20 +1355,10 @@
        6. FORM SUBMIT — Register Hash
     ═════════════════════════════════════════════════════════════ */
     function setupRegisterForm() {
-      ['input', 'change'].forEach(evt => {
-        el.nickname.addEventListener(evt, updateRegisterBtn);
-        el.title.addEventListener(evt, updateRegisterBtn);
-      });
-
+      // 해시 등록 단순화: nickname/title 입력 없음 — 해시만 전송
       el.form.addEventListener('submit', async e => {
         e.preventDefault();
         if (state.loading || !state.currentHash) return;
-
-        const nickname = el.nickname.value.trim();
-        const title    = el.title.value.trim();
-
-        if (!nickname) return showFormError('닉네임을 입력해 주세요.');
-        if (!title)    return showFormError('아이디어 제목을 입력해 주세요.');
 
         setFormLoading(true);
         hideFormMessages();
@@ -1426,11 +1367,7 @@
           const res = await fetch(`${API}/api/records`, {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({
-              hash:     state.currentHash,
-              nickname, title,
-              keywords: state.keywords,
-            }),
+            body:    JSON.stringify({ hash: state.currentHash }),
           });
 
           const data = await res.json();

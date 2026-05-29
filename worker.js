@@ -107,9 +107,13 @@ async function handleRequest(request, env) {
   const ndaSignMatch = path.match(/^\/api\/nda\/([^/]+)\/sign$/);
   if (ndaSignMatch && method === 'POST') return handleSignNDA(request, env, ndaSignMatch[1]);
 
-  // 헬스체크
+  // 헬스체크 — 프로덕션에서는 상세 정보 노출 않음
   if (path === '/api/health' && method === 'GET') {
-    return jsonResponse({ status: 'ok', app: env.APP_NAME, env: env.ENVIRONMENT });
+    const isProd = env.ENVIRONMENT === 'production';
+    return jsonResponse(isProd
+      ? { status: 'ok' }
+      : { status: 'ok', app: env.APP_NAME, env: env.ENVIRONMENT }
+    );
   }
 
   return errorResponse('Not Found', 404);
@@ -122,20 +126,17 @@ async function handleRegister(request, env) {
   let body;
   try { body = await request.json(); } catch { return errorResponse('요청 형식 오류'); }
 
-  const { hash, nickname, title, keywords, user_id } = body;
+  // 해시 등록 단순화: hash만 필수. nickname/title은 NDA 생성 시 입력.
+  const { hash, user_id } = body;
 
-  if (!isValidHash(hash))       return errorResponse('유효하지 않은 해시값');
-  if (!isValidNickname(nickname)) return errorResponse('닉네임은 1~30자');
-  if (!title || title.trim().length < 1) return errorResponse('제목을 입력해 주세요');
-  if (title.trim().length > 100) return errorResponse('제목은 100자 이내');
-  if (keywords && (!Array.isArray(keywords) || keywords.length > 5)) return errorResponse('키워드는 최대 5개');
+  if (!isValidHash(hash)) return errorResponse('유효하지 않은 해시값');
 
   const db = getSupabase(env);
   const { data, error } = await db.from('records').insert({
     hash: hash.toLowerCase(),
-    nickname: nickname.trim(),
-    title: title.trim(),
-    keywords: keywords || [],
+    nickname: '익명',           // 기본값 — 회원 로그인 후 NDA 시 실명 사용
+    title:    '',               // 기본값 — NDA 생성 시 아이디어 제목 입력
+    keywords: [],
     user_id: user_id || null,
   }).select().single();
 

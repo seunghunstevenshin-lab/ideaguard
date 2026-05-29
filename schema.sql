@@ -10,8 +10,8 @@
 CREATE TABLE IF NOT EXISTS records (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   hash        TEXT        NOT NULL UNIQUE,           -- SHA-256 해시값 (소문자 hex 64자)
-  nickname    TEXT        NOT NULL,                  -- 게스트/회원 표기명
-  title       TEXT        NOT NULL,                  -- 아이디어 공개 제목
+  nickname    TEXT        NOT NULL DEFAULT '익명',   -- 게스트/회원 표기명 (NDA 연결 전 기본값)
+  title       TEXT        NOT NULL DEFAULT '',       -- 아이디어 제목 (NDA 생성 시 업데이트)
   keywords    TEXT[]      DEFAULT '{}',              -- 공개 키워드 (최대 5개)
   user_id     UUID        REFERENCES auth.users(id), -- NULL = 게스트
   created_at  TIMESTAMPTZ DEFAULT NOW()
@@ -82,6 +82,13 @@ CREATE POLICY "ndas_service_only" ON ndas
 -- 처음 스키마 생성 시에는 이미 포함되어 있으므로 실행 불필요
 -- ──────────────────────────────────────────────────────────
 -- ALTER TABLE ndas ADD COLUMN IF NOT EXISTS recipient_name TEXT NOT NULL DEFAULT '';
+
+-- ──────────────────────────────────────────────────────────
+-- 3-2. 마이그레이션: records.nickname/title DEFAULT 추가 (기존 DB)
+-- 처음 스키마 생성 시에는 이미 포함되어 있으므로 실행 불필요
+-- ──────────────────────────────────────────────────────────
+-- ALTER TABLE records ALTER COLUMN nickname SET DEFAULT '익명';
+-- ALTER TABLE records ALTER COLUMN title    SET DEFAULT '';
 
 -- ──────────────────────────────────────────────────────────
 -- 4. 만료 NDA 자동 처리 (선택 — Supabase pg_cron 활성화 필요)
