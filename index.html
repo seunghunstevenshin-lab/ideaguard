@@ -275,6 +275,7 @@
     .hero__sub {
       font-size: 1.1rem; color: var(--text-muted); margin-bottom: var(--sp-10);
       max-width: 540px; margin-left: auto; margin-right: auto; line-height: 1.6;
+      transition: opacity 0.6s ease;
     }
     .hero__actions { display: flex; gap: var(--sp-4); justify-content: center; margin-bottom: var(--sp-8); }
     .hero__badges { display: flex; gap: var(--sp-4); justify-content: center; flex-wrap: wrap; }
@@ -792,8 +793,8 @@
           <span class="hero__title--accent">누구도 부인할 수 없게</span> 기록하세요.
         </h1>
 
-        <!-- Subheadline -->
-        <p class="hero__sub">
+        <!-- Subheadline A/B rotation -->
+        <p class="hero__sub" id="hero-sub">
           아이디어를 말하기 전, 흔적을 먼저 남기세요.<br>
           SHA-256 해시가 착안일(Conception Date)을 증명하고, NDA가 공개 전 신뢰를 지킵니다.
         </p>
@@ -2125,6 +2126,25 @@
     }
 
     document.addEventListener('DOMContentLoaded', init);
+
+    // D. Hero 서브헤드라인 A/B 순환 (7초마다 페이드 전환)
+    (function() {
+      const lines = [
+        '아이디어를 말하기 전, 흔적을 먼저 남기세요.<br>SHA-256 해시가 착안일(Conception Date)을 증명하고, NDA가 공개 전 신뢰를 지킵니다.',
+        '법적 분쟁에 대비하는 가장 빠른 방법.<br>SHA-256 해시로 착안일(Conception Date)을 봉쇄하고, NDA로 공동창업 전 신뢰를 확보하세요.'
+      ];
+      let idx = 0;
+      const el = document.getElementById('hero-sub');
+      if (!el) return;
+      setInterval(() => {
+        el.style.opacity = '0';
+        setTimeout(() => {
+          idx = (idx + 1) % lines.length;
+          el.innerHTML = lines[idx];
+          el.style.opacity = '1';
+        }, 600);
+      }, 7000);
+    })();
 
   </script>
 </body>
