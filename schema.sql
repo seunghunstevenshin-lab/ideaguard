@@ -14,6 +14,9 @@ CREATE TABLE IF NOT EXISTS records (
   title       TEXT        NOT NULL DEFAULT '',       -- 아이디어 제목 (NDA 생성 시 업데이트)
   keywords    TEXT[]      DEFAULT '{}',              -- 공개 키워드 (최대 5개)
   user_id     UUID        REFERENCES auth.users(id), -- NULL = 게스트
+  ots_proof   TEXT,                                  -- OpenTimestamps OTS 증명 파일 (Base64, Bitcoin 블록 확정 후 업데이트)
+  ots_status  TEXT        DEFAULT 'pending'
+              CHECK (ots_status IN ('pending', 'submitted', 'confirmed', 'failed')),
   created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -89,6 +92,13 @@ CREATE POLICY "ndas_service_only" ON ndas
 -- ──────────────────────────────────────────────────────────
 -- ALTER TABLE records ALTER COLUMN nickname SET DEFAULT '익명';
 -- ALTER TABLE records ALTER COLUMN title    SET DEFAULT '';
+
+-- ──────────────────────────────────────────────────────────
+-- 3-3. 마이그레이션: OpenTimestamps 컬럼 추가 (기존 DB)
+-- ──────────────────────────────────────────────────────────
+-- ALTER TABLE records ADD COLUMN IF NOT EXISTS ots_proof  TEXT;
+-- ALTER TABLE records ADD COLUMN IF NOT EXISTS ots_status TEXT NOT NULL DEFAULT 'pending'
+--   CHECK (ots_status IN ('pending', 'submitted', 'confirmed', 'failed'));
 
 -- ──────────────────────────────────────────────────────────
 -- 4. 만료 NDA 자동 처리 (선택 — Supabase pg_cron 활성화 필요)
