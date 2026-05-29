@@ -31,7 +31,7 @@
 
 1. 저장소를 클론합니다.
    ```bash
-   git clone https://github.com/nalbadaju/ideaguard.git
+   git clone https://github.com/seunghunstevenshin-lab/ideaguard.git
    ```
 2. 프로젝트 폴더로 이동합니다.
    ```bash
