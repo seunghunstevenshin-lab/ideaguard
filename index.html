@@ -450,8 +450,81 @@
     .pagination { display: flex; align-items: center; justify-content: center; gap: var(--sp-4); margin-top: var(--sp-8); }
     .pagination__info { color: var(--text-muted); font-size: 0.875rem; }
 
+    /* ─── [35-b. NAV GUIDE LINK] ─────────────────────────────── */
+    .primary-nav__link--guide {
+      display: flex; align-items: center; gap: 0.35rem;
+      color: var(--accent) !important;
+      font-weight: 600;
+    }
+    .primary-nav__link--guide i { font-size: 0.85em; }
+
     /* ─── [36. NDA CTA] ──────────────────────────────────────── */
     .nda-cta { padding: var(--sp-20) 0; }
+
+    /* ─── [37. LEGAL GUIDE] ──────────────────────────────────── */
+    .legal-guide { padding: var(--sp-20) 0; }
+
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--sp-6);
+      margin-bottom: var(--sp-8);
+    }
+    .guide-card { padding: var(--sp-8); }
+    .guide-card__icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(99,102,241,.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; color: var(--accent);
+      margin-bottom: var(--sp-5);
+    }
+    .guide-card__icon--warn { background: rgba(245,158,11,.15); color: #f59e0b; }
+    .guide-card__title { font-size: 1.1rem; font-weight: 700; margin-bottom: var(--sp-4); color: var(--text-primary); }
+    .guide-list { list-style: none; display: flex; flex-direction: column; gap: var(--sp-3); }
+    .guide-list li { display: flex; gap: var(--sp-3); align-items: flex-start; font-size: 0.9rem; color: var(--text-secondary); }
+    .guide-list li i { flex-shrink: 0; margin-top: 3px; }
+    .text--warn { color: #f59e0b; }
+    .guide-card__note { margin-top: var(--sp-5); font-size: 0.85rem; color: var(--text-muted); display: flex; gap: var(--sp-2); align-items: flex-start; }
+    .guide-card__note i { color: #f59e0b; flex-shrink: 0; margin-top: 2px; }
+
+    .guide-roadmap { padding: var(--sp-8); margin-bottom: var(--sp-8); }
+    .guide-roadmap__title { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--sp-7); display: flex; align-items: center; gap: var(--sp-3); }
+    .roadmap-steps { list-style: none; display: flex; flex-direction: column; gap: var(--sp-6); counter-reset: none; }
+    .roadmap-step { display: flex; gap: var(--sp-5); align-items: flex-start; padding: var(--sp-5); border-radius: 12px; border: 1px solid rgba(255,255,255,.06); }
+    .roadmap-step--current { border-color: rgba(99,102,241,.2); background: rgba(99,102,241,.04); }
+    .roadmap-step--recommend { border-color: rgba(99,102,241,.4); background: rgba(99,102,241,.08); }
+    .roadmap-step__badge {
+      flex-shrink: 0; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+      background: rgba(255,255,255,.08); color: var(--text-muted); white-space: nowrap;
+    }
+    .roadmap-step__badge--accent { background: var(--accent); color: #fff; }
+    .roadmap-step__badge--muted  { background: rgba(255,255,255,.05); color: var(--text-muted); }
+    .roadmap-step__body { flex: 1; }
+    .roadmap-step__body h4 { font-weight: 700; color: var(--text-primary); margin-bottom: var(--sp-2); font-size: 1rem; }
+    .roadmap-step__body p  { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: var(--sp-3); line-height: 1.6; }
+    .roadmap-step__strength { font-size: 0.78rem; color: var(--text-muted); display: block; margin-top: var(--sp-3); }
+    .badge--free { display: inline-block; padding: 1px 8px; border-radius: 20px; font-size: 0.72rem; background: rgba(16,185,129,.2); color: #10b981; font-weight: 700; margin-left: 6px; }
+    .guide-roadmap__link { margin-top: var(--sp-2); }
+
+    .guide-checklist { padding: var(--sp-8); }
+    .guide-checklist__title { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--sp-3); display: flex; align-items: center; gap: var(--sp-3); }
+    .guide-checklist__desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: var(--sp-6); }
+    .checklist { list-style: none; display: flex; flex-direction: column; gap: var(--sp-5); }
+    .checklist__item { display: flex; gap: var(--sp-5); align-items: flex-start; }
+    .checklist__num {
+      flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(99,102,241,.15); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 800;
+    }
+    .checklist__item strong { display: block; color: var(--text-primary); font-size: 0.95rem; margin-bottom: 2px; }
+    .checklist__item p { font-size: 0.85rem; color: var(--text-secondary); margin: 0; }
+    .guide-checklist__disclaimer {
+      margin-top: var(--sp-7); padding: var(--sp-4); border-radius: 10px;
+      background: rgba(99,102,241,.06); font-size: 0.82rem; color: var(--text-muted);
+      display: flex; gap: var(--sp-2); align-items: flex-start;
+    }
+    .guide-checklist__disclaimer i { color: var(--accent); flex-shrink: 0; margin-top: 2px; }
     .nda-cta__inner {
       display: flex; align-items: center; justify-content: space-between;
       padding: var(--sp-10); gap: var(--sp-8);
@@ -497,13 +570,15 @@
     ═══════════════════════════════════════════════════════════════════ */
 
     /* 1. SCROLL FADE-UP */
-    .hero__content, .register__panel, .tile:not(.tile--skeleton), .nda-cta__inner, .section-header {
+    .hero__content, .register__panel, .tile:not(.tile--skeleton), .nda-cta__inner, .section-header,
+    .guide-card, .guide-roadmap, .guide-checklist {
       opacity: 0;
       transform: translateY(24px);
       transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
     }
     .hero__content.is-visible, .register__panel.is-visible, .tile.is-visible,
-    .nda-cta__inner.is-visible, .section-header.is-visible {
+    .nda-cta__inner.is-visible, .section-header.is-visible,
+    .guide-card.is-visible, .guide-roadmap.is-visible, .guide-checklist.is-visible {
       opacity: 1;
       transform: translateY(0);
     }
@@ -638,6 +713,10 @@
           <li><a href="#register"  class="primary-nav__link">해시 등록</a></li>
           <li><a href="#nda-cta"   class="primary-nav__link">NDA 체결</a></li>
           <li><a href="#tileboard" class="primary-nav__link">타일 보드</a></li>
+          <li><a href="#legal-guide" class="primary-nav__link primary-nav__link--guide">
+            <i class="fa-solid fa-book-open-reader" aria-hidden="true"></i>
+            법적 활용 가이드
+          </a></li>
         </ul>
       </nav>
 
@@ -670,10 +749,11 @@
     <!-- Mobile Menu -->
     <nav class="mobile-menu" id="mobile-menu" aria-label="모바일 메뉴" hidden>
       <ul role="list">
-        <li><a href="#hero"      class="mobile-menu__link">홈</a></li>
-        <li><a href="#register"  class="mobile-menu__link">해시 등록</a></li>
-        <li><a href="#nda-cta"   class="mobile-menu__link">NDA 체결</a></li>
-        <li><a href="#tileboard" class="mobile-menu__link">타일 보드</a></li>
+        <li><a href="#hero"        class="mobile-menu__link">홈</a></li>
+        <li><a href="#register"    class="mobile-menu__link">해시 등록</a></li>
+        <li><a href="#nda-cta"     class="mobile-menu__link">NDA 체결</a></li>
+        <li><a href="#tileboard"   class="mobile-menu__link">타일 보드</a></li>
+        <li><a href="#legal-guide" class="mobile-menu__link">📖 법적 활용 가이드</a></li>
         <li>
           <a href="#" class="mobile-menu__link mobile-menu__link--cta">
             <i class="fa-regular fa-user" aria-hidden="true"></i> 로그인
@@ -1017,6 +1097,185 @@
       </div>
     </section>
 
+    <!-- ──────────────────────────────────────────
+         § 5. 법적 활용 가이드
+    ────────────────────────────────────────── -->
+    <section class="legal-guide" id="legal-guide" aria-labelledby="guide-title">
+      <div class="container">
+
+        <header class="section-header">
+          <h2 class="section-title" id="guide-title">
+            <i class="fa-solid fa-book-open-reader" aria-hidden="true"></i>
+            법적 활용 가이드
+          </h2>
+          <p class="section-desc">
+            IdeaGuard가 제공하는 것과 그 한계, 그리고 법적 효력을 강화하는 방법을 솔직하게 안내합니다.
+          </p>
+        </header>
+
+        <!-- 솔직한 한계 공개 -->
+        <div class="guide-grid">
+
+          <div class="guide-card guide-card--what glass-card">
+            <div class="guide-card__icon">
+              <i class="fa-solid fa-shield-check" aria-hidden="true"></i>
+            </div>
+            <h3 class="guide-card__title">IdeaGuard가 제공하는 것</h3>
+            <ul class="guide-list">
+              <li>
+                <i class="fa-solid fa-check text--accent" aria-hidden="true"></i>
+                <span><strong>SHA-256 해시 + 서버 타임스탬프</strong> — 수학적으로 조작 불가능한 착안일 기록</span>
+              </li>
+              <li>
+                <i class="fa-solid fa-check text--accent" aria-hidden="true"></i>
+                <span><strong>원본 비공개(Zero-Knowledge)</strong> — 해시값만 저장, 원본 내용은 서버에 없음</span>
+              </li>
+              <li>
+                <i class="fa-solid fa-check text--accent" aria-hidden="true"></i>
+                <span><strong>NDA 자동 생성 + 수령자 서명</strong> — 공동창업 전 신뢰 확보</span>
+              </li>
+              <li>
+                <i class="fa-solid fa-check text--accent" aria-hidden="true"></i>
+                <span><strong>도덕적 억제력</strong> — "기록이 있다"는 사실만으로도 분쟁 발생 억제</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="guide-card guide-card--limit glass-card">
+            <div class="guide-card__icon guide-card__icon--warn">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+            </div>
+            <h3 class="guide-card__title">솔직한 한계</h3>
+            <ul class="guide-list">
+              <li>
+                <i class="fa-solid fa-xmark text--warn" aria-hidden="true"></i>
+                <span>한국 전자서명법상 <strong>공인 타임스탬프 기관(TSA) 인증서가 아닙니다</strong></span>
+              </li>
+              <li>
+                <i class="fa-solid fa-xmark text--warn" aria-hidden="true"></i>
+                <span>법원 제출 시 <strong>단독으로는 법적 추정력이 발생하지 않습니다</strong></span>
+              </li>
+              <li>
+                <i class="fa-solid fa-xmark text--warn" aria-hidden="true"></i>
+                <span>특허권·저작권·상표권 등록을 <strong>대체하지 않습니다</strong></span>
+              </li>
+            </ul>
+            <p class="guide-card__note">
+              <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+              하지만 아래 방법으로 법적 효력을 크게 강화할 수 있습니다.
+            </p>
+          </div>
+
+        </div><!-- /.guide-grid -->
+
+        <!-- 강화 로드맵 -->
+        <div class="guide-roadmap glass-card">
+          <h3 class="guide-roadmap__title">
+            <i class="fa-solid fa-stairs" aria-hidden="true"></i>
+            법적 효력 강화 3단계
+          </h3>
+
+          <ol class="roadmap-steps">
+
+            <li class="roadmap-step roadmap-step--current">
+              <div class="roadmap-step__badge">현재</div>
+              <div class="roadmap-step__body">
+                <h4>IdeaGuard 해시 등록</h4>
+                <p>SHA-256 해시 + 서버 타임스탬프로 착안일 기록. 도덕적 억제력 확보.</p>
+                <span class="roadmap-step__strength">법적 강도 ●●○○○</span>
+              </div>
+            </li>
+
+            <li class="roadmap-step roadmap-step--recommend">
+              <div class="roadmap-step__badge roadmap-step__badge--accent">추천</div>
+              <div class="roadmap-step__body">
+                <h4>특허청 영업비밀 원본증명 추가 등록 <span class="badge--free">무료</span></h4>
+                <p>
+                  IdeaGuard에서 생성한 <strong>해시값을 복사</strong>하여 특허청 영업비밀 원본증명 서비스에 동일하게 등록합니다.
+                  공인 정부 기관 기록 = 법적 추정력 발생.
+                </p>
+                <a href="https://www.kipo.go.kr/ko/kpoBizContentView.do?menuCd=SCD0200143"
+                   target="_blank" rel="noopener noreferrer"
+                   class="btn btn--ghost btn--sm guide-roadmap__link">
+                  <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                  특허청 원본증명 바로가기
+                </a>
+                <span class="roadmap-step__strength">법적 강도 ●●●●○</span>
+              </div>
+            </li>
+
+            <li class="roadmap-step">
+              <div class="roadmap-step__badge roadmap-step__badge--muted">추가</div>
+              <div class="roadmap-step__body">
+                <h4>NDA 체결</h4>
+                <p>
+                  공동창업자 · 투자자에게 아이디어를 공유할 때 IdeaGuard NDA를 체결합니다.
+                  서명 기록 + IP 주소 + 서명 일시가 자동 저장됩니다.
+                </p>
+                <a href="#nda-cta" class="btn btn--ghost btn--sm guide-roadmap__link">
+                  <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+                  NDA 작성하기
+                </a>
+                <span class="roadmap-step__strength">법적 강도 ●●●●●</span>
+              </div>
+            </li>
+
+          </ol>
+        </div><!-- /.guide-roadmap -->
+
+        <!-- 법원 제출 체크리스트 -->
+        <div class="guide-checklist glass-card">
+          <h3 class="guide-checklist__title">
+            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+            법적 분쟁 발생 시 준비 서류
+          </h3>
+          <p class="guide-checklist__desc">법원 제출 또는 변호사 상담 시 아래 자료를 함께 준비하세요.</p>
+          <ol class="checklist">
+            <li class="checklist__item">
+              <span class="checklist__num">01</span>
+              <div>
+                <strong>원본 파일 또는 텍스트</strong>
+                <p>IdeaGuard에 등록한 원본 파일 또는 텍스트 내용 (본인 보관)</p>
+              </div>
+            </li>
+            <li class="checklist__item">
+              <span class="checklist__num">02</span>
+              <div>
+                <strong>IdeaGuard 등록 스크린샷</strong>
+                <p>해시값 + 등록 일시가 표시된 타일 보드 또는 등록 완료 화면</p>
+              </div>
+            </li>
+            <li class="checklist__item">
+              <span class="checklist__num">03</span>
+              <div>
+                <strong>특허청 원본증명 인증서</strong>
+                <p>(2단계 완료 시) 특허청 발급 원본증명 PDF</p>
+              </div>
+            </li>
+            <li class="checklist__item">
+              <span class="checklist__num">04</span>
+              <div>
+                <strong>체결된 NDA 사본</strong>
+                <p>(NDA 체결 시) 수령자 서명 + 서명 IP + 서명 일시 포함 계약서</p>
+              </div>
+            </li>
+            <li class="checklist__item">
+              <span class="checklist__num">05</span>
+              <div>
+                <strong>보관 경위 일지</strong>
+                <p>아이디어 착안 경위, 등록 날짜, 공유 이력을 시간순으로 정리한 메모</p>
+              </div>
+            </li>
+          </ol>
+          <p class="guide-checklist__disclaimer">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            위 내용은 일반적인 안내이며 법률 자문이 아닙니다. 실제 분쟁 시 반드시 변호사 상담을 받으세요.
+          </p>
+        </div><!-- /.guide-checklist -->
+
+      </div><!-- /.container -->
+    </section>
+
   </main>
 
   <!-- ═══════════════════════════════════════════════════════════════════
@@ -1035,9 +1294,10 @@
 
       <nav class="footer-nav" aria-label="푸터 메뉴">
         <ul role="list">
-          <li><a href="#register"  class="footer-nav__link">해시 등록</a></li>
-          <li><a href="#tileboard" class="footer-nav__link">타일 보드</a></li>
-          <li><a href="#nda-cta"   class="footer-nav__link">NDA 체결</a></li>
+          <li><a href="#register"    class="footer-nav__link">해시 등록</a></li>
+          <li><a href="#tileboard"   class="footer-nav__link">타일 보드</a></li>
+          <li><a href="#nda-cta"     class="footer-nav__link">NDA 체결</a></li>
+          <li><a href="#legal-guide" class="footer-nav__link">법적 활용 가이드</a></li>
         </ul>
       </nav>
 
@@ -1749,7 +2009,7 @@
         { threshold: 0.12 }
       );
       document.querySelectorAll(
-        '.hero__content, .register__panel, .tile:not(.tile--skeleton), .nda-cta__inner, .section-header'
+        '.hero__content, .register__panel, .tile:not(.tile--skeleton), .nda-cta__inner, .section-header, .guide-card, .guide-roadmap, .guide-checklist'
       ).forEach(target => {
         // 이미 뷰포트에 있는 요소는 즉시 표시 (비동기 대기 없음)
         const r = target.getBoundingClientRect();
