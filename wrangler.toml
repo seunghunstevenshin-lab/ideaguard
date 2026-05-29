@@ -1,0 +1,38 @@
+name = "ideaguard-worker"
+main = "worker.js"
+compatibility_date = "2025-05-29"
+compatibility_flags = ["nodejs_compat"]
+
+# ──────────────────────────────────────────────────────────────
+# 환경 변수 (민감 정보는 wrangler secret put 으로 별도 설정)
+# ──────────────────────────────────────────────────────────────
+[vars]
+ENVIRONMENT = "development"
+APP_NAME = "IdeaGuard"
+
+# ──────────────────────────────────────────────────────────────
+# 운영 환경 (wrangler deploy --env production)
+# ──────────────────────────────────────────────────────────────
+[env.production]
+name = "ideaguard-worker"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+APP_NAME = "IdeaGuard"
+
+# ──────────────────────────────────────────────────────────────
+# 개발 환경 (wrangler dev)
+# ──────────────────────────────────────────────────────────────
+[env.development]
+name = "ideaguard-worker-dev"
+
+[env.development.vars]
+ENVIRONMENT = "development"
+APP_NAME = "IdeaGuard"
+
+# ──────────────────────────────────────────────────────────────
+# Secrets (wrangler secret put 명령으로 설정 — 절대 이 파일에 직접 입력 금지)
+# ──────────────────────────────────────────────────────────────
+# SUPABASE_URL          → wrangler secret put SUPABASE_URL
+# SUPABASE_SERVICE_KEY  → wrangler secret put SUPABASE_SERVICE_KEY
+# RESEND_API_KEY        → wrangler secret put RESEND_API_KEY (이메일 발송용)

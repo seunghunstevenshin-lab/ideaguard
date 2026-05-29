@@ -1,0 +1,21 @@
+# Wrangler
+.wrangler/
+.dev.vars
+
+# Node
+node_modules/
+npm-debug.log*
+
+# 환경 변수 (절대 커밋 금지)
+.env
+.env.local
+.env.production
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 에디터
+.vscode/
+.idea/
+*.swp

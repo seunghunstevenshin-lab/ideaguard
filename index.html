@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="아이디어 착안 기록을 암호화된 해시값으로 즉시 등록하여 타임스탬프를 공표하는 신뢰 플랫폼">
+  <meta name="theme-color" content="#0a0b0d">
+  <title>IdeaGuard — 착안의 순간을 영원히 기록하다</title>
+
+  <!-- Open Graph -->
+  <meta property="og:title"       content="IdeaGuard — 착안의 순간을 영원히 기록하다">
+  <meta property="og:description" content="해시로 증명하고, NDA로 공유하다">
+  <meta property="og:type"        content="website">
+
+  <!-- Fonts: Montserrat (EN Display) + Pretendard (KO Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" as="style" onload="this.rel='stylesheet'"
+    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+
+  <!-- FontAwesome 6 Free -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer">
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════════════
+       DESIGN TOKENS — 컬러·타이포·스페이싱·이펙트
+       (Phase 2: Gemini는 이 토큰을 기반으로 스타일을 작성합니다)
+    ═══════════════════════════════════════════════════════════════════ */
+    :root {
+      /* ── Color: 60% Background ──────────────────────── */
+      --bg-primary:     #0a0b0d;
+      --bg-secondary:   #0f1116;
+      --bg-card:        rgba(255, 255, 255, 0.04);
+
+      /* ── Color: 30% Structure ───────────────────────── */
+      --mid:            #6366f1;          /* Electric Indigo */
+      --mid-dark:       #4f46e5;
+      --mid-border:     rgba(99, 102, 241, 0.25);
+      --mid-glow:       rgba(99, 102, 241, 0.20);
+
+      /* ── Color: 10% Accent ──────────────────────────── */
+      --accent:         #22d3ee;          /* Cyber Cyan */
+      --accent-glow:    rgba(34, 211, 238, 0.15);
+
+      /* ── Color: Text ────────────────────────────────── */
+      --text-primary:   #e2e8f0;
+      --text-muted:     #94a3b8;
+      --text-dim:       #64748b;
+
+      /* ── Color: State ───────────────────────────────── */
+      --success:        #34d399;
+      --danger:         #f87171;
+      --warning:        #fbbf24;
+
+      /* ── Color: Border ──────────────────────────────── */
+      --border:         rgba(255, 255, 255, 0.08);
+      --border-hover:   rgba(255, 255, 255, 0.14);
+
+      /* ── Typography ─────────────────────────────────── */
+      --font-sans:      'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display:   'Montserrat', var(--font-sans);
+      --font-mono:      'JetBrains Mono', 'Fira Code', monospace;
+
+      /* ── Spacing Scale (4-base) ─────────────────────── */
+      --sp-1:  0.25rem;   /*  4px */
+      --sp-2:  0.5rem;    /*  8px */
+      --sp-3:  0.75rem;   /* 12px */
+      --sp-4:  1rem;      /* 16px */
+      --sp-5:  1.25rem;   /* 20px */
+      --sp-6:  1.5rem;    /* 24px */
+      --sp-8:  2rem;      /* 32px */
+      --sp-10: 2.5rem;    /* 40px */
+      --sp-12: 3rem;      /* 48px */
+      --sp-16: 4rem;      /* 64px */
+      --sp-20: 5rem;      /* 80px */
+      --sp-24: 6rem;      /* 96px */
+
+      /* ── Layout ─────────────────────────────────────── */
+      --max-w:      1200px;
+      --header-h:   64px;
+      --radius-sm:  6px;
+      --radius-md:  12px;
+      --radius-lg:  18px;
+      --radius-xl:  24px;
+
+      /* ── Glass Effect ───────────────────────────────── */
+      --glass-bg:     rgba(255, 255, 255, 0.04);
+      --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+      --glass-blur:   blur(16px) saturate(180%);
+
+      /* ── Shadows / Glow ─────────────────────────────── */
+      --shadow-md:    0 4px 24px rgba(0, 0, 0, 0.4);
+      --shadow-lg:    0 8px 40px rgba(0, 0, 0, 0.5);
+      --glow-indigo:  0 0 32px rgba(99, 102, 241, 0.25);
+      --glow-cyan:    0 0 32px rgba(34, 211, 238, 0.20);
+
+      /* ── Transition ─────────────────────────────────── */
+      --ease:         cubic-bezier(0.4, 0, 0.2, 1);
+      --duration-sm:  150ms;
+      --duration-md:  250ms;
+      --duration-lg:  400ms;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       CSS RESET
+    ═══════════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family:      var(--font-sans);
+      background-color: var(--bg-primary);
+      color:            var(--text-primary);
+      line-height:      1.6;
+      min-height:       100vh;
+      overflow-x:       hidden;
+    }
+    img, svg, video { display: block; max-width: 100%; }
+    button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
+    a { color: inherit; text-decoration: none; }
+    ul, ol { list-style: none; }
+    input, textarea, select { font: inherit; }
+    h1, h2, h3, h4 { line-height: 1.2; }
+
+    /* ── Screen-reader only ─────────────────────────── */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    /* ── Skip Navigation ────────────────────────────── */
+    .skip-nav {
+      position:      absolute;
+      top:           -100%;
+      left:          var(--sp-4);
+      padding:       var(--sp-2) var(--sp-4);
+      background:    var(--mid);
+      color:         #fff;
+      border-radius: var(--radius-sm);
+      font-size:     0.875rem;
+      font-weight:   600;
+      z-index:       9999;
+      transition:    top var(--duration-sm) var(--ease);
+    }
+    .skip-nav:focus { top: var(--sp-4); outline: 2px solid var(--accent); }
+
+    /* ── Layout Utilities ───────────────────────────── */
+    .container {
+      width:   100%;
+      max-width: var(--max-w);
+      margin:  0 auto;
+      padding: 0 var(--sp-6);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PHASE 2 — Gemini가 아래 섹션부터 작성합니다
+       클래스 목록: .site-header, .logo, .primary-nav, .hamburger,
+       .mobile-menu, .hero, .register, .glass-card, .dropzone,
+       .input, .btn, .tile-grid, .tile, .skeleton, .tileboard,
+       .nda-cta, .site-footer, .modal, .section-header, .badge,
+       .hash-preview, .form-field, .keyword-chips, .verify-bar,
+       .empty-state, .pagination, .footer-nav
+    ═══════════════════════════════════════════════════════════════════ */
+
+    /* ─── [유틸리티 & 리셋] ──────────────────────────────────── */
+    [hidden] { display: none !important; }
+    .text--accent { color: var(--accent); }
+    .text--muted  { color: var(--text-muted); }
+
+    /* ─── [1~3. Site Header & Logo] ─────────────────────────── */
+    .site-header {
+      position: fixed; top: 0; width: 100%; height: var(--header-h);
+      background: transparent; z-index: 100;
+      border-bottom: var(--glass-border);
+      transition: background var(--duration-md) var(--ease),
+                  backdrop-filter var(--duration-md) var(--ease);
+    }
+    .site-header.scrolled {
+      backdrop-filter: var(--glass-blur);
+      background: rgba(10, 11, 13, 0.85);
+    }
+    .site-header__inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--sp-6); height: 100%;
+    }
+    .logo { display: flex; gap: var(--sp-2); align-items: center; text-decoration: none; }
+    .logo__icon { color: var(--mid); font-size: 1.4rem; }
+    .logo__wordmark { font-family: var(--font-display); font-size: 1.2rem; color: var(--text-primary); }
+    .logo__wordmark strong { color: var(--accent); }
+
+    /* ─── [4. Primary Nav] ───────────────────────────────────── */
+    .primary-nav { display: flex; align-items: center; }
+    .primary-nav__list { display: flex; gap: var(--sp-6); align-items: center; list-style: none; margin: 0; padding: 0; }
+    .primary-nav__link {
+      color: var(--text-muted); text-decoration: none; font-weight: 500;
+      transition: color var(--duration-md) var(--ease);
+    }
+    .primary-nav__link:hover { color: var(--text-primary); }
+    @media (max-width: 768px) { .primary-nav { display: none; } }
+
+    /* ─── [5. Button System] ─────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: var(--sp-2); padding: 0.6rem 1.2rem;
+      border-radius: var(--radius-md); font-weight: 600;
+      font-family: var(--font-sans); cursor: pointer;
+      text-decoration: none; transition: all var(--duration-md) var(--ease);
+      border: none; outline: none; background: transparent;
+    }
+    .btn:disabled, .btn[disabled] { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+    .btn--primary { background: var(--mid); color: #fff; }
+    .btn--primary:hover:not(:disabled) { background: var(--mid-dark); box-shadow: var(--glow-indigo); }
+    .btn--ghost { border: 1px solid var(--border); color: var(--text-primary); }
+    .btn--ghost:hover:not(:disabled) { border-color: var(--mid); }
+    .btn--secondary { border: 1px solid var(--mid-border); color: var(--mid); }
+    .btn--secondary:hover:not(:disabled) { background: var(--mid-glow); }
+    .btn--sm { padding: 0.4rem 0.8rem; font-size: 0.875rem; }
+    .btn--lg { padding: 0.8rem 1.6rem; font-size: 1rem; }
+    .btn--block { width: 100%; }
+    .btn--icon { width: 2.5rem; height: 2.5rem; padding: 0; }
+
+    /* ─── [6~7. Hamburger & Mobile Menu] ────────────────────── */
+    .hamburger { display: none; background: transparent; border: none; cursor: pointer; padding: var(--sp-2); }
+    .hamburger__bar { display: block; width: 24px; height: 2px; background-color: var(--text-primary); margin: 5px 0; transition: all var(--duration-md) var(--ease); }
+    .mobile-menu { display: none; }
+    @media (max-width: 768px) {
+      .hamburger { display: block; }
+      .mobile-menu {
+        display: block; position: fixed; top: var(--header-h); left: 0; width: 100%;
+        background: var(--bg-secondary); backdrop-filter: var(--glass-blur);
+        padding: var(--sp-4); z-index: 99;
+      }
+    }
+
+    /* ─── [8. Hero Section] ──────────────────────────────────── */
+    .hero {
+      min-height: 100vh; padding-top: var(--header-h);
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .hero__bg { position: absolute; inset: 0; z-index: 0; }
+    .hero__grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero__glow-1 {
+      position: absolute; left: 0; bottom: 0; width: 600px; height: 600px;
+      background: radial-gradient(circle, var(--mid-glow) 0%, transparent 70%);
+      filter: blur(60px); transform: translate(-30%, 30%);
+    }
+    .hero__glow-2 {
+      position: absolute; right: 0; top: 0; width: 600px; height: 600px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      filter: blur(60px); transform: translate(30%, -30%);
+    }
+    .hero__content { position: relative; z-index: 1; text-align: center; padding: var(--sp-20) 0; }
+
+    /* ─── [9~13. Hero Content] ───────────────────────────────── */
+    .hero__eyebrow {
+      font-size: 0.8rem; letter-spacing: 0.15em; color: var(--accent);
+      text-transform: uppercase; margin-bottom: var(--sp-4);
+    }
+    .hero__title {
+      font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800; color: var(--text-primary); margin-bottom: var(--sp-6); line-height: 1.2;
+    }
+    .hero__title--accent { color: var(--accent); }
+    .hero__sub {
+      font-size: 1.1rem; color: var(--text-muted); margin-bottom: var(--sp-10);
+      max-width: 540px; margin-left: auto; margin-right: auto; line-height: 1.6;
+    }
+    .hero__actions { display: flex; gap: var(--sp-4); justify-content: center; margin-bottom: var(--sp-8); }
+    .hero__badges { display: flex; gap: var(--sp-4); justify-content: center; flex-wrap: wrap; }
+    .badge {
+      display: flex; align-items: center; gap: var(--sp-2);
+      border: var(--glass-border); border-radius: var(--radius-xl);
+      padding: var(--sp-2) var(--sp-4); font-size: 0.8rem;
+      color: var(--text-muted); background: var(--glass-bg);
+    }
+
+    /* ─── [14. Glass Card] ───────────────────────────────────── */
+    .glass-card {
+      background: var(--glass-bg); backdrop-filter: var(--glass-blur);
+      border: var(--glass-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+    }
+
+    /* ─── [15. Section Header] ───────────────────────────────── */
+    .section-header { text-align: center; margin-bottom: var(--sp-10); }
+    .section-title { font-family: var(--font-display); font-size: 2rem; font-weight: 700; color: var(--text-primary); }
+    .section-title i { color: var(--mid); margin-right: var(--sp-2); }
+    .section-desc { color: var(--text-muted); margin-top: var(--sp-3); }
+
+    /* ─── [16~18. Register & Dropzone] ──────────────────────── */
+    .register { padding: var(--sp-20) 0; }
+    .register__panel { max-width: 760px; margin: 0 auto; padding: var(--sp-8); }
+    .dropzone {
+      border: 2px dashed var(--border); border-radius: var(--radius-md);
+      padding: var(--sp-10); text-align: center; cursor: pointer;
+      transition: border-color var(--duration-md) var(--ease), background var(--duration-md) var(--ease);
+    }
+    .dropzone--over { border-color: var(--mid); background: var(--mid-glow); }
+    .dropzone__icon { font-size: 2.5rem; color: var(--text-dim); margin-bottom: var(--sp-4); }
+    .dropzone__icon--success { color: var(--success); }
+    .dropzone__label { color: var(--text-primary); font-size: 1rem; margin-bottom: var(--sp-2); }
+    .dropzone__hint { font-size: 0.8rem; color: var(--text-dim); }
+    .dropzone__file-input { display: none; }
+    .register__divider { position: relative; text-align: center; margin: var(--sp-6) 0; }
+    .register__divider::before {
+      content: ""; position: absolute; top: 50%; left: 0; right: 0;
+      height: 1px; background: var(--border); z-index: 0;
+    }
+    .register__divider span {
+      position: relative; z-index: 1; background: var(--bg-primary);
+      padding: 0 var(--sp-4); font-size: 0.8rem; color: var(--text-dim);
+    }
+
+    /* ─── [19~23. Form Inputs] ───────────────────────────────── */
+    .input {
+      width: 100%; padding: var(--sp-3) var(--sp-4);
+      background: var(--glass-bg); border: 1px solid var(--border);
+      border-radius: var(--radius-md); color: var(--text-primary);
+      font-family: var(--font-sans);
+      transition: border-color var(--duration-md) var(--ease), box-shadow var(--duration-md) var(--ease);
+    }
+    .input:focus { outline: none; border-color: var(--mid); box-shadow: 0 0 0 3px var(--mid-glow); }
+    .input::placeholder { color: var(--text-dim); }
+    .input--textarea { resize: vertical; min-height: 100px; }
+    .input-group { position: relative; }
+    .input-group__icon {
+      position: absolute; left: var(--sp-4); top: 50%; transform: translateY(-50%);
+      color: var(--text-dim); pointer-events: none;
+    }
+    .input-group .input { padding-left: var(--sp-10); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-4); margin-bottom: var(--sp-4); }
+    @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; } }
+    .form-label { display: block; font-size: 0.875rem; font-weight: 600; color: var(--text-muted); margin-bottom: var(--sp-2); }
+    .form-label__required { color: var(--danger); margin-left: 2px; }
+    .form-label__optional { color: var(--text-dim); font-weight: 400; margin-left: var(--sp-2); }
+    .input-hint { display: block; font-size: 0.75rem; color: var(--text-dim); margin-top: var(--sp-1); }
+
+    /* ─── [24. Hash Preview] ─────────────────────────────────── */
+    .hash-preview {
+      display: flex; align-items: center; gap: var(--sp-3);
+      padding: var(--sp-3) var(--sp-4);
+      background: rgba(34, 211, 238, 0.06); border: 1px solid var(--accent-glow);
+      border-radius: var(--radius-md); margin: var(--sp-4) 0;
+    }
+    .hash-preview__label { font-size: 0.75rem; color: var(--accent); white-space: nowrap; }
+    .hash-preview__value {
+      font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-primary);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;
+    }
+
+    /* ─── [25. Keyword Chips] ────────────────────────────────── */
+    .keyword-chips { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-2); }
+    .keyword-chip {
+      display: flex; align-items: center; gap: var(--sp-1);
+      background: var(--mid-glow); border: 1px solid var(--mid-border);
+      border-radius: var(--radius-xl); padding: var(--sp-1) var(--sp-3);
+      font-size: 0.8rem; color: var(--mid);
+    }
+    .keyword-chip__remove {
+      background: transparent; border: none; padding: 0 var(--sp-1);
+      color: var(--text-dim); cursor: pointer; display: inline-flex; align-items: center;
+    }
+    .keyword-chip__remove:hover { color: var(--danger); }
+
+    /* ─── [26. Form Alert] ───────────────────────────────────── */
+    .form-alert {
+      display: flex; align-items: center; gap: var(--sp-3);
+      padding: var(--sp-3) var(--sp-4); border-radius: var(--radius-md);
+      font-size: 0.875rem; margin-top: var(--sp-4);
+    }
+    .form-alert--error { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); }
+    .form-alert--success { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3); color: var(--success); }
+
+    /* ─── [27. Form Actions] ─────────────────────────────────── */
+    .form-actions { margin-top: var(--sp-6); }
+    .form-footnote { display: block; font-size: 0.75rem; color: var(--text-dim); text-align: center; margin-top: var(--sp-3); }
+
+    /* ─── [28~30. Tileboard & Verify] ───────────────────────── */
+    .tileboard { padding: var(--sp-20) 0; background: var(--bg-secondary); }
+    .verify-bar { display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-4) var(--sp-5); margin-bottom: var(--sp-8); }
+    .verify-bar__input { flex: 1; }
+    .verify-result {
+      padding: var(--sp-4); border-radius: var(--radius-md);
+      display: flex; align-items: center; gap: var(--sp-3);
+      margin-bottom: var(--sp-6); font-size: 0.9rem;
+    }
+    .verify-result--success { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3); color: var(--success); }
+    .verify-result--fail    { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); }
+    .verify-result--loading { background: var(--mid-glow); border: 1px solid var(--mid-border); color: var(--mid); }
+    .verify-result--invalid { background: var(--glass-bg); border: 1px solid var(--border-hover); color: var(--text-dim); }
+    .verify-result--error   { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); }
+
+    /* ─── [31~32. Tile Grid & Tile Card] ────────────────────── */
+    .tile-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
+    @media (max-width: 1024px) { .tile-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px)  { .tile-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px)  { .tile-grid { grid-template-columns: 1fr; } }
+    .tile {
+      background: var(--glass-bg); backdrop-filter: var(--glass-blur);
+      border: var(--glass-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+      display: flex; flex-direction: column; gap: var(--sp-3); padding: var(--sp-5);
+      transition: transform var(--duration-md) var(--ease), box-shadow var(--duration-md) var(--ease);
+    }
+    .tile:hover { transform: translateY(-2px); box-shadow: var(--glow-indigo); }
+    .tile__head { display: flex; justify-content: space-between; align-items: center; }
+    .tile__author { font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: var(--sp-1); }
+    .tile__date { font-size: 0.75rem; color: var(--text-dim); }
+    .tile__title {
+      font-size: 0.95rem; font-weight: 600; color: var(--text-primary);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .tile__hash {
+      display: flex; align-items: center; gap: var(--sp-1);
+      background: rgba(34,211,238,0.06); border: none; border-radius: var(--radius-sm);
+      padding: var(--sp-1) var(--sp-2); cursor: pointer; color: var(--accent); font-size: 0.75rem;
+      transition: background var(--duration-md) var(--ease);
+    }
+    .tile__hash:hover { background: var(--accent-glow); }
+    .tile__tags { display: flex; flex-wrap: wrap; gap: var(--sp-1); }
+    .tile__tag { font-size: 0.7rem; color: var(--text-dim); padding: 1px 6px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    .tile__actions { margin-top: auto; }
+    .tile-error { grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: var(--sp-8); }
+
+    /* ─── [33. Skeleton] ─────────────────────────────────────── */
+    .tile--skeleton { pointer-events: none; }
+    .skeleton { background: rgba(255,255,255,0.06); border-radius: var(--radius-sm); height: 1rem; }
+    .skeleton--sm  { width: 40%; height: 0.75rem; }
+    .skeleton--md  { width: 70%; height: 0.875rem; }
+    .skeleton--lg  { width: 100%; height: 1.2rem; }
+    .w-60 { width: 60%; }
+
+    /* ─── [34. Empty State] ──────────────────────────────────── */
+    .empty-state { text-align: center; padding: var(--sp-16) 0; grid-column: 1 / -1; }
+    .empty-state__icon { font-size: 3rem; color: var(--text-dim); margin-bottom: var(--sp-4); }
+    .empty-state__title { font-size: 1.1rem; color: var(--text-muted); margin-bottom: var(--sp-2); }
+    .empty-state__desc { font-size: 0.875rem; color: var(--text-dim); margin-bottom: var(--sp-6); }
+
+    /* ─── [35. Pagination] ───────────────────────────────────── */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: var(--sp-4); margin-top: var(--sp-8); }
+    .pagination__info { color: var(--text-muted); font-size: 0.875rem; }
+
+    /* ─── [36. NDA CTA] ──────────────────────────────────────── */
+    .nda-cta { padding: var(--sp-20) 0; }
+    .nda-cta__inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--sp-10); gap: var(--sp-8);
+    }
+    .nda-cta__title { font-family: var(--font-display); font-size: clamp(1.5rem,3vw,2.2rem); font-weight: 700; margin-bottom: var(--sp-4); color: var(--text-primary); }
+    .nda-cta__desc { color: var(--text-muted); max-width: 480px; }
+    .nda-cta__actions { display: flex; gap: var(--sp-4); flex-shrink: 0; }
+    @media (max-width: 768px) {
+      .nda-cta__inner { flex-direction: column; text-align: center; }
+      .nda-cta__actions { flex-direction: column; width: 100%; }
+    }
+
+    /* ─── [37. Site Footer] ──────────────────────────────────── */
+    .site-footer { background: var(--bg-secondary); border-top: var(--glass-border); padding: var(--sp-10) 0; }
+    .site-footer__inner { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-8); flex-wrap: wrap; }
+    .site-footer__tagline { font-size: 0.8rem; color: var(--text-dim); margin-top: var(--sp-2); }
+    .footer-nav__link { color: var(--text-muted); font-size: 0.875rem; text-decoration: none; transition: color var(--duration-md) var(--ease); }
+    .footer-nav__link:hover { color: var(--text-primary); }
+    .site-footer__meta { text-align: right; }
+    @media (max-width: 768px) { .site-footer__meta { text-align: left; } }
+    .site-footer__zk { font-size: 0.8rem; color: var(--text-dim); margin-bottom: var(--sp-2); }
+    .site-footer__copy { font-size: 0.75rem; color: var(--text-dim); }
+
+    /* ─── [38. Modal] ────────────────────────────────────────── */
+    .modal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; }
+    .modal__backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
+    .modal__panel {
+      position: relative; z-index: 1; width: min(600px, 90vw); max-height: 80vh;
+      overflow-y: auto; padding: var(--sp-8);
+      background: var(--bg-secondary); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg); border: var(--glass-border);
+    }
+    .modal__close { position: absolute; top: var(--sp-4); right: var(--sp-4); background: transparent; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; transition: color var(--duration-md) var(--ease); }
+    .modal__close:hover { color: var(--text-primary); }
+    .modal__title { font-size: 1.2rem; font-weight: 700; margin-bottom: var(--sp-6); color: var(--text-primary); font-family: var(--font-display); }
+    .modal__dl { display: grid; grid-template-columns: auto 1fr; gap: var(--sp-2) var(--sp-6); }
+    .modal__dl dt { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; padding-top: 0.1rem; }
+    .modal__dl dd { color: var(--text-primary); font-size: 0.9rem; margin: 0; }
+    .modal__hash code { font-family: var(--font-mono); font-size: 0.7rem; word-break: break-all; color: var(--accent); }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PHASE 4 — 인터랙션 & 애니메이션 (Gemini 작성 / Claude Code 통합)
+    ═══════════════════════════════════════════════════════════════════ */
+
+    /* 1. SCROLL FADE-UP */
+    .hero__content, .register__panel, .tile:not(.tile--skeleton), .nda-cta__inner, .section-header {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+    }
+    .hero__content.is-visible, .register__panel.is-visible, .tile.is-visible,
+    .nda-cta__inner.is-visible, .section-header.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .tile:nth-child(1) { transition-delay:  60ms; }
+    .tile:nth-child(2) { transition-delay: 120ms; }
+    .tile:nth-child(3) { transition-delay: 180ms; }
+    .tile:nth-child(4) { transition-delay: 240ms; }
+    .tile:nth-child(5) { transition-delay: 300ms; }
+    .tile:nth-child(6) { transition-delay: 360ms; }
+    .tile:nth-child(7) { transition-delay: 420ms; }
+    .tile:nth-child(8) { transition-delay: 480ms; }
+
+    /* 2. RIPPLE */
+    .btn { position: relative; overflow: hidden; }
+    .ripple {
+      position: absolute; border-radius: 50%;
+      width: 4px; height: 4px; margin: -2px;
+      background: var(--accent-glow);
+      transform: scale(0);
+      animation: ripple-out 0.5s ease-out;
+      pointer-events: none;
+    }
+    @keyframes ripple-out { to { transform: scale(80); opacity: 0; } }
+
+    /* 3. SKELETON SHIMMER */
+    .tile--skeleton .skeleton {
+      background-image: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite ease-in-out;
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position:  200% 0; }
+    }
+    .tile--skeleton .skeleton:nth-child(1) { animation-delay: 0s;   }
+    .tile--skeleton .skeleton:nth-child(2) { animation-delay: 0.1s; }
+    .tile--skeleton .skeleton:nth-child(3) { animation-delay: 0.2s; }
+    .tile--skeleton .skeleton:nth-child(4) { animation-delay: 0.3s; }
+
+    /* 4. HEADER SCROLL */
+    .site-header {
+      transition: background 0.3s var(--ease), backdrop-filter 0.3s var(--ease),
+                  box-shadow 0.3s var(--ease), border-bottom 0.3s var(--ease);
+    }
+    .site-header.scrolled {
+      background: rgba(10,11,13,0.85);
+      backdrop-filter: var(--glass-blur);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+    }
+
+    /* 5. TILE HOVER */
+    .tile:hover { transform: translateY(-3px); border-color: var(--mid-border); box-shadow: var(--glow-indigo); }
+
+    /* 6. INPUT FOCUS GLOW */
+    .input { transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease); }
+    .input:focus { border-color: var(--mid); box-shadow: 0 0 0 3px var(--mid-glow); outline: none; }
+
+    /* 7. DROPZONE DRAG-OVER */
+    .dropzone { transition: border-color 0.2s var(--ease), background 0.2s var(--ease), box-shadow 0.2s var(--ease); }
+    .dropzone.dropzone--over { border-color: var(--mid); background: var(--mid-glow); box-shadow: var(--glow-indigo); }
+    .dropzone--over .dropzone__icon { color: var(--mid); transition: color 0.2s var(--ease); }
+
+    /* 8. BTN GLOW PULSE (hero CTA만) */
+    .hero__actions .btn--primary { animation: pulse-glow 3s ease-in-out infinite; }
+    .hero__actions .btn--primary:hover { animation-play-state: paused; }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 0 0 var(--mid-glow); }
+      50%       { box-shadow: 0 0 16px 4px var(--mid-glow); }
+    }
+
+    /* 9. HAMBURGER → X */
+    .hamburger__bar { transition: transform 0.2s var(--ease), opacity 0.2s var(--ease); }
+    .hamburger[aria-expanded="true"] .hamburger__bar:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger[aria-expanded="true"] .hamburger__bar:nth-child(2) { opacity: 0; }
+    .hamburger[aria-expanded="true"] .hamburger__bar:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* 10. MODAL 애니메이션 */
+    .modal:not([hidden]) .modal__panel   { animation: modal-in 0.25s var(--ease); }
+    .modal:not([hidden]) .modal__backdrop { animation: fade-in 0.2s ease; }
+    @keyframes modal-in {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to   { opacity: 1; transform: scale(1)    translateY(0); }
+    }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+    /* 11. KEYWORD CHIP 등장 */
+    .keyword-chip { animation: chip-pop 0.15s var(--ease); }
+    @keyframes chip-pop {
+      from { opacity: 0; transform: scale(0.85); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* 12. HASH PREVIEW 등장 */
+    .hash-preview:not([hidden]) { animation: slide-down 0.2s var(--ease); }
+    @keyframes slide-down {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 접근성: prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <!-- Skip Navigation (접근성) -->
+  <a href="#main-content" class="skip-nav">본문으로 건너뛰기</a>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       HEADER — Fixed Navigation Bar
+  ═══════════════════════════════════════════════════════════════════ -->
+  <header class="site-header" role="banner" id="site-header">
+    <div class="site-header__inner container">
+
+      <!-- Logo -->
+      <a href="#" class="logo" aria-label="IdeaGuard 홈으로">
+        <i class="fa-solid fa-shield-halved logo__icon" aria-hidden="true"></i>
+        <span class="logo__wordmark">Idea<strong>Guard</strong></span>
+      </a>
+
+      <!-- Primary Nav -->
+      <nav class="primary-nav" aria-label="주 메뉴">
+        <ul class="primary-nav__list" role="list">
+          <li><a href="#hero"      class="primary-nav__link">홈</a></li>
+          <li><a href="#register"  class="primary-nav__link">해시 등록</a></li>
+          <li><a href="#nda-cta"   class="primary-nav__link">NDA 체결</a></li>
+          <li><a href="#tileboard" class="primary-nav__link">타일 보드</a></li>
+        </ul>
+      </nav>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <button class="btn btn--ghost btn--sm" id="btn-login">
+          <i class="fa-regular fa-user" aria-hidden="true"></i>
+          <span>로그인</span>
+        </button>
+        <a href="#register" class="btn btn--primary btn--sm">
+          <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+          <span>지금 등록하기</span>
+        </a>
+      </div>
+
+      <!-- Mobile Hamburger -->
+      <button
+        class="hamburger"
+        id="btn-hamburger"
+        aria-label="메뉴 열기"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <span class="hamburger__bar"></span>
+        <span class="hamburger__bar"></span>
+        <span class="hamburger__bar"></span>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <nav class="mobile-menu" id="mobile-menu" aria-label="모바일 메뉴" hidden>
+      <ul role="list">
+        <li><a href="#hero"      class="mobile-menu__link">홈</a></li>
+        <li><a href="#register"  class="mobile-menu__link">해시 등록</a></li>
+        <li><a href="#nda-cta"   class="mobile-menu__link">NDA 체결</a></li>
+        <li><a href="#tileboard" class="mobile-menu__link">타일 보드</a></li>
+        <li>
+          <a href="#" class="mobile-menu__link mobile-menu__link--cta">
+            <i class="fa-regular fa-user" aria-hidden="true"></i> 로그인
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════════════════════════════ -->
+  <main id="main-content">
+
+    <!-- ──────────────────────────────────────────
+         § 1. HERO
+    ────────────────────────────────────────── -->
+    <section class="hero" id="hero" aria-labelledby="hero-title">
+      <!-- Background layers (styled via CSS) -->
+      <div class="hero__bg" aria-hidden="true">
+        <div class="hero__grid"></div>
+        <div class="hero__glow-1"></div>
+        <div class="hero__glow-2"></div>
+      </div>
+
+      <div class="hero__content container">
+        <!-- Eyebrow label -->
+        <p class="hero__eyebrow">
+          <i class="fa-solid fa-lock" aria-hidden="true"></i>
+          Zero-Knowledge Hashing
+        </p>
+
+        <!-- Main headline -->
+        <h1 class="hero__title" id="hero-title">
+          당신의 아이디어를<br>
+          <span class="hero__title--accent">오늘, 영원히</span> 소유하세요.
+        </h1>
+
+        <!-- Subheadline -->
+        <p class="hero__sub">
+          회원가입 없이 3초 만에 해시 등록.<br>
+          착안일시와 함께 타일로 공표됩니다.
+        </p>
+
+        <!-- CTAs -->
+        <div class="hero__actions" role="group" aria-label="주요 행동">
+          <a href="#register" class="btn btn--primary btn--lg">
+            <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+            해시 등록하기
+          </a>
+          <a href="#tileboard" class="btn btn--ghost btn--lg">
+            <i class="fa-solid fa-table-cells" aria-hidden="true"></i>
+            타일 보드 보기
+          </a>
+        </div>
+
+        <!-- Trust badges -->
+        <ul class="hero__badges" aria-label="서비스 특징">
+          <li class="badge">
+            <i class="fa-solid fa-shield-check" aria-hidden="true"></i>
+            원본 서버 저장 없음
+          </li>
+          <li class="badge">
+            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>
+            타임스탬프 영구 공표
+          </li>
+          <li class="badge">
+            <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+            온라인 NDA 체결
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ──────────────────────────────────────────
+         § 2. HASH REGISTRATION
+    ────────────────────────────────────────── -->
+    <section class="register" id="register" aria-labelledby="register-title">
+      <div class="container">
+
+        <header class="section-header">
+          <h2 class="section-title" id="register-title">
+            <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
+            해시 등록
+          </h2>
+          <p class="section-desc">
+            파일 또는 텍스트를 올리면 브라우저에서 즉시 SHA-256 해싱됩니다.
+            원본은 서버에 저장되지 않습니다.
+          </p>
+        </header>
+
+        <div class="register__panel glass-card">
+
+          <!-- Drag & Drop Zone -->
+          <div
+            class="dropzone"
+            id="dropzone"
+            role="button"
+            tabindex="0"
+            aria-label="파일을 이곳에 드래그하거나 클릭하여 선택"
+            aria-describedby="dropzone-hint"
+          >
+            <input type="file" id="file-input" class="dropzone__file-input"
+              tabindex="-1" aria-hidden="true">
+
+            <!-- Idle state -->
+            <div class="dropzone__state dropzone__state--idle" id="dz-idle">
+              <i class="fa-solid fa-cloud-arrow-up dropzone__icon" aria-hidden="true"></i>
+              <p class="dropzone__label">
+                파일을 여기에 드래그하거나 <span class="text--accent">클릭</span>하여 선택
+              </p>
+              <p class="dropzone__hint" id="dropzone-hint">
+                모든 파일 형식 지원 · 최대 500MB
+              </p>
+            </div>
+
+            <!-- Active/File-loaded state -->
+            <div class="dropzone__state dropzone__state--loaded" id="dz-loaded" hidden>
+              <i class="fa-solid fa-circle-check dropzone__icon dropzone__icon--success" aria-hidden="true"></i>
+              <p class="dropzone__filename" id="dz-filename">파일명</p>
+              <button type="button" class="btn btn--ghost btn--sm" id="btn-clear-file"
+                aria-label="파일 제거">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                파일 제거
+              </button>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div class="register__divider" aria-hidden="true">
+            <span>또는 텍스트 직접 입력</span>
+          </div>
+
+          <!-- Text Input -->
+          <div class="form-field">
+            <label for="text-input" class="sr-only">아이디어 텍스트 입력</label>
+            <textarea
+              id="text-input"
+              class="input input--textarea"
+              rows="4"
+              placeholder="해시로 등록할 아이디어 내용을 직접 입력하세요..."
+              aria-describedby="text-input-hint"
+            ></textarea>
+            <p class="input-hint" id="text-input-hint">
+              <i class="fa-solid fa-lock" aria-hidden="true"></i>
+              입력한 텍스트는 서버로 전송되지 않습니다.
+            </p>
+          </div>
+
+          <!-- Hash Preview (hidden until content is provided) -->
+          <div class="hash-preview" id="hash-preview" hidden
+            aria-live="polite" aria-label="생성된 해시값">
+            <span class="hash-preview__label">
+              <i class="fa-solid fa-hashtag" aria-hidden="true"></i>
+              SHA-256
+            </span>
+            <code class="hash-preview__value" id="hash-display">—</code>
+            <button type="button" class="btn btn--icon btn--ghost" id="btn-copy-hash"
+              aria-label="해시값 복사" title="복사">
+              <i class="fa-regular fa-copy" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <!-- Registration Form -->
+          <form class="register__form" id="register-form"
+            aria-label="해시 등록 폼" novalidate>
+
+            <div class="form-row">
+              <!-- Nickname -->
+              <div class="form-field">
+                <label for="input-nickname" class="form-label">
+                  닉네임
+                  <span class="form-label__required" aria-hidden="true">*</span>
+                  <span class="sr-only">(필수)</span>
+                </label>
+                <div class="input-group">
+                  <i class="fa-regular fa-user input-group__icon" aria-hidden="true"></i>
+                  <input
+                    type="text" id="input-nickname" name="nickname"
+                    class="input" placeholder="ex) 홍길동 or Anonymous"
+                    maxlength="30" required aria-required="true"
+                    autocomplete="nickname"
+                    aria-describedby="nickname-hint">
+                </div>
+                <p class="input-hint" id="nickname-hint">1~30자. 공개 타일에 표시됩니다.</p>
+              </div>
+
+              <!-- Title -->
+              <div class="form-field">
+                <label for="input-title" class="form-label">
+                  아이디어 제목
+                  <span class="form-label__required" aria-hidden="true">*</span>
+                  <span class="sr-only">(필수)</span>
+                </label>
+                <div class="input-group">
+                  <i class="fa-solid fa-lightbulb input-group__icon" aria-hidden="true"></i>
+                  <input
+                    type="text" id="input-title" name="title"
+                    class="input" placeholder="공개될 아이디어 제목 (원본 내용 기재 금지)"
+                    maxlength="100" required aria-required="true"
+                    aria-describedby="title-hint">
+                </div>
+                <p class="input-hint" id="title-hint">최대 100자. 원본 내용은 절대 입력하지 마세요.</p>
+              </div>
+            </div>
+
+            <!-- Keywords -->
+            <div class="form-field">
+              <label for="input-keywords" class="form-label">
+                공개 키워드
+                <span class="form-label__optional">(선택, 최대 5개)</span>
+              </label>
+              <div class="input-group">
+                <i class="fa-solid fa-tags input-group__icon" aria-hidden="true"></i>
+                <input
+                  type="text" id="input-keywords"
+                  class="input" placeholder="예: AI 스마트홈 IoT — 스페이스로 구분"
+                  aria-describedby="keywords-hint">
+              </div>
+              <!-- Keyword chips rendered by JS -->
+              <div class="keyword-chips" id="keyword-chips"
+                role="list" aria-label="등록된 키워드" aria-live="polite"></div>
+              <p class="input-hint" id="keywords-hint">최대 5개. 타일에 #태그로 표시됩니다.</p>
+            </div>
+
+            <!-- Alert: Error -->
+            <div class="form-alert form-alert--error" id="form-error" role="alert" hidden>
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <span id="form-error-msg"></span>
+            </div>
+
+            <!-- Alert: Success -->
+            <div class="form-alert form-alert--success" id="form-success" role="status" hidden>
+              <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+              해시가 성공적으로 등록되었습니다! 타일 보드에서 확인하세요.
+            </div>
+
+            <!-- Submit -->
+            <div class="form-actions">
+              <button type="submit" class="btn btn--primary btn--lg btn--block"
+                id="btn-register" disabled>
+                <i class="fa-solid fa-shield-halved btn__icon" aria-hidden="true"></i>
+                <span class="btn__label">해시 등록하기</span>
+                <span class="btn__spinner" hidden aria-hidden="true">
+                  <i class="fa-solid fa-spinner fa-spin"></i>
+                </span>
+              </button>
+              <p class="form-footnote">
+                <i class="fa-solid fa-lock-keyhole" aria-hidden="true"></i>
+                원본 파일·텍스트는 절대 서버로 전송되지 않습니다.
+                해시값과 메타데이터만 저장됩니다.
+              </p>
+            </div>
+          </form>
+
+        </div><!-- /.register__panel -->
+      </div><!-- /.container -->
+    </section>
+
+    <!-- ──────────────────────────────────────────
+         § 3. TILE BOARD
+    ────────────────────────────────────────── -->
+    <section class="tileboard" id="tileboard" aria-labelledby="tileboard-title">
+      <div class="container">
+
+        <header class="section-header">
+          <h2 class="section-title" id="tileboard-title">
+            <i class="fa-solid fa-table-cells" aria-hidden="true"></i>
+            공표 타일 보드
+          </h2>
+          <p class="section-desc">
+            등록된 아이디어 해시가 공개 타임스탬프와 함께 표시됩니다.
+          </p>
+        </header>
+
+        <!-- Verify Bar -->
+        <div class="verify-bar glass-card" role="search" aria-label="해시 검증">
+          <div class="input-group verify-bar__input">
+            <i class="fa-solid fa-magnifying-glass input-group__icon" aria-hidden="true"></i>
+            <input
+              type="text" id="verify-input"
+              class="input" placeholder="해시값을 직접 입력하거나 파일을 선택하세요..."
+              aria-label="검증할 해시값 입력">
+          </div>
+          <!-- 파일 선택 (숨김 input) -->
+          <input type="file" id="verify-file-input" hidden aria-hidden="true">
+          <button class="btn btn--ghost" id="btn-verify-file"
+            aria-label="파일을 선택해 해시 검증">
+            <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+            파일 열기
+          </button>
+          <button class="btn btn--primary" id="btn-verify">
+            <i class="fa-solid fa-shield-check" aria-hidden="true"></i>
+            검증
+          </button>
+        </div>
+
+        <!-- Verify Result (Live Region) -->
+        <div class="verify-result" id="verify-result"
+          role="status" aria-live="polite" aria-atomic="true" hidden></div>
+
+        <!-- Tile Grid -->
+        <div class="tile-grid" id="tile-grid"
+          role="list" aria-label="등록된 아이디어 해시 목록" aria-busy="true">
+
+          <!-- Skeleton tiles (Phase 2: shimmer via Gemini CSS) -->
+          <article class="tile tile--skeleton" role="listitem" aria-hidden="true">
+            <div class="skeleton skeleton--sm"></div>
+            <div class="skeleton skeleton--lg"></div>
+            <div class="skeleton skeleton--md"></div>
+            <div class="skeleton skeleton--sm"></div>
+            <div class="skeleton skeleton--sm w-60"></div>
+          </article>
+          <article class="tile tile--skeleton" role="listitem" aria-hidden="true">
+            <div class="skeleton skeleton--sm"></div>
+            <div class="skeleton skeleton--lg"></div>
+            <div class="skeleton skeleton--md"></div>
+            <div class="skeleton skeleton--sm"></div>
+            <div class="skeleton skeleton--sm w-60"></div>
+          </article>
+          <article class="tile tile--skeleton" role="listitem" aria-hidden="true">
+            <div class="skeleton skeleton--sm"></div>
+            <div class="skeleton skeleton--lg"></div>
+            <div class="skeleton skeleton--md"></div>
+            <div class="skeleton skeleton--sm"></div>
+            <div class="skeleton skeleton--sm w-60"></div>
+          </article>
+          <article class="tile tile--skeleton" role="listitem" aria-hidden="true">
+            <div class="skeleton skeleton--sm"></div>
+            <div class="skeleton skeleton--lg"></div>
+            <div class="skeleton skeleton--md"></div>
+            <div class="skeleton skeleton--sm"></div>
+            <div class="skeleton skeleton--sm w-60"></div>
+          </article>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="empty-state" hidden>
+          <i class="fa-solid fa-layer-group empty-state__icon" aria-hidden="true"></i>
+          <p class="empty-state__title">아직 등록된 해시가 없습니다</p>
+          <p class="empty-state__desc">첫 번째 아이디어 해시를 등록해보세요.</p>
+          <a href="#register" class="btn btn--primary">
+            <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+            첫 해시 등록하기
+          </a>
+        </div>
+
+        <!-- Pagination -->
+        <nav class="pagination" id="pagination" aria-label="페이지 이동" hidden>
+          <button class="btn btn--ghost pagination__btn" id="btn-prev"
+            aria-label="이전 페이지" disabled>
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+            이전
+          </button>
+          <span class="pagination__info" id="pagination-info" aria-live="polite">1 / 1</span>
+          <button class="btn btn--ghost pagination__btn" id="btn-next"
+            aria-label="다음 페이지">
+            다음
+            <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+          </button>
+        </nav>
+
+      </div><!-- /.container -->
+    </section>
+
+    <!-- ──────────────────────────────────────────
+         § 4. NDA CTA BANNER
+    ────────────────────────────────────────── -->
+    <section class="nda-cta" id="nda-cta" aria-labelledby="nda-title">
+      <div class="container">
+        <div class="nda-cta__inner glass-card">
+          <div class="nda-cta__text">
+            <h2 class="nda-cta__title" id="nda-title">
+              아이디어는 기록하는 순간부터<br>
+              <span class="text--accent">보호받습니다.</span>
+            </h2>
+            <p class="nda-cta__desc">
+              특정인과 브레인스토밍할 때, 온라인에서 손쉽게 NDA를 체결하세요.<br>
+              아이디어 해시와 함께 서명 기록이 영구 보존됩니다.
+            </p>
+          </div>
+          <div class="nda-cta__actions">
+            <a href="#register" class="btn btn--primary btn--lg">
+              <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+              내 아이디어 해시 등록
+            </a>
+            <button type="button" class="btn btn--secondary btn--lg" id="btn-nda">
+              <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+              NDA 작성하기
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════════════════════════════ -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container site-footer__inner">
+
+      <div class="site-footer__brand">
+        <a href="#" class="logo" aria-label="IdeaGuard 홈으로">
+          <i class="fa-solid fa-shield-halved logo__icon" aria-hidden="true"></i>
+          <span class="logo__wordmark">Idea<strong>Guard</strong></span>
+        </a>
+        <p class="site-footer__tagline">착안의 순간을 영원히 기록하다</p>
+      </div>
+
+      <nav class="footer-nav" aria-label="푸터 메뉴">
+        <ul role="list">
+          <li><a href="#register"  class="footer-nav__link">해시 등록</a></li>
+          <li><a href="#tileboard" class="footer-nav__link">타일 보드</a></li>
+          <li><a href="#nda-cta"   class="footer-nav__link">NDA 체결</a></li>
+        </ul>
+      </nav>
+
+      <div class="site-footer__meta">
+        <p class="site-footer__zk">
+          <i class="fa-solid fa-lock" aria-hidden="true"></i>
+          Zero-Knowledge Hashing — 원본 데이터는 서버에 저장되지 않습니다.
+        </p>
+        <p class="site-footer__copy">&copy; 2026 IdeaGuard. All rights reserved.</p>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       MODAL — Hash Detail
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="modal" id="modal-hash"
+    role="dialog" aria-modal="true" aria-labelledby="modal-hash-title" hidden>
+    <div class="modal__backdrop" id="modal-backdrop" aria-hidden="true"></div>
+    <div class="modal__panel glass-card">
+      <button class="modal__close btn btn--icon btn--ghost"
+        id="btn-modal-close" aria-label="모달 닫기">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <h3 class="modal__title" id="modal-hash-title">
+        <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
+        해시 상세 정보
+      </h3>
+      <div class="modal__body" id="modal-hash-body">
+        <!-- JS가 동적으로 채움 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       JAVASCRIPT — Phase 3 (Core Logic)
+       담당: Claude Code
+       구현 항목: sha256, fetchTiles, renderTile, pagination,
+                  form submit, verify, modal, keywords chips,
+                  dropzone drag&drop, copy hash
+  ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+    'use strict';
+
+    /* ── Config ──────────────────────────────────────────────────── */
+    const API   = 'https://ideaguard-worker.nalbadaju.workers.dev';
+    const LIMIT = 12;
+
+    /* ── State ───────────────────────────────────────────────────── */
+    let state = {
+      currentHash:     null,   // 현재 계산된 해시 (hex string)
+      currentPage:     1,
+      totalPages:      1,
+      keywords:        [],     // 키워드 배열 (최대 5)
+      loading:         false,
+    };
+
+    /* ── DOM References ──────────────────────────────────────────── */
+    const $ = id => document.getElementById(id);
+    const el = {
+      // Header
+      hamburger:    $('btn-hamburger'),
+      mobileMenu:   $('mobile-menu'),
+      // Dropzone
+      dropzone:     $('dropzone'),
+      fileInput:    $('file-input'),
+      dzIdle:       $('dz-idle'),
+      dzLoaded:     $('dz-loaded'),
+      dzFilename:   $('dz-filename'),
+      btnClearFile: $('btn-clear-file'),
+      textInput:    $('text-input'),
+      // Hash Preview
+      hashPreview:  $('hash-preview'),
+      hashDisplay:  $('hash-display'),
+      btnCopyHash:  $('btn-copy-hash'),
+      // Form
+      form:         $('register-form'),
+      nickname:     $('input-nickname'),
+      title:        $('input-title'),
+      keywords:     $('input-keywords'),
+      keywordChips: $('keyword-chips'),
+      formError:    $('form-error'),
+      formErrorMsg: $('form-error-msg'),
+      formSuccess:  $('form-success'),
+      btnRegister:  $('btn-register'),
+      // Tileboard
+      tileGrid:     $('tile-grid'),
+      emptyState:   $('empty-state'),
+      pagination:   $('pagination'),
+      pageInfo:     $('pagination-info'),
+      btnPrev:      $('btn-prev'),
+      btnNext:      $('btn-next'),
+      // Verify
+      verifyInput:      $('verify-input'),
+      btnVerify:        $('btn-verify'),
+      btnVerifyFile:    $('btn-verify-file'),
+      verifyFileInput:  $('verify-file-input'),
+      verifyResult:     $('verify-result'),
+      // Modal
+      modalHash:    $('modal-hash'),
+      modalBackdrop:$('modal-backdrop'),
+      btnModalClose:$('btn-modal-close'),
+      modalBody:    $('modal-hash-body'),
+    };
+
+    /* ═════════════════════════════════════════════════════════════
+       1. SHA-256 (Web Crypto API — Zero-Knowledge)
+    ═════════════════════════════════════════════════════════════ */
+    async function sha256(input) {
+      let buf;
+      if (input instanceof ArrayBuffer) {
+        buf = input;
+      } else {
+        buf = new TextEncoder().encode(input);
+      }
+      const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+      return Array.from(new Uint8Array(hashBuf))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+    }
+
+    async function hashFile(file) {
+      const buf = await file.arrayBuffer();
+      return sha256(buf);
+    }
+
+    /* ── Hash 결과 표시 ──────────────────────────────────────────── */
+    function setHash(hex) {
+      state.currentHash = hex;
+      el.hashDisplay.textContent = hex;
+      el.hashPreview.hidden = false;
+      updateRegisterBtn();
+    }
+
+    function clearHash() {
+      state.currentHash = null;
+      el.hashPreview.hidden = true;
+      el.hashDisplay.textContent = '—';
+      updateRegisterBtn();
+    }
+
+    function updateRegisterBtn() {
+      const hasHash     = !!state.currentHash;
+      const hasNickname = el.nickname.value.trim().length > 0;
+      const hasTitle    = el.title.value.trim().length > 0;
+      el.btnRegister.disabled = !(hasHash && hasNickname && hasTitle);
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       2. DROPZONE
+    ═════════════════════════════════════════════════════════════ */
+    function setupDropzone() {
+      const dz = el.dropzone;
+
+      // 브라우저가 드래그 파일을 새 탭으로 여는 것 방지 (캡처 단계에서 차단)
+      window.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); }, { capture: true, passive: false });
+      window.addEventListener('drop',     e => { e.preventDefault(); e.stopPropagation(); }, { capture: true, passive: false });
+
+      // Click to open file dialog
+      dz.addEventListener('click', e => {
+        if (e.target !== el.btnClearFile && !el.btnClearFile.contains(e.target)) {
+          el.fileInput.click();
+        }
+      });
+
+      // Keyboard activation
+      dz.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          el.fileInput.click();
+        }
+      });
+
+      // File selected via dialog
+      el.fileInput.addEventListener('change', async () => {
+        const file = el.fileInput.files[0];
+        if (file) await processFile(file);
+      });
+
+      // Drag events
+      ['dragover', 'dragenter'].forEach(evt =>
+        dz.addEventListener(evt, e => {
+          e.preventDefault();
+          dz.classList.add('dropzone--over');
+        })
+      );
+      ['dragleave', 'dragend'].forEach(evt =>
+        dz.addEventListener(evt, () => dz.classList.remove('dropzone--over'))
+      );
+      dz.addEventListener('drop', async e => {
+        e.preventDefault();
+        dz.classList.remove('dropzone--over');
+        const file = e.dataTransfer.files[0];
+        if (file) await processFile(file);
+      });
+
+      // Verify bar 드래그는 setupVerify()에서 처리
+
+      // Clear file
+      el.btnClearFile.addEventListener('click', e => {
+        e.stopPropagation();
+        clearFileState();
+        // Text input에 내용 있으면 해시 재계산
+        if (el.textInput.value.trim()) processText(el.textInput.value);
+      });
+    }
+
+    async function processFile(file) {
+      el.dzFilename.textContent = `${file.name} (${formatBytes(file.size)})`;
+      el.dzIdle.hidden   = true;
+      el.dzLoaded.hidden = false;
+      el.textInput.value = '';   // 파일 우선
+      const hex = await hashFile(file);
+      setHash(hex);
+    }
+
+    function clearFileState() {
+      el.fileInput.value = '';
+      el.dzIdle.hidden   = false;
+      el.dzLoaded.hidden = true;
+      el.dzFilename.textContent = '';
+      clearHash();
+    }
+
+    function formatBytes(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       3. TEXT INPUT → HASH
+    ═════════════════════════════════════════════════════════════ */
+    async function processText(text) {
+      if (!text.trim()) { clearHash(); return; }
+      const hex = await sha256(text);
+      setHash(hex);
+    }
+
+    function setupTextInput() {
+      let debounceTimer;
+      el.textInput.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        // 파일이 로드된 상태면 텍스트 입력 무시
+        if (!el.dzLoaded.hidden) return;
+        debounceTimer = setTimeout(() => processText(el.textInput.value), 400);
+      });
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       4. KEYWORDS CHIPS
+    ═════════════════════════════════════════════════════════════ */
+    function setupKeywords() {
+      el.keywords.addEventListener('keydown', e => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          addKeyword(el.keywords.value.trim().replace(/^#/, ''));
+          el.keywords.value = '';
+        }
+      });
+    }
+
+    function addKeyword(word) {
+      if (!word || state.keywords.length >= 5) return;
+      if (state.keywords.includes(word)) return;
+      state.keywords.push(word);
+      renderKeywordChips();
+    }
+
+    function removeKeyword(word) {
+      state.keywords = state.keywords.filter(k => k !== word);
+      renderKeywordChips();
+    }
+
+    function renderKeywordChips() {
+      el.keywordChips.innerHTML = '';
+      state.keywords.forEach(word => {
+        const chip = document.createElement('span');
+        chip.className = 'keyword-chip';
+        chip.setAttribute('role', 'listitem');
+        chip.innerHTML = `
+          <span>#${escHtml(word)}</span>
+          <button type="button" class="keyword-chip__remove"
+            aria-label="${escHtml(word)} 키워드 제거">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>`;
+        chip.querySelector('.keyword-chip__remove')
+          .addEventListener('click', () => removeKeyword(word));
+        el.keywordChips.appendChild(chip);
+      });
+      // 5개 도달 시 입력 비활성화
+      el.keywords.disabled = state.keywords.length >= 5;
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       5. COPY HASH
+    ═════════════════════════════════════════════════════════════ */
+    function setupCopyHash() {
+      el.btnCopyHash.addEventListener('click', async () => {
+        if (!state.currentHash) return;
+        try {
+          await navigator.clipboard.writeText(state.currentHash);
+          const icon = el.btnCopyHash.querySelector('i');
+          icon.className = 'fa-solid fa-check';
+          setTimeout(() => { icon.className = 'fa-regular fa-copy'; }, 1500);
+        } catch { /* clipboard 권한 없음 */ }
+      });
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       6. FORM SUBMIT — Register Hash
+    ═════════════════════════════════════════════════════════════ */
+    function setupRegisterForm() {
+      ['input', 'change'].forEach(evt => {
+        el.nickname.addEventListener(evt, updateRegisterBtn);
+        el.title.addEventListener(evt, updateRegisterBtn);
+      });
+
+      el.form.addEventListener('submit', async e => {
+        e.preventDefault();
+        if (state.loading || !state.currentHash) return;
+
+        const nickname = el.nickname.value.trim();
+        const title    = el.title.value.trim();
+
+        if (!nickname) return showFormError('닉네임을 입력해 주세요.');
+        if (!title)    return showFormError('아이디어 제목을 입력해 주세요.');
+
+        setFormLoading(true);
+        hideFormMessages();
+
+        try {
+          const res = await fetch(`${API}/api/records`, {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({
+              hash:     state.currentHash,
+              nickname, title,
+              keywords: state.keywords,
+            }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            showFormError(data.error || '등록 중 오류가 발생했습니다.');
+          } else {
+            el.formSuccess.hidden = false;
+            resetForm();
+            state.currentPage = 1;
+            await fetchTiles(1);
+          }
+        } catch {
+          showFormError('네트워크 오류가 발생했습니다. 다시 시도해 주세요.');
+        } finally {
+          setFormLoading(false);
+        }
+      });
+    }
+
+    function setFormLoading(on) {
+      state.loading = on;
+      el.btnRegister.disabled = on;
+      el.btnRegister.querySelector('.btn__label').hidden   = on;
+      el.btnRegister.querySelector('.btn__spinner').hidden = !on;
+    }
+
+    function showFormError(msg) {
+      el.formErrorMsg.textContent = msg;
+      el.formError.hidden = false;
+    }
+
+    function hideFormMessages() {
+      el.formError.hidden   = true;
+      el.formSuccess.hidden = true;
+    }
+
+    function resetForm() {
+      el.form.reset();
+      state.keywords = [];
+      renderKeywordChips();
+      clearFileState();
+      clearHash();
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       7. FETCH & RENDER TILES
+    ═════════════════════════════════════════════════════════════ */
+    async function fetchTiles(page = 1) {
+      el.tileGrid.setAttribute('aria-busy', 'true');
+      showSkeletons();
+
+      try {
+        const res  = await fetch(`${API}/api/records?page=${page}&limit=${LIMIT}`);
+        const data = await res.json();
+        const records = data.records || [];
+
+        state.currentPage = data.page || page;
+        state.totalPages  = Math.max(1, Math.ceil((data.total ?? records.length) / LIMIT));
+        // total 필드 없으면 응답 건수로 추정
+        if (!data.total) state.totalPages = records.length < LIMIT ? page : page + 1;
+
+        renderTiles(records);
+        updatePagination();
+      } catch {
+        // 로컬 미리보기 / API 미연결 시 더미 데이터로 대체
+        const DUMMY = [
+          { id:'d1', hash:'a3f8c2e1b4d7f0a9e2c5b8d1f4a7e0c3b6d9f2a5e8c1b4d7f0a3e6c9b2d5f8a1',
+            nickname:'김철수', title:'AI 기반 음식물 쓰레기 최소화 앱', keywords:['AI','환경','앱'], created_at:'2026-05-20T09:15:00Z' },
+          { id:'d2', hash:'b4e9c3f2a7d0b5e8c1f4a9d2b7e0c5f8a3d6b9e2c7f0a5d8b1e4c9f2a7d0b3e6',
+            nickname:'이영희', title:'블록체인 기반 음원 저작권 플랫폼', keywords:['블록체인','음악','저작권'], created_at:'2026-05-21T14:30:00Z' },
+          { id:'d3', hash:'c5f0d4a9b8e3c6f1a0d5b4e9c2f7a6d1b0e5c4f9a8d3b2e7c0f5a4d9b8e3c6f1',
+            nickname:'박지민', title:'시니어 맞춤 AI 건강 코칭 서비스', keywords:['헬스케어','시니어','AI'], created_at:'2026-05-22T08:00:00Z' },
+          { id:'d4', hash:'d6a1e5f0b9c4d7a2e6f1b0c5d8a3e7f2b1c6d9a4e8f3b2c7d0a5e9f4b3c8d1a6',
+            nickname:'최준호', title:'탄소 발자국 추적 소비 플랫폼', keywords:['ESG','탄소중립'], created_at:'2026-05-23T11:20:00Z' },
+          { id:'d5', hash:'e7b2f6a1c0d9e4b3f8a2c7d1e6b5f0a9c4d3e8b7f2a6c1d5e0b9f4a3c8d2e7b1',
+            nickname:'한소영', title:'실시간 협업 AR 화이트보드', keywords:['AR','협업','원격근무'], created_at:'2026-05-24T16:45:00Z' },
+          { id:'d6', hash:'f8c3a7d2b1e6f9c4a8d3b2e7f0c5a9d4b3e8f1c6a0d5b4e9f2c7a1d6b5e0f3c8',
+            nickname:'정민재', title:'반려동물 원격 진료 매칭 앱', keywords:['펫테크','의료','매칭'], created_at:'2026-05-25T10:10:00Z' },
+          { id:'d7', hash:'a9d4b8e3c2f7a0d5b9e4c3f8a1d6b0e5c4f9a2d7b1e6c5f0a3d8b2e7c6f1a4d9',
+            nickname:'윤서연', title:'로컬 농산물 직거래 구독 서비스', keywords:['로컬푸드','구독','농업'], created_at:'2026-05-26T13:00:00Z' },
+          { id:'d8', hash:'b0e5c9f4a3d8b2e7c1f6a5d0b9e4c8f3a2d7b6e1c0f5a4d9b3e8c7f2a1d6b5e0',
+            nickname:'강태양', title:'신진 작가 NFT 갤러리 플랫폼', keywords:['NFT','예술','Web3'], created_at:'2026-05-27T19:30:00Z' },
+        ];
+        state.totalPages = 1;
+        renderTiles(DUMMY);
+        updatePagination();
+      }
+    }
+
+    function showSkeletons() {
+      el.tileGrid.innerHTML = Array(LIMIT).fill(0).map(() => `
+        <article class="tile tile--skeleton" role="listitem" aria-hidden="true">
+          <div class="skeleton skeleton--sm"></div>
+          <div class="skeleton skeleton--lg"></div>
+          <div class="skeleton skeleton--md"></div>
+          <div class="skeleton skeleton--sm"></div>
+          <div class="skeleton skeleton--sm w-60"></div>
+        </article>`).join('');
+      el.emptyState.hidden = true;
+      el.pagination.hidden = true;
+    }
+
+    function renderTiles(records) {
+      el.tileGrid.setAttribute('aria-busy', 'false');
+      el.tileGrid.innerHTML = '';
+
+      if (!records.length) {
+        el.emptyState.hidden = false;
+        el.pagination.hidden = true;
+        return;
+      }
+
+      el.emptyState.hidden = true;
+      records.forEach(r => {
+        const tile = document.createElement('article');
+        tile.className   = 'tile glass-card';
+        tile.setAttribute('role', 'listitem');
+        tile.setAttribute('aria-label', `${r.nickname}의 아이디어 — ${r.title}`);
+
+        const shortHash  = `0x${r.hash.slice(0, 6)}…${r.hash.slice(-4)}`;
+        const dateStr    = formatDate(r.created_at);
+        const keywordHtml = (r.keywords || [])
+          .map(k => `<span class="tile__tag">#${escHtml(k)}</span>`)
+          .join('');
+
+        tile.innerHTML = `
+          <div class="tile__head">
+            <span class="tile__author">
+              <i class="fa-regular fa-user" aria-hidden="true"></i>
+              ${escHtml(r.nickname)}
+            </span>
+            <time class="tile__date" datetime="${r.created_at}">${dateStr}</time>
+          </div>
+          <h3 class="tile__title">${escHtml(r.title)}</h3>
+          <button class="tile__hash" data-hash="${escHtml(r.hash)}"
+            aria-label="전체 해시값 보기: ${escHtml(r.hash)}">
+            <i class="fa-solid fa-hashtag" aria-hidden="true"></i>
+            <code>${shortHash}</code>
+          </button>
+          ${keywordHtml ? `<div class="tile__tags" aria-label="키워드">${keywordHtml}</div>` : ''}
+          <div class="tile__actions">
+            <button class="btn btn--ghost btn--sm tile__verify-btn"
+              data-hash="${escHtml(r.hash)}"
+              aria-label="이 해시 검증하기">
+              <i class="fa-solid fa-shield-check" aria-hidden="true"></i>
+              Verify
+            </button>
+          </div>`;
+
+        // Hash detail modal
+        tile.querySelector('.tile__hash').addEventListener('click', () =>
+          openModal(r));
+
+        // Inline verify
+        tile.querySelector('.tile__verify-btn').addEventListener('click', () => {
+          el.verifyInput.value = r.hash;
+          el.tileboard?.scrollIntoView({ behavior: 'smooth' });
+          runVerify(r.hash);
+        });
+
+        el.tileGrid.appendChild(tile);
+      });
+      // Phase 4: 동적 렌더된 타일 스크롤 감시 등록
+      observeNewTiles();
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       8. PAGINATION
+    ═════════════════════════════════════════════════════════════ */
+    function updatePagination() {
+      el.pagination.hidden = state.totalPages <= 1;
+      el.pageInfo.textContent = `${state.currentPage} / ${state.totalPages}`;
+      el.btnPrev.disabled = state.currentPage <= 1;
+      el.btnNext.disabled = state.currentPage >= state.totalPages;
+    }
+
+    function setupPagination() {
+      el.btnPrev.addEventListener('click', () => {
+        if (state.currentPage > 1) fetchTiles(state.currentPage - 1);
+      });
+      el.btnNext.addEventListener('click', () => {
+        if (state.currentPage < state.totalPages) fetchTiles(state.currentPage + 1);
+      });
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       9. VERIFY
+    ═════════════════════════════════════════════════════════════ */
+    async function runVerify(hash) {
+      const hex = (hash || el.verifyInput.value.trim()).toLowerCase();
+      // 빈 입력
+      if (!hex) {
+        showVerifyResult('invalid',
+          '<i class="fa-solid fa-circle-exclamation"></i> 파일이 선택되지 않았습니다. 파일을 선택하거나 해시값을 입력해 주세요.');
+        return;
+      }
+      // 잘못된 형식
+      if (!/^[0-9a-f]{64}$/.test(hex)) {
+        showVerifyResult('invalid',
+          '<i class="fa-solid fa-circle-exclamation"></i> 유효한 SHA-256 해시값(64자리 hex)을 입력해 주세요.');
+        return;
+      }
+
+      showVerifyResult('loading',
+        '<i class="fa-solid fa-spinner fa-spin"></i> 검증 중...');
+
+      try {
+        const res  = await fetch(`${API}/api/records/verify`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ hash: hex }),
+        });
+        const data = await res.json();
+
+        if (data.verified && data.record) {
+          const r = data.record;
+          showVerifyResult('success', `
+            <i class="fa-solid fa-circle-check"></i>
+            <div>
+              <strong>등록 확인됨</strong> — ${escHtml(r.nickname)}
+              <br><span class="text--muted">${escHtml(r.title)} · ${formatDate(r.created_at)}</span>
+            </div>`);
+        } else {
+          showVerifyResult('fail', `
+            <i class="fa-solid fa-circle-xmark"></i>
+            등록된 해시값을 찾을 수 없습니다.`);
+        }
+      } catch {
+        showVerifyResult('error',
+          '<i class="fa-solid fa-triangle-exclamation"></i> 검증 중 오류가 발생했습니다.');
+      }
+    }
+
+    function showVerifyResult(type, html) {
+      el.verifyResult.hidden    = false;
+      el.verifyResult.className = `verify-result verify-result--${type}`;
+      el.verifyResult.innerHTML = html;
+    }
+
+    function setupVerify() {
+      el.btnVerify.addEventListener('click', () => runVerify());
+      el.verifyInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') runVerify();
+      });
+
+      // 파일 열기 버튼 → 파일 선택 다이얼로그
+      el.btnVerifyFile.addEventListener('click', () => el.verifyFileInput.click());
+      el.verifyFileInput.addEventListener('change', async () => {
+        const file = el.verifyFileInput.files[0];
+        if (!file) return;
+        showVerifyResult('loading',
+          '<i class="fa-solid fa-spinner fa-spin"></i> 파일 해시 계산 중...');
+        const hex = await hashFile(file);
+        el.verifyInput.value = hex;
+        runVerify(hex);
+        el.verifyFileInput.value = ''; // 같은 파일 재선택 허용
+      });
+
+      // Verify bar 드래그 앤 드롭 (이미 setupDropzone에서 window 차단 처리됨)
+      el.verifyInput.addEventListener('dragover', e => e.preventDefault());
+      el.verifyInput.addEventListener('drop', async e => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        showVerifyResult('loading',
+          '<i class="fa-solid fa-spinner fa-spin"></i> 파일 해시 계산 중...');
+        const hex = await hashFile(file);
+        el.verifyInput.value = hex;
+        runVerify(hex);
+      });
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       10. MODAL
+    ═════════════════════════════════════════════════════════════ */
+    function openModal(record) {
+      el.modalBody.innerHTML = `
+        <dl class="modal__dl">
+          <dt>닉네임</dt>
+          <dd>${escHtml(record.nickname)}</dd>
+          <dt>아이디어 제목</dt>
+          <dd>${escHtml(record.title)}</dd>
+          <dt>등록 일시</dt>
+          <dd><time datetime="${record.created_at}">${formatDate(record.created_at)}</time></dd>
+          <dt>SHA-256 해시값</dt>
+          <dd class="modal__hash"><code>${escHtml(record.hash)}</code></dd>
+          ${record.keywords?.length
+            ? `<dt>키워드</dt>
+               <dd>${record.keywords.map(k => `<span class="tile__tag">#${escHtml(k)}</span>`).join('')}</dd>`
+            : ''}
+        </dl>`;
+      el.modalHash.hidden = false;
+      document.body.style.overflow = 'hidden';
+      el.btnModalClose.focus();
+    }
+
+    function closeModal() {
+      el.modalHash.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    function setupModal() {
+      el.btnModalClose.addEventListener('click', closeModal);
+      el.modalBackdrop.addEventListener('click', closeModal);
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !el.modalHash.hidden) closeModal();
+      });
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       11. MOBILE MENU
+    ═════════════════════════════════════════════════════════════ */
+    function setupMobileMenu() {
+      el.hamburger.addEventListener('click', () => {
+        const open = el.mobileMenu.hidden;
+        el.mobileMenu.hidden = !open;
+        el.hamburger.setAttribute('aria-expanded', String(open));
+        el.hamburger.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+      });
+      // 메뉴 링크 클릭 시 닫기
+      el.mobileMenu.querySelectorAll('a').forEach(a =>
+        a.addEventListener('click', () => {
+          el.mobileMenu.hidden = true;
+          el.hamburger.setAttribute('aria-expanded', 'false');
+        })
+      );
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       12. UTILITIES
+    ═════════════════════════════════════════════════════════════ */
+    function escHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatDate(iso) {
+      try {
+        return new Intl.DateTimeFormat('ko-KR', {
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', second: '2-digit',
+          hour12: false, timeZone: 'Asia/Seoul',
+        }).format(new Date(iso));
+      } catch { return iso; }
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       INIT
+    ═════════════════════════════════════════════════════════════ */
+    function init() {
+      setupDropzone();
+      setupTextInput();
+      setupKeywords();
+      setupCopyHash();
+      setupRegisterForm();
+      setupPagination();
+      setupVerify();
+      setupModal();
+      setupMobileMenu();
+      // Phase 4: Observer를 fetchTiles 전에 설정 (동적 타일 감시 준비)
+      setupScrollObserver();
+      setupHeaderScroll();
+      setupRipple();
+      fetchTiles(1);   // 타일 보드 초기 로드
+    }
+
+    /* ─── Phase 4 JS: 인터랙션 ─────────────────────────────────── */
+
+    // A. Scroll Observer — .is-visible 클래스 부착
+    let _scrollObserver = null;
+    function setupScrollObserver() {
+      _scrollObserver = new IntersectionObserver(
+        entries => entries.forEach(e => e.isIntersecting && e.target.classList.add('is-visible')),
+        { threshold: 0.12 }
+      );
+      document.querySelectorAll(
+        '.hero__content, .register__panel, .tile:not(.tile--skeleton), .nda-cta__inner, .section-header'
+      ).forEach(target => {
+        // 이미 뷰포트에 있는 요소는 즉시 표시 (비동기 대기 없음)
+        const r = target.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) {
+          target.classList.add('is-visible');
+        } else {
+          _scrollObserver.observe(target);
+        }
+      });
+    }
+
+    // 타일 동적 로드 후 재감시 (renderTiles 완료 시 호출)
+    function observeNewTiles() {
+      if (!_scrollObserver) return;
+      document.querySelectorAll('.tile:not(.tile--skeleton)').forEach(el => {
+        _scrollObserver.observe(el);
+      });
+    }
+
+    // B. Header Scroll Class
+    function setupHeaderScroll() {
+      window.addEventListener('scroll', () =>
+        document.getElementById('site-header')
+          .classList.toggle('scrolled', window.scrollY > 20)
+      , { passive: true });
+    }
+
+    // C. Ripple 효과
+    function setupRipple() {
+      document.addEventListener('click', e => {
+        const btn = e.target.closest('.btn');
+        if (!btn) return;
+        const r = document.createElement('span');
+        r.className = 'ripple';
+        const rect = btn.getBoundingClientRect();
+        r.style.cssText = `left:${e.clientX - rect.left}px;top:${e.clientY - rect.top}px;`;
+        btn.appendChild(r);
+        r.addEventListener('animationend', () => r.remove());
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+
+  </script>
+</body>
+</html>

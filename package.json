@@ -1,0 +1,21 @@
+{
+  "name": "ideaguard-worker",
+  "version": "0.1.0",
+  "description": "IdeaGuard — Zero-Knowledge 아이디어 착안일자 공표 + NDA 플랫폼",
+  "main": "worker.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --env production",
+    "deploy:dev": "wrangler deploy --env development",
+    "tail": "wrangler tail",
+    "secret:supabase-url": "wrangler secret put SUPABASE_URL",
+    "secret:supabase-key": "wrangler secret put SUPABASE_SERVICE_KEY",
+    "secret:resend": "wrangler secret put RESEND_API_KEY"
+  },
+  "devDependencies": {
+    "wrangler": "^4.95.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.106.2"
+  }
+}
