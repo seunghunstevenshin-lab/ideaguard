@@ -1410,6 +1410,61 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════════
+       MODAL — NDA Request
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="modal" id="modal-nda"
+    role="dialog" aria-modal="true" aria-labelledby="modal-nda-title" hidden>
+    <div class="modal__backdrop" id="modal-nda-backdrop" aria-hidden="true"></div>
+    <div class="modal__panel glass-card">
+      <button class="modal__close btn btn--icon btn--ghost"
+        id="btn-modal-nda-close" aria-label="모달 닫기">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <h3 class="modal__title" id="modal-nda-title">
+        <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+        NDA 서명 요청
+      </h3>
+      <div class="modal__body" id="modal-nda-body">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+          선택한 아이디어에 대해 NDA 서명 요청 이메일을 발송합니다.<br>
+          수신자가 이메일 링크를 통해 서명을 완료하면 법적 효력이 발생합니다.
+        </p>
+        <form id="form-nda" onsubmit="event.preventDefault();">
+          <div class="form-row">
+            <div>
+              <label for="nda-recipient-name" class="form-label">수신자 이름 <span class="form-label__required">*</span></label>
+              <input type="text" id="nda-recipient-name" class="input" placeholder="예: 홍길동" required>
+            </div>
+            <div>
+              <label for="nda-recipient-email" class="form-label">수신자 이메일 <span class="form-label__required">*</span></label>
+              <input type="email" id="nda-recipient-email" class="input" placeholder="예: name@example.com" required>
+            </div>
+          </div>
+          
+          <div style="margin-top: 1rem;">
+            <label class="form-label">대상 아이디어 해시</label>
+            <div class="hash-preview" style="margin: 0; background: rgba(0,0,0,0.2); border: 1px solid var(--border);">
+              <span class="hash-preview__value" id="nda-target-hash">선택된 해시가 없습니다.</span>
+            </div>
+            <input type="hidden" id="nda-target-record-id">
+          </div>
+
+          <div class="form-alert form-alert--error" id="nda-form-error" hidden></div>
+          <div class="form-alert form-alert--success" id="nda-form-success" hidden></div>
+
+          <div class="form-actions" style="margin-top: 2rem;">
+            <button type="submit" class="btn btn--primary btn--block btn--lg" id="btn-nda-submit">
+              <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
+              <span class="btn__label">NDA 요청 이메일 발송</span>
+              <span class="btn__spinner" hidden><i class="fa-solid fa-spinner fa-spin"></i> 발송 중...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
        JAVASCRIPT — Phase 3 (Core Logic)
        담당: Claude Code
        구현 항목: sha256, fetchTiles, renderTile, pagination,
@@ -1850,6 +1905,11 @@
               <i class="fa-solid fa-shield-check" aria-hidden="true"></i>
               Verify
             </button>
+            <button class="btn btn--ghost btn--sm tile__nda-btn"
+              aria-label="NDA 요청 이메일 발송">
+              <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+              NDA
+            </button>
           </div>`;
 
         // Hash detail modal
@@ -1862,6 +1922,10 @@
           el.tileboard?.scrollIntoView({ behavior: 'smooth' });
           runVerify(r.hash);
         });
+
+        // NDA 모달 열기
+        tile.querySelector('.tile__nda-btn').addEventListener('click', () =>
+          openNdaModal(r));
 
         el.tileGrid.appendChild(tile);
       });
@@ -2013,7 +2077,138 @@
     }
 
     /* ═════════════════════════════════════════════════════════════
-       11. MOBILE MENU
+       11. NDA MODAL
+    ═════════════════════════════════════════════════════════════ */
+    function openNdaModal(record) {
+      const ndaHash     = $('nda-target-hash');
+      const ndaRecordId = $('nda-target-record-id');
+
+      if (record) {
+        const shortHash = `0x${record.hash.slice(0, 6)}…${record.hash.slice(-4)}`;
+        ndaHash.textContent = shortHash;
+        ndaHash.dataset.full = record.hash;  // 풀 해시 보관
+        ndaRecordId.value   = record.id;
+      } else {
+        ndaHash.textContent = '선택된 해시가 없습니다.';
+        ndaHash.dataset.full = '';
+        ndaRecordId.value   = '';
+      }
+
+      // 폼 초기화
+      $('nda-recipient-name').value  = '';
+      $('nda-recipient-email').value = '';
+      $('nda-form-error').hidden     = true;
+      $('nda-form-success').hidden   = true;
+      resetNdaBtn();
+
+      $('modal-nda').hidden = false;
+      document.body.style.overflow = 'hidden';
+      $('nda-recipient-name').focus();
+    }
+
+    function closeNdaModal() {
+      $('modal-nda').hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    function resetNdaBtn() {
+      const btn = $('btn-nda-submit');
+      btn.disabled = false;
+      const label   = btn.querySelector('.btn__label');
+      const spinner = btn.querySelector('.btn__spinner');
+      if (label)   label.hidden   = false;
+      if (spinner) spinner.hidden = true;
+    }
+
+    function setupNdaModal() {
+      // 닫기
+      $('btn-modal-nda-close').addEventListener('click', closeNdaModal);
+      $('modal-nda-backdrop').addEventListener('click', closeNdaModal);
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !$('modal-nda').hidden) closeNdaModal();
+      });
+
+      // CTA 배너 "NDA 작성하기" 버튼 → 타일 선택 없이 열기
+      const btnNdaCta = $('btn-nda');
+      if (btnNdaCta) btnNdaCta.addEventListener('click', () => openNdaModal(null));
+
+      // 폼 제출
+      $('form-nda').addEventListener('submit', handleNdaSubmit);
+    }
+
+    async function handleNdaSubmit(e) {
+      e.preventDefault();
+
+      const recordId       = $('nda-target-record-id').value;
+      const recipientName  = $('nda-recipient-name').value.trim();
+      const recipientEmail = $('nda-recipient-email').value.trim();
+      const fullHash       = $('nda-target-hash').dataset.full || '';
+
+      const errEl = $('nda-form-error');
+      const sucEl = $('nda-form-success');
+      errEl.hidden = true;
+      sucEl.hidden = true;
+
+      // 유효성 검사
+      if (!recordId) {
+        errEl.textContent = '타일의 NDA 버튼으로 대상 아이디어를 먼저 선택해주세요.';
+        errEl.hidden = false; return;
+      }
+
+      // Auth 체크 — 추후 Supabase Auth 연동 시 실제 userId로 교체
+      const proposerId = null; // TODO: 로그인 구현 후 auth.user.id 사용
+      if (!proposerId) {
+        errEl.textContent = 'NDA 기능은 로그인 후 이용 가능합니다. (회원 기능 준비 중)';
+        errEl.hidden = false; return;
+      }
+
+      // 로딩
+      const btn = $('btn-nda-submit');
+      btn.disabled = true;
+      const label   = btn.querySelector('.btn__label');
+      const spinner = btn.querySelector('.btn__spinner');
+      if (label)   label.hidden   = true;
+      if (spinner) spinner.hidden = false;
+
+      const contractText =
+        `본 비밀유지계약서(NDA)는 아이디어 착안자와 수신자 간에 체결됩니다.\n` +
+        `수신자는 본 계약에 따라 착안자로부터 전달받은 아이디어 관련 정보를\n` +
+        `제3자에게 공개하거나 무단으로 사용하지 않을 것에 동의합니다.\n` +
+        `본 계약은 서명일로부터 2년간 유효하며, 위반 시 민형사상 책임을 질 수 있습니다.`;
+
+      try {
+        const res = await fetch(`${API}/api/nda`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            record_id:       recordId,
+            proposer_id:     proposerId,
+            recipient_email: recipientEmail,
+            recipient_name:  recipientName,
+            country_code:    'KR',
+            contract_text:   contractText,
+            proposer_name:   '아이디어 소유자',   // TODO: 로그인 후 실제 이름
+            idea_title:      fullHash
+              ? `아이디어 (${fullHash.slice(0, 8)}…)` : '비공개 아이디어',
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'NDA 생성 중 오류가 발생했습니다.');
+
+        sucEl.textContent = '✅ NDA 서명 요청 이메일이 발송되었습니다!';
+        sucEl.hidden = false;
+        setTimeout(closeNdaModal, 2500);
+
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.hidden = false;
+        resetNdaBtn();
+      }
+    }
+
+    /* ═════════════════════════════════════════════════════════════
+       12. MOBILE MENU
     ═════════════════════════════════════════════════════════════ */
     function setupMobileMenu() {
       el.hamburger.addEventListener('click', () => {
@@ -2065,6 +2260,7 @@
       setupPagination();
       setupVerify();
       setupModal();
+      setupNdaModal();
       setupMobileMenu();
       // Phase 4: Observer를 fetchTiles 전에 설정 (동적 타일 감시 준비)
       setupScrollObserver();
