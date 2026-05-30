@@ -2452,6 +2452,7 @@
 
       // 모달 닫기
       $('btn-modal-auth-close')?.addEventListener('click', closeAuthModal);
+      $('modal-auth-backdrop')?.addEventListener('click', closeAuthModal);
       document.addEventListener('keydown', e => {
         if (e.key === 'Escape' && $('modal-auth') && !$('modal-auth').hidden) closeAuthModal();
       });
