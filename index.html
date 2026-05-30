@@ -1459,6 +1459,7 @@
               <span class="hash-preview__value" id="nda-target-hash">선택된 해시가 없습니다.</span>
             </div>
             <input type="hidden" id="nda-target-record-id">
+            <input type="hidden" id="nda-target-title">
           </div>
 
           <div class="form-alert form-alert--error" id="nda-form-error" hidden></div>
@@ -2139,10 +2140,12 @@
         ndaHash.textContent = shortHash;
         ndaHash.dataset.full = record.hash;  // 풀 해시 보관
         ndaRecordId.value   = record.id;
+        $('nda-target-title').value = record.title || '';
       } else {
         ndaHash.textContent = '선택된 해시가 없습니다.';
         ndaHash.dataset.full = '';
         ndaRecordId.value   = '';
+        $('nda-target-title').value = '';
       }
 
       // 폼 초기화
@@ -2238,9 +2241,9 @@
             recipient_name:  recipientName,
             country_code:    'KR',
             contract_text:   contractText,
-            proposer_name:   '아이디어 소유자',   // TODO: 로그인 후 실제 이름
-            idea_title:      fullHash
-              ? `아이디어 (${fullHash.slice(0, 8)}…)` : '비공개 아이디어',
+            proposer_name:   currentUser?.email?.split('@')[0] || '아이디어 소유자',
+            idea_title:      $('nda-target-title').value || (fullHash
+              ? `아이디어 (${fullHash.slice(0, 8)}…)` : '비공개 아이디어'),
           }),
         });
 
