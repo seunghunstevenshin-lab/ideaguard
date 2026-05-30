@@ -223,6 +223,10 @@
     .btn--block { width: 100%; }
     .btn--icon { width: 2.5rem; height: 2.5rem; padding: 0; }
 
+    /* ─── [5-b. User Badge] ──────────────────────────────────── */
+    .user-badge { display: flex; align-items: center; gap: 0.5rem; }
+    .user-badge__email { font-size: 0.8rem; color: var(--text-muted); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
     /* ─── [6~7. Hamburger & Mobile Menu] ────────────────────── */
     .hamburger { display: none; background: transparent; border: none; cursor: pointer; padding: var(--sp-2); }
     .hamburger__bar { display: block; width: 24px; height: 2px; background-color: var(--text-primary); margin: 5px 0; transition: all var(--duration-md) var(--ease); }
@@ -689,6 +693,8 @@
     }
 
   </style>
+  <!-- Supabase JS (Auth) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 
 <body>
@@ -727,6 +733,12 @@
           <i class="fa-regular fa-user" aria-hidden="true"></i>
           <span>로그인</span>
         </button>
+        <div id="user-badge" class="user-badge" hidden>
+          <span id="user-email-display" class="user-badge__email"></span>
+          <button id="btn-logout" class="btn btn--ghost btn--sm">
+            <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+          </button>
+        </div>
         <a href="#register" class="btn btn--primary btn--sm">
           <i class="fa-solid fa-bolt" aria-hidden="true"></i>
           <span>지금 등록하기</span>
@@ -1465,6 +1477,45 @@
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════════
+       MODAL — Auth (Login)
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div class="modal" id="modal-auth"
+    role="dialog" aria-modal="true" aria-labelledby="modal-auth-title" hidden>
+    <div class="modal__backdrop" id="modal-auth-backdrop" aria-hidden="true"></div>
+    <div class="modal__panel glass-card">
+      <button class="modal__close btn btn--icon btn--ghost"
+        id="btn-modal-auth-close" aria-label="모달 닫기">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <h3 class="modal__title" id="modal-auth-title">
+        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+        IdeaGuard 로그인
+      </h3>
+      <div class="modal__body" id="modal-auth-body">
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+          이메일을 입력하면 로그인 링크를 보내드립니다.
+        </p>
+        <form id="form-auth" onsubmit="event.preventDefault();">
+          <div class="form-group">
+            <label for="auth-email" class="form-label">이메일 주소</label>
+            <input type="email" id="auth-email" class="input" placeholder="이메일 주소 입력" required>
+          </div>
+          
+          <div class="form-alert form-alert--error" id="auth-form-error" hidden></div>
+          <div class="form-alert form-alert--success" id="auth-form-success" hidden></div>
+
+          <div class="form-actions" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn--primary btn--block btn--lg" id="btn-auth-submit">
+              <span class="btn__label">로그인 링크 받기</span>
+              <span class="btn__spinner" hidden><i class="fa-solid fa-spinner fa-spin"></i> 전송 중...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
        JAVASCRIPT — Phase 3 (Core Logic)
        담당: Claude Code
        구현 항목: sha256, fetchTiles, renderTile, pagination,
@@ -2155,10 +2206,10 @@
         errEl.hidden = false; return;
       }
 
-      // Auth 체크 — 추후 Supabase Auth 연동 시 실제 userId로 교체
-      const proposerId = null; // TODO: 로그인 구현 후 auth.user.id 사용
+      // Auth 체크 — 로그인된 사용자 UUID 사용
+      const proposerId = currentUser?.id ?? null;
       if (!proposerId) {
-        errEl.textContent = 'NDA 기능은 로그인 후 이용 가능합니다. (회원 기능 준비 중)';
+        errEl.textContent = 'NDA 기능은 로그인 후 이용 가능합니다. 우측 상단 "로그인" 버튼을 눌러주세요.';
         errEl.hidden = false; return;
       }
 
@@ -2261,6 +2312,7 @@
       setupVerify();
       setupModal();
       setupNdaModal();
+      setupAuth();
       setupMobileMenu();
       // Phase 4: Observer를 fetchTiles 전에 설정 (동적 타일 감시 준비)
       setupScrollObserver();
@@ -2341,6 +2393,128 @@
         }, 600);
       }, 7000);
     })();
+
+    /* ═════════════════════════════════════════════════════════════
+       13. SUPABASE AUTH (Magic Link)
+    ═════════════════════════════════════════════════════════════ */
+    const SUPABASE_URL  = 'https://glutezvqioffxxnhlqvc.supabase.co';
+    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdsdXRlenZxaW9mZnh4bmhscXZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5OTk4NDYsImV4cCI6MjA5NTU3NTg0Nn0._4rywso0urPfVeCS5KX19bU73jDJ_HDyNOsgMp6Fwf8';
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    let currentUser = null;
+
+    function updateAuthUI(user) {
+      currentUser = user;
+      const btnLogin     = $('btn-login');
+      const userBadge    = $('user-badge');
+      const emailDisplay = $('user-email-display');
+      if (!btnLogin || !userBadge) return;
+
+      if (user) {
+        btnLogin.hidden          = true;
+        userBadge.hidden         = false;
+        if (emailDisplay) emailDisplay.textContent = user.email;
+      } else {
+        btnLogin.hidden  = false;
+        userBadge.hidden = true;
+      }
+    }
+
+    function closeAuthModal() {
+      const m = $('modal-auth');
+      if (m) { m.hidden = true; document.body.style.overflow = ''; }
+    }
+
+    function setupAuth() {
+      // 세션 복원 (URL hash의 access_token 포함 — magic link 콜백)
+      sb.auth.onAuthStateChange((_event, session) => {
+        updateAuthUI(session?.user ?? null);
+      });
+      sb.auth.getSession().then(({ data: { session } }) => {
+        updateAuthUI(session?.user ?? null);
+      });
+
+      // 로그인 버튼 → 모달
+      const btnLogin = $('btn-login');
+      if (btnLogin) {
+        btnLogin.addEventListener('click', () => {
+          const m = $('modal-auth');
+          if (!m) return;
+          $('auth-form-error')  && ($('auth-form-error').hidden  = true);
+          $('auth-form-success') && ($('auth-form-success').hidden = true);
+          $('auth-email') && ($('auth-email').value = '');
+          resetAuthBtn();
+          m.hidden = false;
+          document.body.style.overflow = 'hidden';
+          $('auth-email')?.focus();
+        });
+      }
+
+      // 모달 닫기
+      $('btn-modal-auth-close')?.addEventListener('click', closeAuthModal);
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && $('modal-auth') && !$('modal-auth').hidden) closeAuthModal();
+      });
+
+      // 로그아웃
+      $('btn-logout')?.addEventListener('click', async () => {
+        await sb.auth.signOut();
+        updateAuthUI(null);
+      });
+
+      // Magic Link 발송
+      const formAuth = $('form-auth');
+      if (formAuth) formAuth.addEventListener('submit', handleAuthSubmit);
+    }
+
+    function resetAuthBtn() {
+      const btn = $('btn-auth-submit');
+      if (!btn) return;
+      btn.disabled = false;
+      btn.querySelector('.btn__label')  && (btn.querySelector('.btn__label').hidden  = false);
+      btn.querySelector('.btn__spinner') && (btn.querySelector('.btn__spinner').hidden = true);
+    }
+
+    async function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email  = $('auth-email')?.value.trim();
+      const errEl  = $('auth-form-error');
+      const sucEl  = $('auth-form-success');
+      const btn    = $('btn-auth-submit');
+
+      if (!email) return;
+      if (errEl) errEl.hidden = true;
+      if (sucEl) sucEl.hidden = true;
+
+      if (btn) {
+        btn.disabled = true;
+        btn.querySelector('.btn__label')?.setAttribute('hidden', '');
+        btn.querySelector('.btn__spinner')?.removeAttribute('hidden');
+      }
+
+      const { error } = await sb.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: 'https://ideaguard.pages.dev' },
+      });
+
+      if (error) {
+        if (errEl) { errEl.textContent = error.message; errEl.hidden = false; }
+        resetAuthBtn();
+      } else {
+        if (sucEl) {
+          sucEl.textContent = `✅ ${email}으로 로그인 링크를 보냈습니다. 이메일을 확인해주세요.`;
+          sucEl.hidden = false;
+        }
+        // 중복 발송 방지 — 버튼 비활성 유지, spinner → label 복원
+        if (btn) {
+          btn.querySelector('.btn__label')?.removeAttribute('hidden');
+          btn.querySelector('.btn__spinner')?.setAttribute('hidden', '');
+        }
+      }
+    }
+
+    // ── handleNdaSubmit의 proposerId를 실제 로그인 사용자로 교체 ──
+    // (setupNdaModal 내 handleNdaSubmit에 currentUser 참조가 이미 포함됨)
 
   </script>
 </body>
