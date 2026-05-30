@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>IdeaGuard — NDA 서명</title>
+
+  <!-- Fonts: Montserrat (EN Display) + Pretendard (KO Body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-primary:     #0a0b0d;
+      --bg-secondary:   #0f1116;
+      --bg-card:        rgba(255, 255, 255, 0.04);
+      --mid:            #6366f1;
+      --mid-dark:       #4f46e5;
+      --mid-border:     rgba(99, 102, 241, 0.25);
+      --mid-glow:       rgba(99, 102, 241, 0.20);
+      --accent:         #22d3ee;
+      --text-primary:   #e2e8f0;
+      --text-muted:     #94a3b8;
+      --text-dim:       #64748b;
+      --success:        #34d399;
+      --danger:         #f87171;
+      --warning:        #fbbf24;
+      --border:         rgba(255, 255, 255, 0.08);
+      --font-sans:      'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display:   'Montserrat', var(--font-sans);
+      --radius-sm:      6px;
+      --radius-md:      12px;
+      --radius-lg:      18px;
+      --glass-bg:       rgba(255, 255, 255, 0.04);
+      --glass-border:   1px solid rgba(255, 255, 255, 0.08);
+      --glass-blur:     blur(16px) saturate(180%);
+      --shadow-md:      0 4px 24px rgba(0, 0, 0, 0.4);
+      --ease:           cubic-bezier(0.4, 0, 0.2, 1);
+      --duration-md:    250ms;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .site-header {
+      position: fixed; top: 0; width: 100%; height: 64px;
+      background: rgba(10, 11, 13, 0.85);
+      backdrop-filter: var(--glass-blur);
+      border-bottom: var(--glass-border);
+      z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo { display: flex; gap: 0.5rem; align-items: center; text-decoration: none; }
+    .logo__icon { color: var(--mid); font-size: 1.4rem; }
+    .logo__wordmark { font-family: var(--font-display); font-size: 1.2rem; color: var(--text-primary); }
+    .logo__wordmark strong { color: var(--accent); }
+
+    /* Layout Container */
+    .container {
+      width: 100%; max-width: 800px;
+      margin: 0 auto; padding: 0 1.5rem;
+      flex: 1; display: flex; flex-direction: column; justify-content: center;
+    }
+    .main-wrap { padding-top: 100px; padding-bottom: 4rem; width: 100%; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 0.5rem; border-radius: var(--radius-md); font-weight: 600;
+      font-family: var(--font-sans); cursor: pointer; text-decoration: none;
+      transition: all var(--duration-md) var(--ease); border: none;
+    }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn--primary { background: var(--mid); color: #fff; }
+    .btn--primary:hover:not(:disabled) { background: var(--mid-dark); }
+    .btn--secondary { border: 1px solid var(--mid-border); color: var(--mid); background: transparent; }
+    .btn--secondary:hover:not(:disabled) { background: var(--mid-glow); }
+    .btn--block { width: 100%; }
+    .btn--lg { padding: 0.8rem 1.6rem; font-size: 1rem; }
+    .btn--sm { padding: 0.4rem 0.8rem; font-size: 0.875rem; }
+
+    /* Glass Card */
+    .glass-card {
+      background: var(--glass-bg); backdrop-filter: var(--glass-blur);
+      border: var(--glass-border); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md); padding: 2rem; width: 100%;
+    }
+    @media (max-width: 600px) { .glass-card { padding: 1.5rem; } }
+
+    /* Spinner */
+    .spinner {
+      width: 48px; height: 48px; border: 4px solid var(--border);
+      border-top-color: var(--mid); border-radius: 50%;
+      animation: spin 1s linear infinite; margin: 0 auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Canvas */
+    .canvas-container { position: relative; margin-bottom: 1.5rem; border-radius: var(--radius-sm); overflow: hidden; }
+    #sign-pad {
+      width: 100%; height: 240px; background: #fff; display: block;
+      touch-action: none; /* 모바일에서 캔버스 위 스크롤 방지 */
+    }
+    .btn-clear {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(255,255,255,0.9); border-radius: var(--radius-sm);
+      border: 1px solid #ddd; padding: 0.4rem 0.8rem; font-size: 0.8rem;
+      color: #333; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-clear:hover { background: #f0f0f0; }
+
+    /* Checkbox alert */
+    .form-alert {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 1rem; border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      cursor: pointer; transition: background 0.2s; margin-bottom: 1.5rem;
+    }
+    .form-alert:hover { background: rgba(255,255,255,0.06); }
+    .form-alert input[type="checkbox"] {
+      width: 1.2rem; height: 1.2rem; accent-color: var(--mid); cursor: pointer;
+    }
+    
+    /* Fade In Animation */
+    .fade-in { animation: fadeIn 0.4s var(--ease) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="logo">
+      <i class="fa-solid fa-shield-halved logo__icon"></i>
+      <span class="logo__wordmark">Idea<strong>Guard</strong></span>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="main-wrap" id="app-root">
+      
+      <!-- 1. Loading State -->
+      <div id="state-loading" style="text-align: center; padding: 4rem 0;">
+        <div class="spinner"></div>
+        <p style="margin-top: 1.5rem; color: var(--text-muted);">안전하게 계약서 정보를 불러오는 중입니다...</p>
+      </div>
+
+      <!-- 2. Error State -->
+      <div id="state-error" class="glass-card" style="display: none; text-align: center; padding: 4rem 2rem;">
+        <i id="error-icon" class="fa-solid fa-circle-exclamation" style="font-size: 3.5rem; color: var(--danger); margin-bottom: 1.5rem;"></i>
+        <h2 id="error-title" style="color: var(--text-primary); font-size: 1.5rem; margin-bottom: 0.75rem; font-weight: 700;">유효하지 않은 링크입니다</h2>
+        <p id="error-desc" style="color: var(--text-muted); font-size: 1rem;">다시 시도하거나 발송자에게 새 링크를 요청해주세요.</p>
+      </div>
+
+      <!-- 3. Success State -->
+      <div id="state-success" class="glass-card" style="display: none; text-align: center; padding: 5rem 2rem;">
+        <i class="fa-solid fa-circle-check" style="font-size: 4rem; color: var(--success); margin-bottom: 1.5rem;"></i>
+        <h2 style="color: var(--text-primary); font-size: 1.8rem; margin-bottom: 0.75rem; font-weight: 700;">서명이 완료되었습니다.</h2>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">이 창을 닫아도 됩니다.</p>
+      </div>
+
+      <!-- 4. Sign State -->
+      <div id="state-sign" class="glass-card" style="display: none;">
+        <!-- 인사말은 JS에서 동적으로 할당됨 -->
+        <h2 id="greeting-title" style="margin-bottom: 1.5rem; color: var(--text-primary); font-size: 1.3rem; font-weight: 700; line-height: 1.4;"></h2>
+        
+        <div id="contract-text" style="background: var(--bg-secondary); border: 1px solid var(--border); padding: 1.5rem; border-radius: var(--radius-md); max-height: 40vh; overflow-y: auto; margin-bottom: 2rem; white-space: pre-wrap; font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+          <!-- Contract Content Inserted via JS -->
+        </div>
+
+        <h3 style="margin-bottom: 1rem; color: var(--text-primary); font-size: 1.1rem;">서명란 <span style="color: var(--danger);">*</span></h3>
+        <div class="canvas-container">
+          <canvas id="sign-pad"></canvas>
+          <button type="button" id="btn-clear" class="btn-clear">
+            <i class="fa-solid fa-eraser"></i> 지우기
+          </button>
+        </div>
+
+        <label class="form-alert">
+          <input type="checkbox" id="chk-agree">
+          <span style="color: var(--text-primary); font-weight: 500; font-size: 0.95rem;">본인은 위 계약서 내용에 동의하며 서명합니다</span>
+        </label>
+
+        <button type="button" id="btn-submit" class="btn btn--primary btn--block btn--lg" disabled>
+          <i class="fa-solid fa-file-signature"></i> 서명 완료하기
+        </button>
+        <p id="submit-error" style="color: var(--danger); font-size: 0.875rem; text-align: center; margin-top: 1rem; display: none;"></p>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = 'https://ideaguard-worker.nalbadaju.workers.dev/api/nda';
+    
+    // DOM Elements
+    const stateLoading = document.getElementById('state-loading');
+    const stateError   = document.getElementById('state-error');
+    const stateSuccess = document.getElementById('state-success');
+    const stateSign    = document.getElementById('state-sign');
+    
+    const errorTitle = document.getElementById('error-title');
+    const errorDesc  = document.getElementById('error-desc');
+    const errorIcon  = document.getElementById('error-icon');
+    
+    const greetingTitle = document.getElementById('greeting-title');
+    const contractText  = document.getElementById('contract-text');
+    
+    const canvas     = document.getElementById('sign-pad');
+    const ctx        = canvas.getContext('2d');
+    const btnClear   = document.getElementById('btn-clear');
+    const chkAgree   = document.getElementById('chk-agree');
+    const btnSubmit  = document.getElementById('btn-submit');
+    const submitErr  = document.getElementById('submit-error');
+
+    let isDrawing = false;
+    let hasSigned = false;
+    let currentToken = null;
+
+    // 상태 뷰 전환 애니메이션
+    function showState(stateEl) {
+      [stateLoading, stateError, stateSuccess, stateSign].forEach(el => {
+        el.style.display = 'none';
+        el.classList.remove('fade-in');
+      });
+      stateEl.style.display = 'block';
+      // 강제 리플로우를 통한 애니메이션 리트리거
+      void stateEl.offsetWidth;
+      stateEl.classList.add('fade-in');
+    }
+
+    function showError(code) {
+      if (code === 410) {
+        errorIcon.className = "fa-solid fa-lock";
+        errorIcon.style.color = "var(--text-muted)";
+        errorTitle.textContent = "이미 서명이 완료된 계약서입니다";
+        errorDesc.textContent = "서명이 최종 완료되어 수정할 수 없습니다.";
+      } else {
+        errorIcon.className = "fa-solid fa-circle-exclamation";
+        errorIcon.style.color = "var(--danger)";
+        errorTitle.textContent = "유효하지 않은 링크입니다";
+        errorDesc.textContent = "관리자에게 다시 문의해 주세요.";
+      }
+      showState(stateError);
+    }
+
+    // 초기 로딩 (토큰 파싱 및 정보 Fetch)
+    async function init() {
+      const urlParams = new URLSearchParams(window.location.search);
+      currentToken = urlParams.get('token');
+      
+      if (!currentToken) {
+        showError(404);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/${currentToken}`);
+        if (res.status === 404) return showError(404);
+        if (res.status === 410) return showError(410);
+        if (!res.ok) throw new Error('Network response error');
+        
+        const data = await res.json();
+        const nda = data.nda;
+        
+        // 동적 인사말 렌더링
+        greetingTitle.textContent = `${nda.recipient_name}님, 아래 NDA를 검토 후 서명해주세요`;
+        contractText.textContent = nda.contract_text;
+        
+        showState(stateSign);
+        resizeCanvas(); // 화면에 보일 때 캔버스 크기 계산 필요
+      } catch (err) {
+        console.error(err);
+        showError(500);
+      }
+    }
+
+    // 캔버스 초기화 및 크기 조정
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      // 투명도를 방지하기 위해 흰색 배경으로 채움 (Base64 인코딩 시 필수)
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+    }
+
+    window.addEventListener('resize', () => {
+      if (stateSign.style.display !== 'none' && !hasSigned) resizeCanvas();
+    });
+
+    // 이벤트 좌표 추출 (마우스 / 터치 통합)
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    function startDrawing(e) {
+      e.preventDefault();
+      isDrawing = true;
+      hasSigned = true;
+      const pos = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+      validateForm();
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      const pos = getPos(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+      ctx.closePath();
+    }
+
+    // 마우스 이벤트
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stopDrawing);
+    window.addEventListener('mouseout', stopDrawing);
+
+    // 터치(모바일) 이벤트
+    canvas.addEventListener('touchstart', startDrawing, {passive: false});
+    canvas.addEventListener('touchmove', draw, {passive: false});
+    window.addEventListener('touchend', stopDrawing);
+
+    // 지우기 버튼
+    btnClear.addEventListener('click', () => {
+      resizeCanvas();
+      hasSigned = false;
+      validateForm();
+    });
+
+    // 폼 검증 (체크박스 + 캔버스)
+    chkAgree.addEventListener('change', validateForm);
+
+    function validateForm() {
+      if (chkAgree.checked && hasSigned) {
+        btnSubmit.disabled = false;
+      } else {
+        btnSubmit.disabled = true;
+      }
+    }
+
+    // 최종 서명 제출 API 콜
+    btnSubmit.addEventListener('click', async () => {
+      const originalText = btnSubmit.innerHTML;
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 서명 제출 중...`;
+      submitErr.style.display = 'none';
+
+      try {
+        const base64Img = canvas.toDataURL('image/png');
+        
+        const res = await fetch(`${API_BASE}/${currentToken}/sign`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ signature_base64: base64Img })
+        });
+        
+        if (!res.ok) {
+          throw new Error('서명 제출에 실패했습니다.');
+        }
+        
+        showState(stateSuccess);
+      } catch (err) {
+        console.error(err);
+        submitErr.textContent = err.message || "서명 제출 중 통신 오류가 발생했습니다.";
+        submitErr.style.display = 'block';
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = originalText;
+      }
+    });
+
+    // 실행 진입점
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

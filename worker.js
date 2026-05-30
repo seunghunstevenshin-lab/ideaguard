@@ -89,7 +89,7 @@ function isValidCountryCode(code) {
 // ──────────────────────────────────────────────────────────────────────────────
 // 라우터
 // ──────────────────────────────────────────────────────────────────────────────
-async function handleRequest(request, env) {
+async function handleRequest(request, env, ctx) {
   const url = new URL(request.url);
   const path = url.pathname;
   const method = request.method;
@@ -99,7 +99,7 @@ async function handleRequest(request, env) {
   if (path === '/api/records' && method === 'POST') return handleRegister(request, env);
   if (path === '/api/records' && method === 'GET')  return handleGetTiles(request, env);
   if (path === '/api/records/verify' && method === 'POST') return handleVerify(request, env);
-  if (path === '/api/nda' && method === 'POST') return handleCreateNDA(request, env);
+  if (path === '/api/nda' && method === 'POST') return handleCreateNDA(request, env, ctx);
 
   const ndaGetMatch  = path.match(/^\/api\/nda\/([^/]+)$/);
   if (ndaGetMatch  && method === 'GET')  return handleGetNDA(request, env, ndaGetMatch[1]);
@@ -265,13 +265,85 @@ async function handleVerify(request, env) {
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
+// Resend 이메일 발송: NDA 서명 초대
+// ──────────────────────────────────────────────────────────────────────────────
+async function sendNDAInviteEmail(env, { recipientEmail, recipientName, proposerName, ideaTitle, signUrl }) {
+  if (!env.RESEND_API_KEY) return;
+
+  const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    .toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#0a0b0d;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#e2e8f0;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0a0b0d" style="background-color:#0a0b0d;width:100%;">
+<tr><td align="center" style="padding:40px 15px;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background-color:#0f1116;border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;">
+<tr><td align="center" style="padding:30px 20px;border-bottom:1px solid rgba(255,255,255,0.04);">
+  <h1 style="margin:0;font-size:26px;font-weight:800;color:#e2e8f0;letter-spacing:-0.5px;">Idea<span style="color:#22d3ee;">Guard</span></h1>
+</td></tr>
+<tr><td style="padding:40px 30px;">
+  <h2 style="margin:0 0 20px 0;font-size:20px;font-weight:600;color:#e2e8f0;">NDA 서명 요청</h2>
+  <p style="margin:0 0 20px 0;font-size:15px;line-height:1.6;color:#94a3b8;">안녕하세요,<br><br>
+    <strong style="color:#e2e8f0;">${proposerName}</strong>님께서 귀하에게 아이디어 열람 전 비밀유지계약서(NDA) 서명을 요청하셨습니다.</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:30px;background-color:rgba(255,255,255,0.04);border-radius:8px;">
+    <tr><td style="padding:20px;">
+      <p style="margin:0 0 6px 0;font-size:12px;color:#64748b;font-weight:600;letter-spacing:0.5px;">아이디어 명칭</p>
+      <p style="margin:0;font-size:17px;font-weight:600;color:#e2e8f0;">${ideaTitle}</p>
+    </td></tr>
+  </table>
+  <p style="margin:0 0 35px 0;font-size:15px;line-height:1.6;color:#94a3b8;">아래 버튼을 클릭하여 NDA에 서명해 주세요.</p>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td align="center">
+    <table cellpadding="0" cellspacing="0" border="0"><tr>
+      <td align="center" bgcolor="#6366f1" style="background-color:#6366f1;border-radius:8px;">
+        <a href="${signUrl}" target="_blank" style="display:inline-block;padding:14px 36px;font-size:16px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:8px;">NDA 서명하기</a>
+      </td>
+    </tr></table>
+  </td></tr></table>
+  <p style="margin:35px 0 0 0;font-size:13px;line-height:1.5;color:#64748b;text-align:center;">
+    ※ 본 서명 요청 링크는 <strong>${expires}</strong>까지 유효합니다.</p>
+</td></tr>
+<tr><td style="padding:24px 30px;background-color:#0a0b0d;border-top:1px solid rgba(255,255,255,0.08);text-align:center;">
+  <p style="margin:0 0 6px 0;font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:0.5px;">Zero-Knowledge Principle</p>
+  <p style="margin:0;font-size:12px;line-height:1.5;color:#64748b;">IdeaGuard는 귀하의 원본 데이터를 서버로 전송하지 않으며, 오직 안전한 해시값만을 통해 아이디어를 증명합니다.</p>
+</td></tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+  <tr><td align="center" style="padding:20px 0;">
+    <p style="margin:0;font-size:12px;color:#64748b;">© IdeaGuard. All rights reserved.</p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'IdeaGuard <onboarding@resend.dev>',
+        to: [recipientEmail],
+        subject: `[IdeaGuard] NDA 서명 요청 — ${recipientName}님께`,
+        html,
+      }),
+    });
+    if (!res.ok) console.error('[resend error]', res.status, await res.text());
+  } catch (e) {
+    console.error('[resend fetch error]', e.message);
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
 // 핸들러: NDA 생성
 // ──────────────────────────────────────────────────────────────────────────────
-async function handleCreateNDA(request, env) {
+async function handleCreateNDA(request, env, ctx) {
   let body;
   try { body = await request.json(); } catch { return errorResponse('요청 형식 오류'); }
 
-  const { record_id, proposer_id, recipient_email, recipient_name, country_code, contract_text, is_custom_template } = body;
+  const { record_id, proposer_id, recipient_email, recipient_name, country_code, contract_text, is_custom_template,
+          proposer_name, idea_title } = body;
 
   if (!record_id)                            return errorResponse('record_id 필요');
   if (!proposer_id)                          return errorResponse('회원 전용 기능입니다', 401);
@@ -300,6 +372,19 @@ async function handleCreateNDA(request, env) {
     console.error('[nda create error]', error.message);
     return errorResponse('NDA 생성 중 오류가 발생했습니다', 500);
   }
+
+  // NDA 생성 성공 후 이메일 발송 — ctx.waitUntil로 응답 후에도 완료 보장
+  const baseUrl = env.ENVIRONMENT === 'production'
+    ? 'https://ideaguard.pages.dev'
+    : 'http://localhost:8788';
+  const emailPromise = sendNDAInviteEmail(env, {
+    recipientEmail: recipient_email,
+    recipientName:  recipient_name,
+    proposerName:   proposer_name || '아이디어 소유자',
+    ideaTitle:      idea_title   || '비공개 아이디어',
+    signUrl: `${baseUrl}/sign.html?token=${rawToken}`,
+  }).catch(e => console.error('[email send failed]', e));
+  if (ctx?.waitUntil) ctx.waitUntil(emailPromise);
 
   return jsonResponse({
     success: true,
@@ -378,9 +463,9 @@ async function handleSignNDA(request, env, token) {
 // 메인 fetch 핸들러
 // ──────────────────────────────────────────────────────────────────────────────
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     try {
-      const response = await handleRequest(request, env);
+      const response = await handleRequest(request, env, ctx);
       return addSecurityHeaders(response, env);
     } catch (err) {
       console.error('[IdeaGuard Worker Error]', err?.message || err);
