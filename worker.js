@@ -119,6 +119,10 @@ async function handleRequest(request, env, ctx) {
   if (path === '/api/records/verify' && method === 'POST') return handleVerify(request, env);
   if (path === '/api/nda' && method === 'POST') return handleCreateNDA(request, env, ctx);
 
+  // OTS 파일 다운로드
+  const otsMatch = path.match(/^\/api\/records\/([^/]+)\/ots$/);
+  if (otsMatch && method === 'GET') return handleGetOTS(request, env, otsMatch[1]);
+
   const ndaGetMatch  = path.match(/^\/api\/nda\/([^/]+)$/);
   if (ndaGetMatch  && method === 'GET')  return handleGetNDA(request, env, ndaGetMatch[1]);
 
@@ -280,6 +284,50 @@ async function handleVerify(request, env) {
 
   if (!data) return jsonResponse({ verified: false, message: '등록된 해시값을 찾을 수 없습니다' });
   return jsonResponse({ verified: true, record: data });
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// 핸들러: OTS 파일 다운로드 (무료 — Bitcoin 블록체인 타임스탬프 증명)
+// ──────────────────────────────────────────────────────────────────────────────
+async function handleGetOTS(request, env, recordId) {
+  const db = getSupabase(env);
+  const { data, error } = await db
+    .from('records')
+    .select('id, hash, ots_proof, ots_status')
+    .eq('id', recordId)
+    .single();
+
+  if (error || !data) return errorResponse('해당 기록을 찾을 수 없습니다', 404);
+
+  if (!data.ots_proof) {
+    // OTS 제출 중이거나 실패 → 상태 반환
+    return jsonResponse({
+      available: false,
+      status: data.ots_status,
+      message: data.ots_status === 'pending'
+        ? 'OTS 앵커링 대기 중입니다. 잠시 후 다시 시도해주세요.'
+        : 'OTS 증명 파일 생성에 실패했습니다.',
+    }, 202);
+  }
+
+  // Base64 → binary Uint8Array
+  const binaryStr = atob(data.ots_proof);
+  const bytes = new Uint8Array(binaryStr.length);
+  for (let i = 0; i < binaryStr.length; i++) {
+    bytes[i] = binaryStr.charCodeAt(i);
+  }
+
+  // 파일명: ideaguard_앞16자.ots
+  const filename = `ideaguard_${data.hash.slice(0, 16)}.ots`;
+
+  return new Response(bytes.buffer, {
+    status: 200,
+    headers: {
+      'Content-Type':        'application/octet-stream',
+      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Cache-Control':       'public, max-age=3600',
+    },
+  });
 }
 
 // ──────────────────────────────────────────────────────────────────────────────

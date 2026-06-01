@@ -434,7 +434,17 @@
     .tile__hash:hover { background: var(--accent-glow); }
     .tile__tags { display: flex; flex-wrap: wrap; gap: var(--sp-1); }
     .tile__tag { font-size: 0.7rem; color: var(--text-dim); padding: 1px 6px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
-    .tile__actions { margin-top: auto; }
+    .tile__footer { display: flex; align-items: center; gap: var(--sp-2); margin-top: var(--sp-3); }
+    .tile__actions { margin-top: var(--sp-2); }
+    .tile__ots-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.7rem; font-weight: 600; padding: 2px 7px;
+      border-radius: 20px; white-space: nowrap;
+    }
+    .tile__ots-badge--confirmed { background: rgba(52,211,153,0.15); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
+    .tile__ots-badge--submitted { background: rgba(99,102,241,0.12); color: #818cf8; border: 1px solid rgba(99,102,241,0.25); }
+    .tile__ots-badge--pending   { background: rgba(148,163,184,0.1);  color: var(--text-dim); border: 1px solid var(--border); }
+    .tile__ots-badge--failed    { background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.25); }
     .tile-error { grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: var(--sp-8); }
 
     /* ─── [33. Skeleton] ─────────────────────────────────────── */
@@ -1962,6 +1972,24 @@
           .map(k => `<span class="tile__tag">#${escHtml(k)}</span>`)
           .join('');
 
+        // OTS 상태 뱃지
+        const otsStatus = r.ots_status || 'pending';
+        const otsBadgeMap = {
+          confirmed: `<span class="tile__ots-badge tile__ots-badge--confirmed" title="Bitcoin 블록체인 확정 완료"><i class="fa-brands fa-bitcoin"></i> 확정</span>`,
+          submitted: `<span class="tile__ots-badge tile__ots-badge--submitted" title="Bitcoin 앵커링 진행 중 (~1시간)"><i class="fa-solid fa-link"></i> 앵커링 중</span>`,
+          pending:   `<span class="tile__ots-badge tile__ots-badge--pending"   title="OTS 제출 대기 중"><i class="fa-solid fa-clock"></i> 대기</span>`,
+          failed:    `<span class="tile__ots-badge tile__ots-badge--failed"    title="OTS 앵커링 실패"><i class="fa-solid fa-xmark"></i> 실패</span>`,
+        };
+        const otsBadge = otsBadgeMap[otsStatus] || otsBadgeMap.pending;
+
+        // OTS 다운로드 버튼 (submitted/confirmed 상태만)
+        const otsCanDownload = (otsStatus === 'submitted' || otsStatus === 'confirmed');
+        const otsBtn = otsCanDownload
+          ? `<button class="btn btn--ghost btn--sm tile__ots-btn" aria-label="OTS 파일 다운로드" title="OpenTimestamps 증명 파일 다운로드 (무료)">
+               <i class="fa-solid fa-download" aria-hidden="true"></i> OTS
+             </button>`
+          : '';
+
         tile.innerHTML = `
           <div class="tile__head">
             <span class="tile__author">
@@ -1977,6 +2005,9 @@
             <code>${shortHash}</code>
           </button>
           ${keywordHtml ? `<div class="tile__tags" aria-label="키워드">${keywordHtml}</div>` : ''}
+          <div class="tile__footer">
+            ${otsBadge}
+          </div>
           <div class="tile__actions">
             <button class="btn btn--ghost btn--sm tile__verify-btn"
               data-hash="${escHtml(r.hash)}"
@@ -1984,6 +2015,7 @@
               <i class="fa-solid fa-shield-check" aria-hidden="true"></i>
               Verify
             </button>
+            ${otsBtn}
             <button class="btn btn--ghost btn--sm tile__nda-btn"
               aria-label="NDA 요청 이메일 발송">
               <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
@@ -2000,6 +2032,11 @@
           el.verifyInput.value = r.hash;
           el.tileboard?.scrollIntoView({ behavior: 'smooth' });
           runVerify(r.hash);
+        });
+
+        // OTS 파일 다운로드 (무료)
+        tile.querySelector('.tile__ots-btn')?.addEventListener('click', () => {
+          window.location.href = `${API}/api/records/${r.id}/ots`;
         });
 
         // NDA 모달 열기 (비로그인 시 로그인 유도)
