@@ -439,6 +439,20 @@
 
     /* ─── [33. Skeleton] ─────────────────────────────────────── */
     .tile--skeleton { pointer-events: none; }
+
+    /* ─── [33-b. 신규 등록 타일 글로우] ─────────────────────── */
+    .tile--new {
+      border-color: rgba(99, 102, 241, 0.7) !important;
+      animation: tileNewGlow 1.6s ease-in-out infinite;
+    }
+    @keyframes tileNewGlow {
+      0%, 100% {
+        box-shadow: 0 0 0 1px rgba(99,102,241,0.5), 0 0 18px rgba(99,102,241,0.25), var(--shadow-md);
+      }
+      50% {
+        box-shadow: 0 0 0 2px rgba(99,102,241,0.8), 0 0 36px rgba(99,102,241,0.45), 0 0 60px rgba(34,211,238,0.12);
+      }
+    }
     .skeleton { background: rgba(255,255,255,0.06); border-radius: var(--radius-sm); height: 1rem; }
     .skeleton--sm  { width: 40%; height: 0.75rem; }
     .skeleton--md  { width: 70%; height: 0.875rem; }
@@ -719,7 +733,7 @@
           <li><a href="#hero"      class="primary-nav__link">홈</a></li>
           <li><a href="#register"  class="primary-nav__link">해시 등록</a></li>
           <li><a href="#nda-cta"   class="primary-nav__link">NDA 체결</a></li>
-          <li><a href="#tileboard" class="primary-nav__link">타일 보드</a></li>
+          <li><a href="#tileboard" class="primary-nav__link">해시 목록</a></li>
           <li><a href="#legal-guide" class="primary-nav__link primary-nav__link--guide">
             <i class="fa-solid fa-book-open-reader" aria-hidden="true"></i>
             법적 활용 가이드
@@ -765,7 +779,7 @@
         <li><a href="#hero"        class="mobile-menu__link">홈</a></li>
         <li><a href="#register"    class="mobile-menu__link">해시 등록</a></li>
         <li><a href="#nda-cta"     class="mobile-menu__link">NDA 체결</a></li>
-        <li><a href="#tileboard"   class="mobile-menu__link">타일 보드</a></li>
+        <li><a href="#tileboard"   class="mobile-menu__link">해시 목록</a></li>
         <li><a href="#legal-guide" class="mobile-menu__link">📖 법적 활용 가이드</a></li>
         <li>
           <a href="#" class="mobile-menu__link mobile-menu__link--cta">
@@ -819,7 +833,7 @@
           </a>
           <a href="#tileboard" class="btn btn--ghost btn--lg">
             <i class="fa-solid fa-table-cells" aria-hidden="true"></i>
-            타일 보드 보기
+            해시 목록 보기
           </a>
         </div>
 
@@ -982,11 +996,11 @@
 
         <header class="section-header">
           <h2 class="section-title" id="tileboard-title">
-            <i class="fa-solid fa-table-cells" aria-hidden="true"></i>
-            공표 타일 보드
+            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
+            생성된 해시 목록
           </h2>
           <p class="section-desc">
-            등록된 아이디어 해시가 공개 타임스탬프와 함께 표시됩니다.
+            등록된 SHA-256 해시가 타임스탬프와 함께 기록됩니다.
           </p>
         </header>
 
@@ -1383,7 +1397,7 @@
       <nav class="footer-nav" aria-label="푸터 메뉴">
         <ul role="list">
           <li><a href="#register"    class="footer-nav__link">해시 등록</a></li>
-          <li><a href="#tileboard"   class="footer-nav__link">타일 보드</a></li>
+          <li><a href="#tileboard"   class="footer-nav__link">해시 목록</a></li>
           <li><a href="#nda-cta"     class="footer-nav__link">NDA 체결</a></li>
           <li><a href="#legal-guide" class="footer-nav__link">법적 활용 가이드</a></li>
         </ul>
@@ -1537,6 +1551,7 @@
       totalPages:      1,
       keywords:        [],     // 키워드 배열 (최대 5)
       loading:         false,
+      newRecordId:     null,   // 방금 등록된 타일 ID (글로우 이펙트용)
     };
 
     /* ── DOM References ──────────────────────────────────────────── */
@@ -1821,10 +1836,17 @@
           if (!res.ok) {
             showFormError(data.error || '등록 중 오류가 발생했습니다.');
           } else {
+            // 신규 타일 ID 저장 → 글로우 이펙트 + 8초 후 자동 해제
+            state.newRecordId = data.record?.id ?? null;
+            setTimeout(() => { state.newRecordId = null; }, 8000);
+
             el.formSuccess.hidden = false;
             resetForm();
             state.currentPage = 1;
             await fetchTiles(1);
+
+            // 타일 렌더 완료 후 해시 목록으로 스크롤
+            el.tileboard?.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         } catch {
           showFormError('네트워크 오류가 발생했습니다. 다시 시도해 주세요.');
@@ -1930,7 +1952,7 @@
       el.emptyState.hidden = true;
       records.forEach(r => {
         const tile = document.createElement('article');
-        tile.className   = 'tile glass-card';
+        tile.className   = 'tile glass-card' + (r.id === state.newRecordId ? ' tile--new' : '');
         tile.setAttribute('role', 'listitem');
         tile.setAttribute('aria-label', `${r.nickname}의 아이디어 — ${r.title}`);
 
