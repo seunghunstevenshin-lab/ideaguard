@@ -1146,245 +1146,91 @@
             <i class="fa-solid fa-book-open-reader" aria-hidden="true"></i>
             법적 활용 가이드
           </h2>
-          <p class="section-desc">
-            IdeaGuard가 제공하는 것과 그 한계, 그리고 법적 효력을 강화하는 방법을 솔직하게 안내합니다.
-          </p>
         </header>
 
-        <!-- ★ 이중 타임스탬프 강조 배너 -->
-        <div class="dual-stamp glass-card">
-          <div class="dual-stamp__header">
-            <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
-            <h3>이중 타임스탬프 — 자동 적용됩니다</h3>
-            <span class="badge--auto">등록 즉시</span>
+        <!-- 이중 타임스탬프 -->
+        <div class="dual-stamp glass-card" style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; padding:1.5rem 2rem; margin-bottom:1.5rem;">
+          <div style="display:flex; align-items:center; gap:0.75rem; flex:1; min-width:200px;">
+            <span style="width:36px;height:36px;border-radius:50%;background:rgba(99,102,241,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-database" style="color:var(--mid);"></i></span>
+            <div><div style="font-size:.75rem;color:var(--text-dim);font-weight:600;">즉시</div><div style="font-size:.95rem;font-weight:700;color:var(--text-primary);">서버 타임스탬프 기록</div></div>
           </div>
-          <p class="dual-stamp__intro">
-            해시를 등록하면 <strong>두 가지 독립된 기록</strong>이 자동으로 동시에 생성됩니다.
-            추가 비용도, 별도 설정도 필요 없습니다.
+          <span style="font-size:1.5rem;color:var(--text-dim);font-weight:300;">+</span>
+          <div style="display:flex; align-items:center; gap:0.75rem; flex:1; min-width:200px;">
+            <span style="width:36px;height:36px;border-radius:50%;background:rgba(247,147,26,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-brands fa-bitcoin" style="color:#f7931a;"></i></span>
+            <div><div style="font-size:.75rem;color:var(--text-dim);font-weight:600;">~1시간 후</div><div style="font-size:.95rem;font-weight:700;color:var(--text-primary);">Bitcoin 블록체인 영구 앵커링</div></div>
+          </div>
+          <p style="width:100%;font-size:.85rem;color:var(--text-muted);margin:0;padding-top:.75rem;border-top:1px solid var(--border);">
+            <i class="fa-solid fa-circle-info" style="color:var(--mid);margin-right:.4rem;"></i>두 기록 모두 자동·무료. IdeaGuard조차 변조 불가 — 중앙 관리자 없는 Bitcoin 특성상 불가능.
           </p>
+        </div>
 
-          <div class="dual-stamp__layers">
-
-            <div class="stamp-layer">
-              <div class="stamp-layer__num">1</div>
-              <div class="stamp-layer__body">
-                <div class="stamp-layer__label">
-                  <i class="fa-solid fa-database" aria-hidden="true"></i>
-                  즉시 — IdeaGuard 서버 기록
-                </div>
-                <p>등록 순간 SHA-256 해시 + 서버 타임스탬프가 Supabase DB에 저장됩니다. 타일 보드에 즉시 공표됩니다.</p>
-              </div>
-            </div>
-
-            <div class="dual-stamp__divider" aria-hidden="true">
-              <span>+</span>
-            </div>
-
-            <div class="stamp-layer stamp-layer--bitcoin">
-              <div class="stamp-layer__num stamp-layer__num--bitcoin">2</div>
-              <div class="stamp-layer__body">
-                <div class="stamp-layer__label">
-                  <i class="fa-brands fa-bitcoin" aria-hidden="true"></i>
-                  ~1시간 후 — Bitcoin 블록체인 영구 기록
-                </div>
-                <p>OpenTimestamps가 해시를 Bitcoin 네트워크에 앵커링합니다. 전 세계 수천 개 노드가 동시에 보관하므로 <strong>IdeaGuard조차 변조 불가능</strong>합니다.</p>
-              </div>
-            </div>
-
-          </div><!-- /.dual-stamp__layers -->
-
-          <div class="dual-stamp__why">
-            <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
-            <span>
-              <strong>왜 2개인가요?</strong>
-              서버 기록만 있으면 "IdeaGuard가 나중에 수정했을 수도 있잖아요"라는 주장에 취약합니다.
-              Bitcoin 블록체인은 중앙 관리자가 없어서 이 반박 자체가 불가능합니다.
-              두 기록이 같은 해시값을 가리키면 착안일은 누구도 부인할 수 없습니다.
-            </span>
-          </div>
-        </div><!-- /.dual-stamp -->
-
-        <!-- 솔직한 한계 공개 -->
-        <div class="guide-grid">
-
-          <div class="guide-card guide-card--what glass-card">
-            <div class="guide-card__icon">
-              <i class="fa-solid fa-shield-check" aria-hidden="true"></i>
-            </div>
-            <h3 class="guide-card__title">IdeaGuard가 제공하는 것</h3>
+        <!-- 제공 / 한계 -->
+        <div class="guide-grid" style="margin-bottom:1.5rem;">
+          <div class="guide-card glass-card">
+            <h3 class="guide-card__title"><i class="fa-solid fa-shield-check text--accent" style="margin-right:.5rem;"></i>제공</h3>
             <ul class="guide-list">
-              <li>
-                <i class="fa-solid fa-check text--accent" aria-hidden="true"></i>
-                <span>
-                  <strong>이중 타임스탬프 자동 생성</strong><br>
-                  <span class="guide-list__sub">① SHA-256 + 서버 기록 (즉시) &nbsp;②&nbsp;<i class="fa-brands fa-bitcoin" style="color:#f7931a"></i> Bitcoin 블록체인 앵커링 (~1시간)</span>
-                </span>
-              </li>
-              <li>
-                <i class="fa-solid fa-check text--accent" aria-hidden="true"></i>
-                <span><strong>원본 비공개(Zero-Knowledge)</strong> — 해시값만 저장, 원본 내용은 서버에 없음</span>
-              </li>
-              <li>
-                <i class="fa-solid fa-check text--accent" aria-hidden="true"></i>
-                <span><strong>NDA 자동 생성 + 수령자 서명</strong> — 공동창업 전 신뢰 확보</span>
-              </li>
-              <li>
-                <i class="fa-solid fa-check text--accent" aria-hidden="true"></i>
-                <span><strong>도덕적 억제력</strong> — "기록이 있다"는 사실만으로도 분쟁 발생 억제</span>
-              </li>
-              <li>
-                <i class="fa-solid fa-check text--accent" aria-hidden="true"></i>
-                <span><strong>증명 부담 전환</strong> — 해시 기록이 있으면 <em>상대방이 "기록이 조작됐다"는 것을 직접 증명</em>해야 합니다. 내가 증명하는 것보다 훨씬 유리한 법적 위치입니다.</span>
-              </li>
+              <li><i class="fa-solid fa-check text--accent"></i><span>이중 타임스탬프 자동 생성 (서버 + Bitcoin)</span></li>
+              <li><i class="fa-solid fa-check text--accent"></i><span>Zero-Knowledge — 원본 서버 비저장</span></li>
+              <li><i class="fa-solid fa-check text--accent"></i><span>NDA 자동 생성 + 수령자 전자서명</span></li>
+              <li><i class="fa-solid fa-check text--accent"></i><span>증명 부담 전환 — 상대방이 반박해야 함</span></li>
             </ul>
           </div>
-
-          <div class="guide-card guide-card--limit glass-card">
-            <div class="guide-card__icon guide-card__icon--warn">
-              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-            </div>
-            <h3 class="guide-card__title">솔직한 한계</h3>
+          <div class="guide-card glass-card">
+            <h3 class="guide-card__title"><i class="fa-solid fa-triangle-exclamation text--warn" style="margin-right:.5rem;color:#f59e0b;"></i>한계</h3>
             <ul class="guide-list">
-              <li>
-                <i class="fa-solid fa-xmark text--warn" aria-hidden="true"></i>
-                <span>한국 전자서명법상 <strong>공인 타임스탬프 기관(TSA) 인증서가 아닙니다</strong></span>
-              </li>
-              <li>
-                <i class="fa-solid fa-xmark text--warn" aria-hidden="true"></i>
-                <span>법원 제출 시 <strong>단독으로는 법적 추정력이 발생하지 않습니다</strong></span>
-              </li>
-              <li>
-                <i class="fa-solid fa-xmark text--warn" aria-hidden="true"></i>
-                <span>특허권·저작권·상표권 등록을 <strong>대체하지 않습니다</strong></span>
-              </li>
+              <li><i class="fa-solid fa-xmark text--warn" style="color:#f87171;"></i><span>공인 TSA 인증 아님</span></li>
+              <li><i class="fa-solid fa-xmark text--warn" style="color:#f87171;"></i><span>단독으로 법적 추정력 없음</span></li>
+              <li><i class="fa-solid fa-xmark text--warn" style="color:#f87171;"></i><span>특허·저작권·상표 등록 대체 불가</span></li>
             </ul>
-            <p class="guide-card__note">
-              <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
-              하지만 아래 방법으로 법적 효력을 크게 강화할 수 있습니다.
-            </p>
           </div>
+        </div>
 
-        </div><!-- /.guide-grid -->
-
-        <!-- 강화 로드맵 -->
-        <div class="guide-roadmap glass-card">
-          <h3 class="guide-roadmap__title">
-            <i class="fa-solid fa-stairs" aria-hidden="true"></i>
-            법적 효력 강화 3단계
-          </h3>
-
+        <!-- 효력 강화 3단계 -->
+        <div class="guide-roadmap glass-card" style="margin-bottom:1.5rem;">
+          <h3 class="guide-roadmap__title"><i class="fa-solid fa-stairs"></i>법적 효력 강화 3단계</h3>
           <ol class="roadmap-steps">
-
             <li class="roadmap-step roadmap-step--current">
               <div class="roadmap-step__badge">자동</div>
               <div class="roadmap-step__body">
-                <h4>IdeaGuard 해시 등록 — 이중 기록 자동 적용</h4>
-                <p>
-                  등록 즉시 <strong>① 서버 타임스탬프</strong>가 기록되고,
-                  약 1시간 내로 <strong>② Bitcoin 블록체인</strong>에 영구 앵커링됩니다.
-                  두 기록 모두 추가 비용 없이 자동으로 생성됩니다.
-                </p>
-                <span class="roadmap-step__strength">법적 강도 ●●●○○</span>
+                <h4>IdeaGuard 해시 등록</h4>
+                <p>서버 타임스탬프 (즉시) + Bitcoin 앵커링 (~1시간) 자동 적용</p>
               </div>
             </li>
-
             <li class="roadmap-step roadmap-step--recommend">
               <div class="roadmap-step__badge roadmap-step__badge--accent">추천</div>
               <div class="roadmap-step__body">
-                <h4>특허청 영업비밀 원본증명 추가 등록 <span class="badge--free">무료</span></h4>
-                <p>
-                  IdeaGuard에서 생성한 <strong>해시값을 복사</strong>하여 특허청 영업비밀 원본증명 서비스에 동일하게 등록합니다.
-                  공인 정부 기관 기록 = 법적 추정력 발생.
-                </p>
-                <a href="https://www.kipo.go.kr/ko/kpoBizContentView.do?menuCd=SCD0200143"
-                   target="_blank" rel="noopener noreferrer"
-                   class="btn btn--ghost btn--sm guide-roadmap__link">
-                  <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
-                  특허청 원본증명 바로가기
+                <h4>특허청 영업비밀 원본증명 추가 등록 — 무료</h4>
+                <p>해시값을 복사해 등록 → 정부 공인 기록 = 법적 추정력 발생</p>
+                <a href="https://www.kipo.go.kr/ko/kpoBizContentView.do?menuCd=SCD0200143" target="_blank" rel="noopener noreferrer" class="btn btn--ghost btn--sm guide-roadmap__link" style="margin-top:.75rem;">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> 특허청 원본증명 바로가기
                 </a>
-                <span class="roadmap-step__strength">법적 강도 ●●●●○</span>
               </div>
             </li>
-
             <li class="roadmap-step">
               <div class="roadmap-step__badge roadmap-step__badge--muted">추가</div>
               <div class="roadmap-step__body">
                 <h4>NDA 체결</h4>
-                <p>
-                  공동창업자 · 투자자에게 아이디어를 공유할 때 IdeaGuard NDA를 체결합니다.
-                  서명 기록 + IP 주소 + 서명 일시가 자동 저장됩니다.
-                </p>
-                <a href="#nda-cta" class="btn btn--ghost btn--sm guide-roadmap__link">
-                  <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
-                  NDA 작성하기
+                <p>공동창업자·투자자 공유 전 서명 — 서명 기록·IP·일시 자동 저장</p>
+                <a href="#nda-cta" class="btn btn--ghost btn--sm guide-roadmap__link" style="margin-top:.75rem;">
+                  <i class="fa-solid fa-file-signature"></i> NDA 작성하기
                 </a>
-                <span class="roadmap-step__strength">법적 강도 ●●●●●</span>
               </div>
             </li>
-
           </ol>
-        </div><!-- /.guide-roadmap -->
+        </div>
 
-        <!-- 법원 제출 체크리스트 -->
+        <!-- 분쟁 시 준비물 -->
         <div class="guide-checklist glass-card">
-          <h3 class="guide-checklist__title">
-            <i class="fa-solid fa-list-check" aria-hidden="true"></i>
-            법적 분쟁 발생 시 준비 서류
-          </h3>
-          <p class="guide-checklist__desc">법원 제출 또는 변호사 상담 시 아래 자료를 함께 준비하세요.</p>
+          <h3 class="guide-checklist__title"><i class="fa-solid fa-list-check"></i>분쟁 시 준비물</h3>
           <ol class="checklist">
-            <li class="checklist__item">
-              <span class="checklist__num">01</span>
-              <div>
-                <strong>원본 파일 또는 텍스트</strong>
-                <p>IdeaGuard에 등록한 원본 파일 또는 텍스트 내용 (본인 보관)</p>
-              </div>
-            </li>
-            <li class="checklist__item">
-              <span class="checklist__num">02</span>
-              <div>
-                <strong>IdeaGuard 등록 스크린샷</strong>
-                <p>해시값 + 등록 일시가 표시된 타일 보드 또는 등록 완료 화면</p>
-              </div>
-            </li>
-            <li class="checklist__item">
-              <span class="checklist__num checklist__num--bitcoin">₿</span>
-              <div>
-                <strong>Bitcoin 앵커링 증명 (OTS 파일)</strong>
-                <p>
-                  등록 ~1시간 후 자동 생성되는 Bitcoin 블록체인 증명 파일입니다.
-                  <a href="https://opentimestamps.org" target="_blank" rel="noopener noreferrer">opentimestamps.org</a>에서
-                  OTS 파일과 원본 파일을 함께 업로드하면 Bitcoin 블록에 기록된 시점을 누구나 독립 검증할 수 있습니다.
-                </p>
-              </div>
-            </li>
-            <li class="checklist__item">
-              <span class="checklist__num">03</span>
-              <div>
-                <strong>특허청 원본증명 인증서</strong>
-                <p>(2단계 완료 시) 특허청 발급 원본증명 PDF</p>
-              </div>
-            </li>
-            <li class="checklist__item">
-              <span class="checklist__num">04</span>
-              <div>
-                <strong>체결된 NDA 사본</strong>
-                <p>(NDA 체결 시) 수령자 서명 + 서명 IP + 서명 일시 포함 계약서</p>
-              </div>
-            </li>
-            <li class="checklist__item">
-              <span class="checklist__num">05</span>
-              <div>
-                <strong>보관 경위 일지</strong>
-                <p>아이디어 착안 경위, 등록 날짜, 공유 이력을 시간순으로 정리한 메모</p>
-              </div>
-            </li>
+            <li class="checklist__item"><span class="checklist__num">01</span><strong>원본 파일 / 텍스트</strong> (본인 보관)</li>
+            <li class="checklist__item"><span class="checklist__num">02</span><strong>IdeaGuard 등록 스크린샷</strong></li>
+            <li class="checklist__item"><span class="checklist__num checklist__num--bitcoin">₿</span><strong>OTS 파일</strong> — 타일의 OTS 버튼으로 다운로드</li>
+            <li class="checklist__item"><span class="checklist__num">03</span><strong>특허청 원본증명 PDF</strong> (2단계 완료 시)</li>
+            <li class="checklist__item"><span class="checklist__num">04</span><strong>NDA 사본</strong> (체결 시)</li>
           </ol>
-          <p class="guide-checklist__disclaimer">
-            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-            위 내용은 일반적인 안내이며 법률 자문이 아닙니다. 실제 분쟁 시 반드시 변호사 상담을 받으세요.
-          </p>
-        </div><!-- /.guide-checklist -->
+          <p class="guide-checklist__disclaimer"><i class="fa-solid fa-circle-info"></i>일반 안내이며 법률 자문이 아닙니다. 실제 분쟁 시 변호사 상담을 받으세요.</p>
+        </div>
 
       </div><!-- /.container -->
     </section>
