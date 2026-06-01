@@ -10,13 +10,31 @@ import { createClient } from '@supabase/supabase-js';
 // ──────────────────────────────────────────────────────────────────────────────
 // 보안 헤더
 // ──────────────────────────────────────────────────────────────────────────────
-function addSecurityHeaders(response, env) {
+// 허용된 Origin 목록 (Cloudflare Pages + 로컬 개발)
+const ALLOWED_ORIGINS = new Set([
+  'https://ideaguard.pages.dev',           // Cloudflare Pages 기본 URL
+  'https://ideaguard-seunghunstevenshin-lab.pages.dev', // 조직 Pages URL (있는 경우)
+  'http://localhost:8788',                  // wrangler pages dev
+  'http://localhost:8787',                  // wrangler dev
+]);
+
+function getCorsOrigin(request, env) {
+  if (env.ENVIRONMENT !== 'production') return '*';
+  const origin = request.headers.get('Origin') || '';
+  // Pages 프리뷰 브랜치 URL 패턴 허용 (예: ideaguard-abc123.pages.dev)
+  if (/^https:\/\/ideaguard(-[a-z0-9]+)?\.pages\.dev$/.test(origin)) return origin;
+  if (ALLOWED_ORIGINS.has(origin)) return origin;
+  return 'https://ideaguard.pages.dev'; // fallback
+}
+
+function addSecurityHeaders(response, env, request) {
   const headers = new Headers(response.headers);
   const isProd = env.ENVIRONMENT === 'production';
 
-  headers.set('Access-Control-Allow-Origin', isProd ? 'https://ideaguard.pages.dev' : '*');
+  headers.set('Access-Control-Allow-Origin', getCorsOrigin(request, env));
   headers.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  headers.set('Vary', 'Origin'); // CORS 캐싱 정합성
 
   if (isProd) {
     headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
@@ -562,10 +580,10 @@ export default {
   async fetch(request, env, ctx) {
     try {
       const response = await handleRequest(request, env, ctx);
-      return addSecurityHeaders(response, env);
+      return addSecurityHeaders(response, env, request);
     } catch (err) {
       console.error('[IdeaGuard Worker Error]', err?.message || err);
-      return addSecurityHeaders(errorResponse('서버 오류가 발생했습니다', 500), env);
+      return addSecurityHeaders(errorResponse('서버 오류가 발생했습니다', 500), env, request);
     }
   },
 };

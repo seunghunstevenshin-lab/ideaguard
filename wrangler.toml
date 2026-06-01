@@ -2,6 +2,7 @@ name = "ideaguard-worker"
 main = "worker.js"
 compatibility_date = "2025-05-29"
 compatibility_flags = ["nodejs_compat"]
+account_id = "6791b067e330ffa38de2b341d95b0452"
 
 # ──────────────────────────────────────────────────────────────
 # 환경 변수 (민감 정보는 wrangler secret put 으로 별도 설정)

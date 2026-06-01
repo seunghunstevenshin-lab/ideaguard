@@ -7,10 +7,12 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --env production",
     "deploy:dev": "wrangler deploy --env development",
+    "pages:deploy": "wrangler pages deploy . --project-name ideaguard --branch main",
+    "pages:dev": "wrangler pages dev . --proxy 8787",
     "tail": "wrangler tail",
-    "secret:supabase-url": "wrangler secret put SUPABASE_URL",
-    "secret:supabase-key": "wrangler secret put SUPABASE_SERVICE_KEY",
-    "secret:resend": "wrangler secret put RESEND_API_KEY"
+    "secret:supabase-url": "wrangler secret put SUPABASE_URL --env production",
+    "secret:supabase-key": "wrangler secret put SUPABASE_SERVICE_KEY --env production",
+    "secret:resend": "wrangler secret put RESEND_API_KEY --env production"
   },
   "devDependencies": {
     "wrangler": "^4.95.0"
