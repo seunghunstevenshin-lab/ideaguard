@@ -1564,6 +1564,7 @@
       formSuccess:  $('form-success'),
       btnRegister:  $('btn-register'),
       // Tileboard
+      tileboard:    $('tileboard'),
       tileGrid:     $('tile-grid'),
       emptyState:   $('empty-state'),
       pagination:   $('pagination'),
@@ -1808,7 +1809,11 @@
           const res = await fetch(`${API}/api/records`, {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ hash: state.currentHash }),
+            // 로그인 상태면 user_id 포함 → 내 기록 관리 가능
+            body:    JSON.stringify({
+              hash:    state.currentHash,
+              user_id: currentUser?.id ?? null,
+            }),
           });
 
           const data = await res.json();
@@ -1975,9 +1980,15 @@
           runVerify(r.hash);
         });
 
-        // NDA 모달 열기
-        tile.querySelector('.tile__nda-btn').addEventListener('click', () =>
-          openNdaModal(r));
+        // NDA 모달 열기 (비로그인 시 로그인 유도)
+        tile.querySelector('.tile__nda-btn').addEventListener('click', () => {
+          if (!currentUser) {
+            const m = $('modal-auth');
+            if (m) { m.hidden = false; document.body.style.overflow = 'hidden'; }
+            return;
+          }
+          openNdaModal(r);
+        });
 
         el.tileGrid.appendChild(tile);
       });
