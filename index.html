@@ -519,6 +519,7 @@
 
     .guide-roadmap { padding: var(--sp-8); margin-bottom: var(--sp-8); }
     .guide-roadmap__title { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--sp-7); display: flex; align-items: center; gap: var(--sp-3); }
+    .guide-roadmap__title.accordion__header { margin-bottom: 0; }
     .roadmap-steps { list-style: none; display: flex; flex-direction: column; gap: var(--sp-6); counter-reset: none; }
     .roadmap-step { display: flex; gap: var(--sp-5); align-items: flex-start; padding: var(--sp-5); border-radius: 12px; border: 1px solid rgba(255,255,255,.06); }
     .roadmap-step--current { border-color: rgba(99,102,241,.2); background: rgba(99,102,241,.04); }
@@ -538,6 +539,7 @@
 
     .guide-checklist { padding: var(--sp-8); }
     .guide-checklist__title { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--sp-3); display: flex; align-items: center; gap: var(--sp-3); }
+    .guide-checklist__title.accordion__header { margin-bottom: 0; }
     .guide-checklist__desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: var(--sp-6); }
     .checklist { list-style: none; display: flex; flex-direction: column; gap: var(--sp-5); }
     .checklist__item { display: flex; gap: var(--sp-5); align-items: flex-start; }
@@ -772,6 +774,31 @@
     .checklist--visual .checklist__num { width: 38px; height: 38px; flex-shrink: 0; }
     .checklist--visual .checklist__item > div > strong { display: block; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 3px; }
     .checklist--visual .checklist__item > div > p { font-size: 0.83rem; color: var(--text-muted); margin: 0; }
+
+    /* ─── [46. Accordion] ────────────────────────────────────── */
+    .accordion__header {
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; user-select: none; gap: var(--sp-3);
+      width: 100%;
+    }
+    .accordion__header:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    .accordion__toggle-icon {
+      flex-shrink: 0; color: var(--text-dim); font-size: 0.9rem;
+      transition: transform var(--duration-md) var(--ease);
+    }
+    .accordion__toggle-icon.is-open { transform: rotate(180deg); }
+    .accordion__body {
+      overflow: hidden; max-height: 0;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.3s var(--ease);
+      opacity: 0;
+    }
+    .accordion__body.is-open { max-height: 3000px; opacity: 1; }
+    .accordion__hint {
+      font-size: 0.72rem; color: var(--text-dim); font-weight: 500;
+      white-space: nowrap; transition: opacity var(--duration-md) var(--ease);
+    }
+    .accordion__header:hover .accordion__hint { opacity: 0.7; }
 
     /* ─── [37. Site Footer] ──────────────────────────────────── */
     .site-footer { background: var(--bg-secondary); border-top: var(--glass-border); padding: var(--sp-10) 0; }
@@ -1038,8 +1065,8 @@
 
         <!-- Subheadline A/B rotation -->
         <p class="hero__sub" id="hero-sub">
-          아이디어를 말하기 전, 증거를 먼저 만들어 두세요.<br>
-          SHA-256 해시가 등록일(Conception Date)을 증명하고, 비밀유지 협약서(NDA)가 무분별한 공개를 막아 냅니다.
+          착안일(Conception Date) 부인봉쇄 · NDA 원스톱 플랫폼.<br>
+          SHA-256 해시 + 블록체인 타임스탬프로 선행 착안 사실을 암호학적으로 증명합니다.
         </p>
 
         <!-- CTAs -->
@@ -1143,13 +1170,9 @@
               id="text-input"
               class="input input--textarea"
               rows="4"
-              placeholder="해시로 등록할 아이디어 내용을 직접 입력하세요..."
+              placeholder="해시로 등록할 문구 또는 아이디어 내용을 입력하세요."
               aria-describedby="text-input-hint"
             ></textarea>
-            <p class="input-hint" id="text-input-hint">
-              <i class="fa-solid fa-lock" aria-hidden="true"></i>
-              입력한 텍스트는 서버로 전송되지 않습니다.
-            </p>
           </div>
 
           <!-- Hash Preview (hidden until content is provided) -->
@@ -1195,13 +1218,12 @@
                 </button>
                 <p class="register__member-hint">
                   <i class="fa-solid fa-user-check" aria-hidden="true"></i>
-                  로그인하면 내 목록에서 관리하고 NDA 이메일을 발송할 수 있습니다.
+                  로그인하면 생성한 해시 목록과 비밀유지 협약서(NDA)를 이메일로 발송할 수 있습니다.
                 </p>
               </div>
-              <p class="form-footnote">
+              <p class="form-footnote" style="font-weight:600;color:var(--accent);">
                 <i class="fa-solid fa-lock-keyhole" aria-hidden="true"></i>
-                원본 파일·텍스트는 절대 서버로 전송되지 않습니다.
-                해시값만 저장됩니다.
+                원본 파일·텍스트는 절대 서버로 전송되지 않습니다. 결과인 해시값만 저장됩니다.
               </p>
             </div>
           </form>
@@ -1449,7 +1471,7 @@
           </div>
           <div class="process-arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></div>
           <div class="process-step process-step--result">
-            <div class="process-step__icon"><i class="fa-solid fa-shield-check" aria-hidden="true"></i></div>
+            <div class="process-step__icon"><i class="fa-solid fa-certificate" aria-hidden="true"></i></div>
             <div class="process-step__name">착안일<br>증명 완성</div>
             <div class="process-step__tag">법적 증거</div>
           </div>
@@ -1558,10 +1580,19 @@
           </div>
         </div>
 
-        <!-- 효력 강화 3단계 -->
+        <!-- 효력 강화 3단계 — 아코디언 -->
         <div class="guide-roadmap glass-card" style="margin-bottom:1.5rem;">
-          <h3 class="guide-roadmap__title"><i class="fa-solid fa-stairs" aria-hidden="true"></i>법적 효력 강화 3단계</h3>
-          <ol class="roadmap-steps">
+          <h3 class="guide-roadmap__title accordion__header" tabindex="0" role="button" aria-expanded="false">
+            <span style="display:flex;align-items:center;gap:var(--sp-3);">
+              <i class="fa-solid fa-stairs" aria-hidden="true"></i>법적 효력 강화 3단계
+            </span>
+            <span style="display:flex;align-items:center;gap:var(--sp-3);">
+              <span class="accordion__hint">클릭해 펼치기</span>
+              <i class="fa-solid fa-chevron-down accordion__toggle-icon" aria-hidden="true"></i>
+            </span>
+          </h3>
+          <div class="accordion__body">
+          <ol class="roadmap-steps" style="margin-top:var(--sp-6);">
             <li class="roadmap-step roadmap-step--current">
               <div class="roadmap-step__badge">자동</div>
               <div class="roadmap-step__body">
@@ -1590,12 +1621,22 @@
               </div>
             </li>
           </ol>
+          </div><!-- /.accordion__body -->
         </div>
 
-        <!-- 분쟁 시 준비물 -->
+        <!-- 분쟁 시 준비물 — 아코디언 -->
         <div class="guide-checklist glass-card">
-          <h3 class="guide-checklist__title"><i class="fa-solid fa-list-check" aria-hidden="true"></i>분쟁 시 준비물</h3>
-          <ol class="checklist checklist--visual">
+          <h3 class="guide-checklist__title accordion__header" tabindex="0" role="button" aria-expanded="false">
+            <span style="display:flex;align-items:center;gap:var(--sp-3);">
+              <i class="fa-solid fa-list-check" aria-hidden="true"></i>분쟁 시 준비물
+            </span>
+            <span style="display:flex;align-items:center;gap:var(--sp-3);">
+              <span class="accordion__hint">클릭해 펼치기</span>
+              <i class="fa-solid fa-chevron-down accordion__toggle-icon" aria-hidden="true"></i>
+            </span>
+          </h3>
+          <div class="accordion__body">
+          <ol class="checklist checklist--visual" style="margin-top:var(--sp-6);">
             <li class="checklist__item">
               <span class="checklist__num">01</span>
               <div>
@@ -1633,6 +1674,7 @@
             </li>
           </ol>
           <p class="guide-checklist__disclaimer"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>일반 안내이며 법률 자문이 아닙니다. 실제 분쟁 시 변호사 상담을 받으세요.</p>
+          </div><!-- /.accordion__body -->
         </div>
 
       </div><!-- /.container -->
@@ -2267,9 +2309,9 @@
             </button>
             ${otsBtn}
             <button class="btn btn--ghost btn--sm tile__nda-btn"
-              aria-label="NDA 요청 이메일 발송">
+              aria-label="NDA 생성 및 요청">
               <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
-              NDA
+              NDA 생성
             </button>
           </div>`;
 
@@ -2625,6 +2667,28 @@
     /* ═════════════════════════════════════════════════════════════
        INIT
     ═════════════════════════════════════════════════════════════ */
+    // ── Accordion 토글 ────────────────────────────────────────
+    function setupAccordions() {
+      document.querySelectorAll('.accordion__header').forEach(header => {
+        const body   = header.nextElementSibling;
+        const icon   = header.querySelector('.accordion__toggle-icon');
+        const hint   = header.querySelector('.accordion__hint');
+
+        function toggle() {
+          const isOpen = body.classList.contains('is-open');
+          body.classList.toggle('is-open', !isOpen);
+          if (icon) icon.classList.toggle('is-open', !isOpen);
+          header.setAttribute('aria-expanded', String(!isOpen));
+          if (hint) hint.textContent = !isOpen ? '클릭해 접기' : '클릭해 펼치기';
+        }
+
+        header.addEventListener('click', toggle);
+        header.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+        });
+      });
+    }
+
     function init() {
       setupDropzone();
       setupTextInput();
@@ -2637,6 +2701,7 @@
       setupNdaModal();
       setupAuth();
       setupMobileMenu();
+      setupAccordions();                 // 아코디언 초기화 (기본 접힘)
       // Phase 4: Observer를 fetchTiles 전에 설정 (동적 타일 감시 준비)
       setupScrollObserver();
       setupHeaderScroll();
@@ -2701,7 +2766,7 @@
     // D. Hero 서브헤드라인 A/B 순환 (7초마다 페이드 전환)
     (function() {
       const lines = [
-        '아이디어를 말하기 전, 증거를 먼저 만들어 두세요.<br>SHA-256 해시가 등록일(Conception Date)을 증명하고, 비밀유지 협약서(NDA)가 무분별한 공개를 막아 냅니다.',
+        '착안일(Conception Date) 부인봉쇄 · NDA 원스톱 플랫폼.<br>SHA-256 해시 + 블록체인 타임스탬프로 선행 착안 사실을 암호학적으로 증명합니다.',
         '법적 분쟁에 대비하는 가장 빠른 방법.<br>SHA-256 해시로 착안일(Conception Date)을 기록하고, 비밀유지 협약서(NDA)로 공동창업 전 신뢰를 확보하세요.'
       ];
       let idx = 0;
