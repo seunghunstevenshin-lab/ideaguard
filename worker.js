@@ -238,19 +238,36 @@ async function handleRegister(request, env) {
 
 // ──────────────────────────────────────────────────────────────────────────────
 // 핸들러: 타일 보드 조회
+// ?mine=1 → Authorization: Bearer <token> 필요 → 해당 user_id 레코드만 반환
 // ──────────────────────────────────────────────────────────────────────────────
 async function handleGetTiles(request, env) {
-  const url = new URL(request.url);
+  const url   = new URL(request.url);
   const page  = Math.max(1, parseInt(url.searchParams.get('page')  || '1'));
   const limit = Math.min(20, parseInt(url.searchParams.get('limit') || '12'));
+  const mine  = url.searchParams.get('mine') === '1';
   const offset = (page - 1) * limit;
 
   const db = getSupabase(env);
-  const { data, error } = await db
+
+  let query = db
     .from('records')
     .select('id, hash, nickname, title, keywords, ots_status, created_at')
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
+
+  // ?mine=1 — JWT 검증 후 본인 레코드만 필터링
+  if (mine) {
+    const authHeader = request.headers.get('Authorization') || '';
+    const token = authHeader.replace(/^Bearer\s+/i, '').trim();
+    if (!token) return errorResponse('인증이 필요합니다', 401);
+
+    const { data: { user }, error: authError } = await db.auth.getUser(token);
+    if (authError || !user) return errorResponse('유효하지 않은 인증 토큰입니다', 401);
+
+    query = query.eq('user_id', user.id);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error('[tiles error]', error.message, error.code, error.hint);

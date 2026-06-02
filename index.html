@@ -393,6 +393,28 @@
 
     /* ─── [28~30. Tileboard & Verify] ───────────────────────── */
     .tileboard { padding: var(--sp-20) 0; background: var(--bg-secondary); }
+
+    /* ─── 필터 토글 (내 것만 / 전체) ──────────────────────── */
+    .filter-toggle {
+      display: flex; gap: var(--sp-2);
+      margin-top: var(--sp-4); margin-bottom: var(--sp-6);
+    }
+    .filter-toggle__btn {
+      display: inline-flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-5);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem; font-weight: 600;
+      border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted);
+      cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .filter-toggle__btn:hover {
+      border-color: var(--mid-border); color: var(--text-primary);
+    }
+    .filter-toggle__btn.is-active {
+      background: var(--mid-glow); border-color: var(--mid);
+      color: var(--text-primary);
+    }
     .verify-bar { display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-4) var(--sp-5); margin-bottom: var(--sp-8); }
     .verify-bar__input { flex: 1; }
     .verify-result {
@@ -1247,6 +1269,19 @@
           <p class="section-desc">
             등록된 SHA-256 해시가 타임스탬프와 함께 기록됩니다.
           </p>
+          <!-- 필터 토글: 로그인 시에만 표시 -->
+          <div class="filter-toggle" id="filter-toggle" hidden>
+            <button class="filter-toggle__btn is-active" id="btn-filter-all"
+              aria-pressed="true">
+              <i class="fa-solid fa-globe" aria-hidden="true"></i>
+              전체 목록
+            </button>
+            <button class="filter-toggle__btn" id="btn-filter-mine"
+              aria-pressed="false">
+              <i class="fa-solid fa-user" aria-hidden="true"></i>
+              내 것만
+            </button>
+          </div>
         </header>
 
         <!-- Verify Bar -->
@@ -1855,6 +1890,7 @@
       keywords:        [],     // 키워드 배열 (최대 5)
       loading:         false,
       newRecordId:     null,   // 방금 등록된 타일 ID (글로우 이펙트용)
+      mineOnly:        false,  // true = 내 해시만 표시
     };
 
     /* ── DOM References ──────────────────────────────────────────── */
@@ -1889,6 +1925,10 @@
       pageInfo:     $('pagination-info'),
       btnPrev:      $('btn-prev'),
       btnNext:      $('btn-next'),
+      // Filter
+      filterToggle:   $('filter-toggle'),
+      btnFilterAll:   $('btn-filter-all'),
+      btnFilterMine:  $('btn-filter-mine'),
       // Verify
       verifyInput:      $('verify-input'),
       btnVerify:        $('btn-verify'),
@@ -2187,12 +2227,22 @@
     /* ═════════════════════════════════════════════════════════════
        7. FETCH & RENDER TILES
     ═════════════════════════════════════════════════════════════ */
-    async function fetchTiles(page = 1) {
+    async function fetchTiles(page = 1, mineOnly = state.mineOnly) {
       el.tileGrid.setAttribute('aria-busy', 'true');
       showSkeletons();
 
       try {
-        const res  = await fetch(`${API}/api/records?page=${page}&limit=${LIMIT}`);
+        // ?mine=1 요청 시 Authorization 헤더에 JWT 포함
+        let apiUrl = `${API}/api/records?page=${page}&limit=${LIMIT}`;
+        const fetchOpts = {};
+        if (mineOnly && currentUser) {
+          const { data: { session } } = await sb.auth.getSession();
+          if (session?.access_token) {
+            apiUrl += '&mine=1';
+            fetchOpts.headers = { 'Authorization': `Bearer ${session.access_token}` };
+          }
+        }
+        const res  = await fetch(apiUrl, fetchOpts);
         const data = await res.json();
         const records = data.records || [];
 
@@ -2360,10 +2410,37 @@
 
     function setupPagination() {
       el.btnPrev.addEventListener('click', () => {
-        if (state.currentPage > 1) fetchTiles(state.currentPage - 1);
+        if (state.currentPage > 1) fetchTiles(state.currentPage - 1, state.mineOnly);
       });
       el.btnNext.addEventListener('click', () => {
-        if (state.currentPage < state.totalPages) fetchTiles(state.currentPage + 1);
+        if (state.currentPage < state.totalPages) fetchTiles(state.currentPage + 1, state.mineOnly);
+      });
+    }
+
+    /* ─── 필터 토글 셋업 ───────────────────────────────────────── */
+    function setupFilters() {
+      if (!el.btnFilterAll || !el.btnFilterMine) return;
+
+      el.btnFilterAll.addEventListener('click', () => {
+        if (state.mineOnly === false) return; // 이미 전체
+        state.mineOnly = false;
+        el.btnFilterAll.classList.add('is-active');
+        el.btnFilterAll.setAttribute('aria-pressed', 'true');
+        el.btnFilterMine.classList.remove('is-active');
+        el.btnFilterMine.setAttribute('aria-pressed', 'false');
+        state.currentPage = 1;
+        fetchTiles(1, false);
+      });
+
+      el.btnFilterMine.addEventListener('click', () => {
+        if (state.mineOnly === true) return; // 이미 내 것만
+        state.mineOnly = true;
+        el.btnFilterMine.classList.add('is-active');
+        el.btnFilterMine.setAttribute('aria-pressed', 'true');
+        el.btnFilterAll.classList.remove('is-active');
+        el.btnFilterAll.setAttribute('aria-pressed', 'false');
+        state.currentPage = 1;
+        fetchTiles(1, true);
       });
     }
 
@@ -2703,6 +2780,7 @@
       setupAuth();
       setupMobileMenu();
       setupAccordions();                 // 아코디언 초기화 (기본 접힘)
+      setupFilters();                    // 내 것만 / 전체 필터 토글
       // Phase 4: Observer를 fetchTiles 전에 설정 (동적 타일 감시 준비)
       setupScrollObserver();
       setupHeaderScroll();
@@ -2793,19 +2871,54 @@
     let currentUser = null;
 
     function updateAuthUI(user) {
+      const prevUser = currentUser;
       currentUser = user;
       const btnLogin     = $('btn-login');
       const userBadge    = $('user-badge');
       const emailDisplay = $('user-email-display');
+      const memberHint   = document.querySelector('.register__member-hint');
       if (!btnLogin || !userBadge) return;
 
       if (user) {
-        btnLogin.hidden          = true;
-        userBadge.hidden         = false;
+        btnLogin.hidden  = true;
+        userBadge.hidden = false;
         if (emailDisplay) emailDisplay.textContent = user.email;
+
+        // 등록 섹션 힌트: 로그인 완료 메시지로 교체
+        if (memberHint) {
+          memberHint.innerHTML = `<i class="fa-solid fa-circle-check" aria-hidden="true"></i> 해시는 내 목록에 자동으로 저장됩니다.`;
+          memberHint.style.color = 'var(--success)';
+        }
+
+        // 필터 토글 표시
+        if (el.filterToggle) el.filterToggle.hidden = false;
+
+        // 로그인 직후(= 이전에 비로그인 상태였을 때)만 타일 새로고침
+        if (!prevUser) {
+          state.currentPage = 1;
+          fetchTiles(1, state.mineOnly);
+        }
       } else {
         btnLogin.hidden  = false;
         userBadge.hidden = true;
+
+        // 등록 섹션 힌트: 원래 메시지 복원
+        if (memberHint) {
+          memberHint.innerHTML = `<i class="fa-solid fa-user-check" aria-hidden="true"></i> 로그인하면 생성한 해시 목록과 비밀유지 협약서(NDA)를 이메일로 발송할 수 있습니다.`;
+          memberHint.style.color = '';
+        }
+
+        // 필터 초기화 + 토글 숨김
+        state.mineOnly = false;
+        if (el.filterToggle) el.filterToggle.hidden = true;
+        if (el.btnFilterAll)  { el.btnFilterAll.classList.add('is-active'); el.btnFilterAll.setAttribute('aria-pressed', 'true'); }
+        if (el.btnFilterMine) { el.btnFilterMine.classList.remove('is-active'); el.btnFilterMine.setAttribute('aria-pressed', 'false'); }
+
+        // 로그아웃 직후(= 이전에 로그인 상태였을 때)만 전체 목록으로 복귀
+        if (prevUser) {
+          state.currentPage = 1;
+          fetchTiles(1, false);
+        }
       }
     }
 
