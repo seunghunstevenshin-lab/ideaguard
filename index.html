@@ -672,6 +672,107 @@
     .pros-cons-card__note { margin-top: var(--sp-4); font-size: 0.8rem; color: var(--text-dim); }
     .checklist__num--bitcoin { background: rgba(247,147,26,.2); color: #f7931a; }
 
+    /* ─── [42. Process Flow Diagram] ────────────────────────── */
+    .process-flow {
+      display: flex; align-items: center;
+      gap: 0; margin-bottom: var(--sp-10);
+      padding: var(--sp-6) var(--sp-8);
+      overflow-x: auto;
+    }
+    @media (max-width: 680px) {
+      .process-flow { flex-direction: column; padding: var(--sp-6) var(--sp-4); align-items: stretch; }
+      .process-arrow { transform: rotate(90deg); margin: 0 auto; }
+    }
+    .process-step {
+      flex: 1; min-width: 100px;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      gap: var(--sp-2); padding: var(--sp-4) var(--sp-2);
+    }
+    .process-step__icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: rgba(99,102,241,.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; color: var(--accent);
+      margin-bottom: var(--sp-2);
+      transition: transform var(--duration-md) var(--ease);
+    }
+    .process-step:hover .process-step__icon { transform: scale(1.1); }
+    .process-step--result .process-step__icon { background: rgba(99,102,241,.22); color: var(--mid); }
+    .process-step__name { font-size: 0.8rem; font-weight: 700; color: var(--text-primary); line-height: 1.35; }
+    .process-step__tag {
+      font-size: 0.69rem; font-weight: 700; font-family: var(--font-mono);
+      padding: 2px 8px; border-radius: 20px;
+      background: rgba(34,211,238,.1); color: var(--accent); white-space: nowrap;
+    }
+    .process-step--result .process-step__tag { background: rgba(52,211,153,.12); color: var(--success); }
+    .process-arrow {
+      padding: 0 var(--sp-2); color: var(--text-dim); font-size: 0.85rem; flex-shrink: 0;
+    }
+
+    /* ─── [43. HIW Card v2 — 이중 레이블] ───────────────────── */
+    .hiw-card__icon-wrap {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: rgba(99,102,241,.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.45rem; color: var(--accent);
+      margin-bottom: var(--sp-4);
+      transition: background var(--duration-md) var(--ease);
+    }
+    .hiw-card:hover .hiw-card__icon-wrap { background: rgba(99,102,241,.2); }
+    .hiw-label-row {
+      display: flex; gap: var(--sp-2); align-items: center;
+      flex-wrap: wrap; margin-bottom: var(--sp-3);
+    }
+    .hiw-label--ko {
+      font-size: 0.76rem; font-weight: 800; color: var(--text-primary);
+      background: rgba(255,255,255,.08); padding: 2px 10px; border-radius: 20px;
+    }
+    .hiw-label--en {
+      font-size: 0.71rem; font-weight: 700; color: var(--accent);
+      background: rgba(34,211,238,.1); padding: 2px 9px; border-radius: 20px;
+      font-family: var(--font-mono); letter-spacing: 0.04em;
+    }
+    .hiw-example-flow {
+      margin-top: var(--sp-3); display: flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-3);
+      background: rgba(34,211,238,.05);
+      border-left: 2px solid rgba(34,211,238,.3);
+      border-radius: 0 4px 4px 0; font-size: 0.78rem; flex-wrap: wrap;
+    }
+    .hiw-example-flow__before { color: var(--text-muted); }
+    .hiw-example-flow__after { color: var(--accent); font-family: var(--font-mono); font-size: 0.73rem; }
+    .hiw-example-flow > i { color: var(--text-dim); flex-shrink: 0; font-size: 0.68rem; }
+
+    /* ─── [44. NDA Feature Card 이중 레이블] ─────────────────── */
+    .nda-feature-card__label-row {
+      display: flex; gap: var(--sp-2); align-items: center;
+      flex-wrap: wrap; margin-bottom: var(--sp-3);
+    }
+    .nda-label--ko {
+      font-size: 0.74rem; font-weight: 800; color: var(--text-primary);
+      background: rgba(255,255,255,.08); padding: 2px 10px; border-radius: 20px;
+    }
+    .nda-label--en {
+      font-size: 0.69rem; font-weight: 700; color: var(--mid);
+      background: rgba(99,102,241,.12); padding: 2px 9px; border-radius: 20px;
+      font-family: var(--font-mono); letter-spacing: 0.04em;
+    }
+
+    /* ─── [45. Checklist Visual v2] ──────────────────────────── */
+    .checklist--visual { gap: var(--sp-4); }
+    .checklist--visual .checklist__item {
+      padding: var(--sp-4) var(--sp-5);
+      background: rgba(255,255,255,.025);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: var(--radius-md);
+      gap: var(--sp-4);
+      transition: border-color var(--duration-md) var(--ease);
+    }
+    .checklist--visual .checklist__item:hover { border-color: rgba(99,102,241,.25); }
+    .checklist--visual .checklist__num { width: 38px; height: 38px; flex-shrink: 0; }
+    .checklist--visual .checklist__item > div > strong { display: block; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 3px; }
+    .checklist--visual .checklist__item > div > p { font-size: 0.83rem; color: var(--text-muted); margin: 0; }
+
     /* ─── [37. Site Footer] ──────────────────────────────────── */
     .site-footer { background: var(--bg-secondary); border-top: var(--glass-border); padding: var(--sp-10) 0; }
     .site-footer__inner { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-8); flex-wrap: wrap; }
@@ -1237,6 +1338,10 @@
             <div class="nda-feature-card__icon">
               <i class="fa-solid fa-file-contract" aria-hidden="true"></i>
             </div>
+            <div class="nda-feature-card__label-row">
+              <span class="nda-label--ko">표준 계약서</span>
+              <span class="nda-label--en">NDA Template</span>
+            </div>
             <div class="nda-feature-card__title">표준 NDA 양식 제공</div>
             <p class="nda-feature-card__desc">변호사 검토를 거친 표준 비밀유지 협약서 양식으로 빠르게 작성합니다. 법률 지식 없이도 5분이면 완성됩니다.</p>
           </div>
@@ -1244,12 +1349,20 @@
             <div class="nda-feature-card__icon">
               <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i>
             </div>
+            <div class="nda-feature-card__label-row">
+              <span class="nda-label--ko">자동 이메일</span>
+              <span class="nda-label--en">Auto Email</span>
+            </div>
             <div class="nda-feature-card__title">당사자 이메일 자동 발송</div>
             <p class="nda-feature-card__desc">완성된 협약서가 양 당사자에게 이메일로 자동 발송됩니다. 서명 요청부터 최종 사본 전달까지 온라인으로 완결됩니다.</p>
           </div>
           <div class="nda-feature-card">
             <div class="nda-feature-card__icon">
               <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+            </div>
+            <div class="nda-feature-card__label-row">
+              <span class="nda-label--ko">해시 연결 관리</span>
+              <span class="nda-label--en">Hash-linked</span>
             </div>
             <div class="nda-feature-card__title">프로젝트별 해시 연결 · 통합 관리</div>
             <p class="nda-feature-card__desc">각 NDA에는 해당 아이디어의 해시가 자동으로 포함됩니다. 프로젝트별로 체결한 모든 NDA를 한 곳에서 열람·관리할 수 있습니다.</p>
@@ -1307,36 +1420,116 @@
           <p class="section-desc">처음 이용하시는 분도 쉽게 이해할 수 있도록, 핵심 개념과 솔직한 한계를 함께 설명합니다.</p>
         </header>
 
-        <!-- 핵심 개념 4가지 -->
+        <!-- 전체 흐름 한눈에 보기 -->
+        <div class="process-flow glass-card" aria-label="IdeaGuard 동작 흐름">
+          <div class="process-step">
+            <div class="process-step__icon"><i class="fa-solid fa-file-lines" aria-hidden="true"></i></div>
+            <div class="process-step__name">파일 또는<br>텍스트</div>
+            <div class="process-step__tag">원본 INPUT</div>
+          </div>
+          <div class="process-arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="process-step">
+            <div class="process-step__icon"><i class="fa-solid fa-fingerprint" aria-hidden="true"></i></div>
+            <div class="process-step__name">디지털<br>지문 생성</div>
+            <div class="process-step__tag">SHA-256</div>
+          </div>
+          <div class="process-arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="process-step">
+            <div class="process-step__icon"><i class="fa-solid fa-stamp" aria-hidden="true"></i></div>
+            <div class="process-step__name">시각<br>도장 찍기</div>
+            <div class="process-step__tag">Timestamp</div>
+          </div>
+          <div class="process-arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="process-step">
+            <div class="process-step__icon" style="background:rgba(247,147,26,.12);">
+              <i class="fa-brands fa-bitcoin" style="color:#f7931a;" aria-hidden="true"></i>
+            </div>
+            <div class="process-step__name">전 세계<br>장부 기록</div>
+            <div class="process-step__tag">Bitcoin OTS</div>
+          </div>
+          <div class="process-arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></div>
+          <div class="process-step process-step--result">
+            <div class="process-step__icon"><i class="fa-solid fa-shield-check" aria-hidden="true"></i></div>
+            <div class="process-step__name">착안일<br>증명 완성</div>
+            <div class="process-step__tag">법적 증거</div>
+          </div>
+        </div>
+
+        <!-- 핵심 개념 4종 — 이중 레이블 카드 -->
         <div class="hiw-grid">
+
+          <!-- Hash -->
           <div class="hiw-card">
-            <span class="hiw-card__num">개념 1</span>
-            <span class="hiw-card__icon" aria-hidden="true">🔑</span>
+            <div class="hiw-card__icon-wrap">
+              <i class="fa-solid fa-fingerprint" aria-hidden="true"></i>
+            </div>
+            <div class="hiw-label-row">
+              <span class="hiw-label--ko">디지털 지문</span>
+              <span class="hiw-label--en">SHA-256</span>
+            </div>
             <h3 class="hiw-card__title">해시(Hash)란?</h3>
-            <p class="hiw-card__desc">어떤 파일이나 글이든 고유한 64자리 코드(디지털 지문)로 변환합니다. 내용이 1글자라도 바뀌면 코드가 완전히 달라지고, 코드만 봐서는 원본을 알 수 없습니다.</p>
-            <div class="hiw-card__example">ex) "내 아이디어" → a3f8c2d1…  (64자리 고유 코드)</div>
+            <p class="hiw-card__desc">어떤 파일이나 글이든 64자리 고유 코드로 변환합니다. 내용이 1글자라도 바뀌면 코드가 완전히 달라지고, 코드만으로는 절대 원본을 복원할 수 없습니다.</p>
+            <div class="hiw-example-flow">
+              <span class="hiw-example-flow__before">"내 아이디어"</span>
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+              <span class="hiw-example-flow__after">a3f8c2d1e4b7…</span>
+            </div>
           </div>
+
+          <!-- Timestamp -->
           <div class="hiw-card">
-            <span class="hiw-card__num">개념 2</span>
-            <span class="hiw-card__icon" aria-hidden="true">🕐</span>
+            <div class="hiw-card__icon-wrap">
+              <i class="fa-solid fa-stamp" aria-hidden="true"></i>
+            </div>
+            <div class="hiw-label-row">
+              <span class="hiw-label--ko">시각 도장</span>
+              <span class="hiw-label--en">Timestamp</span>
+            </div>
             <h3 class="hiw-card__title">타임스탬프(Timestamp)란?</h3>
-            <p class="hiw-card__desc">"이 해시가 언제 존재했는가"를 제3자가 증명하는 시각 도장입니다. 편지의 소인처럼, 특정 시점 이전에 해당 아이디어가 존재했음을 나중에 증명할 수 있습니다.</p>
-            <div class="hiw-card__example">IdeaGuard: 해시 등록 즉시 서버에 UTC 시각 기록</div>
+            <p class="hiw-card__desc">편지의 소인처럼, "이 내용이 특정 시점 이전에 존재했다"는 것을 제3자가 증명하는 시각 기록입니다. 나중에 선행 착안을 입증할 때 핵심 증거가 됩니다.</p>
+            <div class="hiw-example-flow">
+              <span class="hiw-example-flow__before">해시 등록 즉시</span>
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+              <span class="hiw-example-flow__after">2026-06-02 09:14 UTC 기록</span>
+            </div>
           </div>
+
+          <!-- Bitcoin OTS -->
           <div class="hiw-card">
-            <span class="hiw-card__num">개념 3</span>
-            <span class="hiw-card__icon" aria-hidden="true">₿</span>
+            <div class="hiw-card__icon-wrap" style="background:rgba(247,147,26,.12);">
+              <i class="fa-brands fa-bitcoin" style="color:#f7931a;" aria-hidden="true"></i>
+            </div>
+            <div class="hiw-label-row">
+              <span class="hiw-label--ko">분산 공개 장부</span>
+              <span class="hiw-label--en">Bitcoin OTS</span>
+            </div>
             <h3 class="hiw-card__title">Bitcoin 앵커링이란?</h3>
-            <p class="hiw-card__desc">Bitcoin 블록체인은 전 세계 수만 대 컴퓨터가 동일하게 보관하는 공개 장부입니다. 한 번 새겨지면 IdeaGuard를 포함해 그 누구도 삭제하거나 수정할 수 없습니다.</p>
-            <div class="hiw-card__example">해시 등록 ~1시간 후 자동 앵커링 · 무료</div>
+            <p class="hiw-card__desc">전 세계 수만 대 컴퓨터가 동일하게 보관하는 공개 장부에 해시를 새깁니다. 한 번 기록되면 IdeaGuard를 포함해 그 누구도 삭제·수정할 수 없습니다. 자동 · 무료.</p>
+            <div class="hiw-example-flow">
+              <span class="hiw-example-flow__before">~1시간 후</span>
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+              <span class="hiw-example-flow__after">Bitcoin Block에 영구 기록</span>
+            </div>
           </div>
+
+          <!-- Verify -->
           <div class="hiw-card">
-            <span class="hiw-card__num">개념 4</span>
-            <span class="hiw-card__icon" aria-hidden="true">🔍</span>
-            <h3 class="hiw-card__title">검증이란?</h3>
-            <p class="hiw-card__desc">나중에 원본 파일·텍스트를 다시 올리면, 최초 등록 해시와 일치하는지 즉시 확인됩니다. 변조되지 않은 원본이 특정 시점 이전에 존재했음을 누구든 스스로 증명할 수 있습니다.</p>
-            <div class="hiw-card__example">등록 해시 = 검증 해시 → ✅ 원본 무결성 확인</div>
+            <div class="hiw-card__icon-wrap">
+              <i class="fa-solid fa-check-double" aria-hidden="true"></i>
+            </div>
+            <div class="hiw-label-row">
+              <span class="hiw-label--ko">원본 무결성 확인</span>
+              <span class="hiw-label--en">Verify</span>
+            </div>
+            <h3 class="hiw-card__title">검증(Verify)이란?</h3>
+            <p class="hiw-card__desc">원본 파일·텍스트를 다시 업로드하면, 최초 등록 해시와 일치하는지 즉시 확인됩니다. 변조 여부와 존재 시점을 누구든 직접 증명할 수 있습니다.</p>
+            <div class="hiw-example-flow">
+              <span class="hiw-example-flow__before">원본 재업로드</span>
+              <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+              <span class="hiw-example-flow__after">해시 일치 → ✅ 원본 확인</span>
+            </div>
           </div>
+
         </div>
 
         <!-- 솔직한 한계 & 그래도 충분한 이유 -->
@@ -1402,12 +1595,42 @@
         <!-- 분쟁 시 준비물 -->
         <div class="guide-checklist glass-card">
           <h3 class="guide-checklist__title"><i class="fa-solid fa-list-check" aria-hidden="true"></i>분쟁 시 준비물</h3>
-          <ol class="checklist">
-            <li class="checklist__item"><span class="checklist__num">01</span><strong>원본 파일 / 텍스트</strong> (본인 보관)</li>
-            <li class="checklist__item"><span class="checklist__num">02</span><strong>IdeaGuard 등록 스크린샷</strong></li>
-            <li class="checklist__item"><span class="checklist__num checklist__num--bitcoin">₿</span><strong>OTS 파일</strong> — 타일의 OTS 버튼으로 다운로드</li>
-            <li class="checklist__item"><span class="checklist__num">03</span><strong>특허청 원본증명 PDF</strong> (2단계 완료 시)</li>
-            <li class="checklist__item"><span class="checklist__num">04</span><strong>NDA 사본</strong> (체결 시)</li>
+          <ol class="checklist checklist--visual">
+            <li class="checklist__item">
+              <span class="checklist__num">01</span>
+              <div>
+                <strong>원본 파일 / 텍스트</strong>
+                <p>본인이 직접 보관 — 해시와 함께 제출해 무결성을 증명합니다</p>
+              </div>
+            </li>
+            <li class="checklist__item">
+              <span class="checklist__num">02</span>
+              <div>
+                <strong>IdeaGuard 등록 스크린샷</strong>
+                <p>등록 일시 · 해시값 · 타임스탬프가 표시된 화면 캡처</p>
+              </div>
+            </li>
+            <li class="checklist__item">
+              <span class="checklist__num checklist__num--bitcoin">₿</span>
+              <div>
+                <strong>OTS 파일 <span style="font-size:.8rem;color:var(--accent);font-weight:600;">(Bitcoin OTS)</span></strong>
+                <p>타일의 OTS 버튼으로 다운로드 — Bitcoin 블록체인에 영구 기록된 증명 파일</p>
+              </div>
+            </li>
+            <li class="checklist__item">
+              <span class="checklist__num">03</span>
+              <div>
+                <strong>특허청 원본증명 PDF</strong>
+                <p>2단계(특허청 추가 등록) 완료 시 — 법적 추정력이 대폭 강화됩니다</p>
+              </div>
+            </li>
+            <li class="checklist__item">
+              <span class="checklist__num">04</span>
+              <div>
+                <strong>NDA 사본 <span style="font-size:.8rem;color:var(--mid);font-weight:600;">(NDA)</span></strong>
+                <p>체결 시 이메일로 자동 발송 — 당사자 서명과 아이디어 해시가 포함됩니다</p>
+              </div>
+            </li>
           </ol>
           <p class="guide-checklist__disclaimer"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>일반 안내이며 법률 자문이 아닙니다. 실제 분쟁 시 변호사 상담을 받으세요.</p>
         </div>
