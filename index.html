@@ -567,6 +567,111 @@
       .nda-cta__actions { flex-direction: column; width: 100%; }
     }
 
+    /* ─── [38. Hash Hint (등록 섹션)] ───────────────────────── */
+    .hash-hint {
+      display: flex; gap: var(--sp-3); align-items: flex-start;
+      padding: var(--sp-3) var(--sp-5);
+      background: rgba(34,211,238,.05);
+      border: 1px solid rgba(34,211,238,.12);
+      border-radius: var(--radius-md);
+      font-size: 0.84rem; color: var(--text-muted);
+      margin-top: var(--sp-5);
+      max-width: 600px; margin-left: auto; margin-right: auto;
+    }
+    .hash-hint i { color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+    .hash-hint a { color: var(--accent); text-decoration: underline; }
+
+    /* ─── [39. NDA Feature Cards] ───────────────────────────── */
+    .nda-feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: var(--sp-6);
+      margin-bottom: var(--sp-8);
+    }
+    .nda-feature-card {
+      padding: var(--sp-7);
+      border-radius: var(--radius-lg);
+      background: var(--glass-bg);
+      border: var(--glass-border);
+    }
+    .nda-feature-card__icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: rgba(99,102,241,.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem; color: var(--accent);
+      margin-bottom: var(--sp-4);
+    }
+    .nda-feature-card__title { font-weight: 700; font-size: 1rem; color: var(--text-primary); margin-bottom: var(--sp-2); }
+    .nda-feature-card__desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.65; }
+    .nda-pricing-note {
+      display: flex; gap: var(--sp-3); align-items: flex-start;
+      padding: var(--sp-4) var(--sp-5);
+      border-radius: var(--radius-md);
+      background: rgba(99,102,241,.06);
+      border: 1px solid rgba(99,102,241,.15);
+      font-size: 0.85rem; color: var(--text-muted);
+      margin-bottom: var(--sp-8);
+    }
+    .nda-pricing-note i { color: var(--mid); flex-shrink: 0; margin-top: 2px; }
+    .nda-pricing-note a { color: var(--accent); text-decoration: underline; }
+
+    /* ─── [40. How It Works — IdeaGuard 이해하기] ───────────── */
+    .hiw-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--sp-5);
+      margin-bottom: var(--sp-8);
+    }
+    .hiw-card {
+      padding: var(--sp-6);
+      border-radius: var(--radius-lg);
+      background: var(--glass-bg);
+      border: var(--glass-border);
+    }
+    .hiw-card__num {
+      font-size: 0.7rem; font-weight: 800; color: var(--accent);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: var(--sp-2);
+    }
+    .hiw-card__icon { font-size: 1.6rem; margin-bottom: var(--sp-3); display: block; }
+    .hiw-card__title { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--sp-2); }
+    .hiw-card__desc { font-size: 0.84rem; color: var(--text-muted); line-height: 1.65; }
+    .hiw-card__example {
+      margin-top: var(--sp-3); padding: var(--sp-2) var(--sp-3);
+      background: rgba(34,211,238,.06);
+      border-left: 2px solid rgba(34,211,238,.4);
+      border-radius: 0 4px 4px 0;
+      font-size: 0.79rem; color: var(--text-dim); font-style: italic;
+    }
+
+    /* ─── [41. Pros / Cons Grid] ─────────────────────────────── */
+    .pros-cons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-5);
+      margin-bottom: var(--sp-8);
+    }
+    @media (max-width: 640px) { .pros-cons-grid { grid-template-columns: 1fr; } }
+    .cons-card {
+      padding: var(--sp-6); border-radius: var(--radius-lg);
+      background: rgba(248,113,113,.04);
+      border: 1px solid rgba(248,113,113,.18);
+    }
+    .pros-card {
+      padding: var(--sp-6); border-radius: var(--radius-lg);
+      background: rgba(52,211,153,.04);
+      border: 1px solid rgba(52,211,153,.18);
+    }
+    .pros-cons-card__title {
+      font-weight: 700; font-size: 0.95rem; margin-bottom: var(--sp-4);
+      display: flex; align-items: center; gap: var(--sp-2);
+      color: var(--text-primary);
+    }
+    .pros-cons-list { display: flex; flex-direction: column; gap: var(--sp-3); }
+    .pros-cons-list li { display: flex; gap: var(--sp-3); align-items: flex-start; font-size: 0.87rem; color: var(--text-muted); }
+    .pros-cons-list li i { flex-shrink: 0; margin-top: 2px; }
+    .pros-cons-card__note { margin-top: var(--sp-4); font-size: 0.8rem; color: var(--text-dim); }
+    .checklist__num--bitcoin { background: rgba(247,147,26,.2); color: #f7931a; }
+
     /* ─── [37. Site Footer] ──────────────────────────────────── */
     .site-footer { background: var(--bg-secondary); border-top: var(--glass-border); padding: var(--sp-10) 0; }
     .site-footer__inner { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-8); flex-wrap: wrap; }
@@ -881,6 +986,11 @@
             파일 업로드 또는 텍스트를 입력하면 즉시 검증값인 해시가 생성됩니다.
             파일과 텍스트는 서버에 저장되지 않습니다.
           </p>
+          <div class="hash-hint">
+            <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+            <span><strong>해시가 처음이신가요?</strong> 어떤 내용이든 고유한 64자리 코드(디지털 지문)로 변환됩니다. 내용이 1글자라도 바뀌면 코드가 완전히 달라집니다.
+            <a href="#legal-guide">개념 자세히 보기 →</a></span>
+          </div>
         </header>
 
         <div class="register__panel glass-card">
@@ -1106,19 +1216,66 @@
     </section>
 
     <!-- ──────────────────────────────────────────
-         § 4. NDA CTA BANNER
+         § 4. NDA 서비스
     ────────────────────────────────────────── -->
     <section class="nda-cta" id="nda-cta" aria-labelledby="nda-title">
       <div class="container">
+
+        <header class="section-header">
+          <h2 class="section-title" id="nda-title">
+            <i class="fa-solid fa-file-signature" aria-hidden="true"></i>
+            NDA 비밀유지 협약
+          </h2>
+          <p class="section-desc">
+            아이디어를 공유하기 전, 법적 보호 장치를 먼저 갖추세요.
+          </p>
+        </header>
+
+        <!-- NDA 3대 기능 -->
+        <div class="nda-feature-grid">
+          <div class="nda-feature-card">
+            <div class="nda-feature-card__icon">
+              <i class="fa-solid fa-file-contract" aria-hidden="true"></i>
+            </div>
+            <div class="nda-feature-card__title">표준 NDA 양식 제공</div>
+            <p class="nda-feature-card__desc">변호사 검토를 거친 표준 비밀유지 협약서 양식으로 빠르게 작성합니다. 법률 지식 없이도 5분이면 완성됩니다.</p>
+          </div>
+          <div class="nda-feature-card">
+            <div class="nda-feature-card__icon">
+              <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i>
+            </div>
+            <div class="nda-feature-card__title">당사자 이메일 자동 발송</div>
+            <p class="nda-feature-card__desc">완성된 협약서가 양 당사자에게 이메일로 자동 발송됩니다. 서명 요청부터 최종 사본 전달까지 온라인으로 완결됩니다.</p>
+          </div>
+          <div class="nda-feature-card">
+            <div class="nda-feature-card__icon">
+              <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
+            </div>
+            <div class="nda-feature-card__title">프로젝트별 해시 연결 · 통합 관리</div>
+            <p class="nda-feature-card__desc">각 NDA에는 해당 아이디어의 해시가 자동으로 포함됩니다. 프로젝트별로 체결한 모든 NDA를 한 곳에서 열람·관리할 수 있습니다.</p>
+          </div>
+        </div>
+
+        <!-- 가격 안내 (투명 공개) -->
+        <div class="nda-pricing-note">
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          <span>
+            NDA 서비스는 <strong style="color:var(--text-primary);">회원 가입 후 이용 가능한 유료 구독 기능</strong>입니다.
+            <a href="https://www.copyright.or.kr" target="_blank" rel="noopener noreferrer">한국저작권위원회</a> 등록 대비 합리적인 비용으로,
+            착안일 기록 + NDA까지 한 곳에서 해결하세요.
+          </span>
+        </div>
+
+        <!-- 최종 CTA 배너 -->
         <div class="nda-cta__inner glass-card">
           <div class="nda-cta__text">
-            <h2 class="nda-cta__title" id="nda-title">
-              아이디어는 기록하는 순간부터<br>
-              <span class="text--accent">보호받습니다.</span>
+            <h2 class="nda-cta__title">
+              계약서 한 장이<br>
+              <span class="text--accent">분쟁을 막습니다.</span>
             </h2>
             <p class="nda-cta__desc">
-              특정인과 브레인스토밍할 때, 온라인에서 손쉽게 NDA를 체결하세요.<br>
-              아이디어 해시와 함께 서명 기록이 영구 보존됩니다.
+              공동창업자·투자자·협력사와 공유하기 전,<br>
+              아이디어 해시가 포함된 NDA를 체결해 법적 보호를 완성하세요.
             </p>
           </div>
           <div class="nda-cta__actions">
@@ -1132,11 +1289,12 @@
             </button>
           </div>
         </div>
+
       </div>
     </section>
 
     <!-- ──────────────────────────────────────────
-         § 5. 법적 활용 가이드
+         § 5. IdeaGuard 이해하기 & 법적 활용 가이드
     ────────────────────────────────────────── -->
     <section class="legal-guide" id="legal-guide" aria-labelledby="guide-title">
       <div class="container">
@@ -1144,50 +1302,72 @@
         <header class="section-header">
           <h2 class="section-title" id="guide-title">
             <i class="fa-solid fa-book-open-reader" aria-hidden="true"></i>
-            법적 활용 가이드
+            IdeaGuard 이해하기
           </h2>
+          <p class="section-desc">처음 이용하시는 분도 쉽게 이해할 수 있도록, 핵심 개념과 솔직한 한계를 함께 설명합니다.</p>
         </header>
 
-        <!-- 이중 타임스탬프 -->
-        <div class="dual-stamp glass-card" style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap; padding:1.5rem 2rem; margin-bottom:1.5rem;">
-          <div style="display:flex; align-items:center; gap:0.75rem; flex:1; min-width:200px;">
-            <span style="width:36px;height:36px;border-radius:50%;background:rgba(99,102,241,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-database" style="color:var(--mid);"></i></span>
-            <div><div style="font-size:.75rem;color:var(--text-dim);font-weight:600;">즉시</div><div style="font-size:.95rem;font-weight:700;color:var(--text-primary);">서버 타임스탬프 기록</div></div>
+        <!-- 핵심 개념 4가지 -->
+        <div class="hiw-grid">
+          <div class="hiw-card">
+            <span class="hiw-card__num">개념 1</span>
+            <span class="hiw-card__icon" aria-hidden="true">🔑</span>
+            <h3 class="hiw-card__title">해시(Hash)란?</h3>
+            <p class="hiw-card__desc">어떤 파일이나 글이든 고유한 64자리 코드(디지털 지문)로 변환합니다. 내용이 1글자라도 바뀌면 코드가 완전히 달라지고, 코드만 봐서는 원본을 알 수 없습니다.</p>
+            <div class="hiw-card__example">ex) "내 아이디어" → a3f8c2d1…  (64자리 고유 코드)</div>
           </div>
-          <span style="font-size:1.5rem;color:var(--text-dim);font-weight:300;">+</span>
-          <div style="display:flex; align-items:center; gap:0.75rem; flex:1; min-width:200px;">
-            <span style="width:36px;height:36px;border-radius:50%;background:rgba(247,147,26,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-brands fa-bitcoin" style="color:#f7931a;"></i></span>
-            <div><div style="font-size:.75rem;color:var(--text-dim);font-weight:600;">~1시간 후</div><div style="font-size:.95rem;font-weight:700;color:var(--text-primary);">Bitcoin 블록체인 영구 앵커링</div></div>
+          <div class="hiw-card">
+            <span class="hiw-card__num">개념 2</span>
+            <span class="hiw-card__icon" aria-hidden="true">🕐</span>
+            <h3 class="hiw-card__title">타임스탬프(Timestamp)란?</h3>
+            <p class="hiw-card__desc">"이 해시가 언제 존재했는가"를 제3자가 증명하는 시각 도장입니다. 편지의 소인처럼, 특정 시점 이전에 해당 아이디어가 존재했음을 나중에 증명할 수 있습니다.</p>
+            <div class="hiw-card__example">IdeaGuard: 해시 등록 즉시 서버에 UTC 시각 기록</div>
           </div>
-          <p style="width:100%;font-size:.85rem;color:var(--text-muted);margin:0;padding-top:.75rem;border-top:1px solid var(--border);">
-            <i class="fa-solid fa-circle-info" style="color:var(--mid);margin-right:.4rem;"></i>두 기록 모두 자동·무료. IdeaGuard조차 변조 불가 — 중앙 관리자 없는 Bitcoin 특성상 불가능.
-          </p>
+          <div class="hiw-card">
+            <span class="hiw-card__num">개념 3</span>
+            <span class="hiw-card__icon" aria-hidden="true">₿</span>
+            <h3 class="hiw-card__title">Bitcoin 앵커링이란?</h3>
+            <p class="hiw-card__desc">Bitcoin 블록체인은 전 세계 수만 대 컴퓨터가 동일하게 보관하는 공개 장부입니다. 한 번 새겨지면 IdeaGuard를 포함해 그 누구도 삭제하거나 수정할 수 없습니다.</p>
+            <div class="hiw-card__example">해시 등록 ~1시간 후 자동 앵커링 · 무료</div>
+          </div>
+          <div class="hiw-card">
+            <span class="hiw-card__num">개념 4</span>
+            <span class="hiw-card__icon" aria-hidden="true">🔍</span>
+            <h3 class="hiw-card__title">검증이란?</h3>
+            <p class="hiw-card__desc">나중에 원본 파일·텍스트를 다시 올리면, 최초 등록 해시와 일치하는지 즉시 확인됩니다. 변조되지 않은 원본이 특정 시점 이전에 존재했음을 누구든 스스로 증명할 수 있습니다.</p>
+            <div class="hiw-card__example">등록 해시 = 검증 해시 → ✅ 원본 무결성 확인</div>
+          </div>
         </div>
 
-        <!-- 제공 / 한계 -->
-        <div class="guide-grid" style="margin-bottom:1.5rem;">
-          <div class="guide-card glass-card">
-            <h3 class="guide-card__title"><i class="fa-solid fa-shield-check text--accent" style="margin-right:.5rem;"></i>제공</h3>
-            <ul class="guide-list">
-              <li><i class="fa-solid fa-check text--accent"></i><span>이중 타임스탬프 자동 생성 (서버 + Bitcoin)</span></li>
-              <li><i class="fa-solid fa-check text--accent"></i><span>Zero-Knowledge — 원본 서버 비저장</span></li>
-              <li><i class="fa-solid fa-check text--accent"></i><span>NDA 자동 생성 + 수령자 전자서명</span></li>
-              <li><i class="fa-solid fa-check text--accent"></i><span>증명 부담 전환 — 상대방이 반박해야 함</span></li>
+        <!-- 솔직한 한계 & 그래도 충분한 이유 -->
+        <div class="pros-cons-grid">
+          <div class="cons-card">
+            <p class="pros-cons-card__title">
+              <i class="fa-solid fa-triangle-exclamation" style="color:#f87171;" aria-hidden="true"></i>솔직한 한계
+            </p>
+            <ul class="pros-cons-list">
+              <li><i class="fa-solid fa-xmark" style="color:#f87171;" aria-hidden="true"></i><span>정부 공인 인증기관(TSA)의 서비스가 아닙니다</span></li>
+              <li><i class="fa-solid fa-xmark" style="color:#f87171;" aria-hidden="true"></i><span>특허·저작권·상표 등록을 대신하지 않습니다</span></li>
+              <li><i class="fa-solid fa-xmark" style="color:#f87171;" aria-hidden="true"></i><span>특허 출원 자체에 법적 추정력을 부여하지는 않습니다</span></li>
             </ul>
           </div>
-          <div class="guide-card glass-card">
-            <h3 class="guide-card__title"><i class="fa-solid fa-triangle-exclamation text--warn" style="margin-right:.5rem;color:#f59e0b;"></i>한계</h3>
-            <ul class="guide-list">
-              <li><i class="fa-solid fa-xmark text--warn" style="color:#f87171;"></i><span>공인 TSA 인증 아님</span></li>
-              <li><i class="fa-solid fa-xmark text--warn" style="color:#f87171;"></i><span>단독으로 법적 추정력 없음</span></li>
-              <li><i class="fa-solid fa-xmark text--warn" style="color:#f87171;"></i><span>특허·저작권·상표 등록 대체 불가</span></li>
+          <div class="pros-card">
+            <p class="pros-cons-card__title">
+              <i class="fa-solid fa-circle-check" style="color:#34d399;" aria-hidden="true"></i>그래도 충분한 이유
+            </p>
+            <ul class="pros-cons-list">
+              <li><i class="fa-solid fa-check" style="color:#34d399;" aria-hidden="true"></i><span>법원에서 <strong style="color:var(--text-primary);">전자 증거로 충분히 채택</strong>될 수 있습니다</span></li>
+              <li><i class="fa-solid fa-check" style="color:#34d399;" aria-hidden="true"></i><span>착안 시점 입증 부담이 상대방으로 전환됩니다</span></li>
+              <li><i class="fa-solid fa-check" style="color:#34d399;" aria-hidden="true"></i><span><a href="https://www.copyright.or.kr" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline;">한국저작권위원회</a> 등록 대비 훨씬 저렴하게 즉시 기록할 수 있습니다</span></li>
+              <li><i class="fa-solid fa-check" style="color:#34d399;" aria-hidden="true"></i><span>특허청 영업비밀 원본증명 병행 시 법적 추정력이 강화됩니다</span></li>
             </ul>
+            <p class="pros-cons-card__note"><i class="fa-solid fa-circle-info" style="color:var(--mid);margin-right:.3rem;" aria-hidden="true"></i>일반 안내이며 법률 자문이 아닙니다.</p>
           </div>
         </div>
 
         <!-- 효력 강화 3단계 -->
         <div class="guide-roadmap glass-card" style="margin-bottom:1.5rem;">
-          <h3 class="guide-roadmap__title"><i class="fa-solid fa-stairs"></i>법적 효력 강화 3단계</h3>
+          <h3 class="guide-roadmap__title"><i class="fa-solid fa-stairs" aria-hidden="true"></i>법적 효력 강화 3단계</h3>
           <ol class="roadmap-steps">
             <li class="roadmap-step roadmap-step--current">
               <div class="roadmap-step__badge">자동</div>
@@ -1202,7 +1382,7 @@
                 <h4>특허청 영업비밀 원본증명 추가 등록 — 무료</h4>
                 <p>해시값을 복사해 등록 → 정부 공인 기록 = 법적 추정력 발생</p>
                 <a href="https://www.kipo.go.kr/ko/kpoBizContentView.do?menuCd=SCD0200143" target="_blank" rel="noopener noreferrer" class="btn btn--ghost btn--sm guide-roadmap__link" style="margin-top:.75rem;">
-                  <i class="fa-solid fa-arrow-up-right-from-square"></i> 특허청 원본증명 바로가기
+                  <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i> 특허청 원본증명 바로가기
                 </a>
               </div>
             </li>
@@ -1210,9 +1390,9 @@
               <div class="roadmap-step__badge roadmap-step__badge--muted">추가</div>
               <div class="roadmap-step__body">
                 <h4>NDA 체결</h4>
-                <p>공동창업자·투자자 공유 전 서명 — 서명 기록·IP·일시 자동 저장</p>
+                <p>공동창업자·투자자 공유 전 서명 — 해시 포함 NDA가 IP 보호를 완성합니다</p>
                 <a href="#nda-cta" class="btn btn--ghost btn--sm guide-roadmap__link" style="margin-top:.75rem;">
-                  <i class="fa-solid fa-file-signature"></i> NDA 작성하기
+                  <i class="fa-solid fa-file-signature" aria-hidden="true"></i> NDA 작성하기
                 </a>
               </div>
             </li>
@@ -1221,7 +1401,7 @@
 
         <!-- 분쟁 시 준비물 -->
         <div class="guide-checklist glass-card">
-          <h3 class="guide-checklist__title"><i class="fa-solid fa-list-check"></i>분쟁 시 준비물</h3>
+          <h3 class="guide-checklist__title"><i class="fa-solid fa-list-check" aria-hidden="true"></i>분쟁 시 준비물</h3>
           <ol class="checklist">
             <li class="checklist__item"><span class="checklist__num">01</span><strong>원본 파일 / 텍스트</strong> (본인 보관)</li>
             <li class="checklist__item"><span class="checklist__num">02</span><strong>IdeaGuard 등록 스크린샷</strong></li>
@@ -1229,7 +1409,7 @@
             <li class="checklist__item"><span class="checklist__num">03</span><strong>특허청 원본증명 PDF</strong> (2단계 완료 시)</li>
             <li class="checklist__item"><span class="checklist__num">04</span><strong>NDA 사본</strong> (체결 시)</li>
           </ol>
-          <p class="guide-checklist__disclaimer"><i class="fa-solid fa-circle-info"></i>일반 안내이며 법률 자문이 아닙니다. 실제 분쟁 시 변호사 상담을 받으세요.</p>
+          <p class="guide-checklist__disclaimer"><i class="fa-solid fa-circle-info" aria-hidden="true"></i>일반 안내이며 법률 자문이 아닙니다. 실제 분쟁 시 변호사 상담을 받으세요.</p>
         </div>
 
       </div><!-- /.container -->
@@ -2251,7 +2431,7 @@
         { threshold: 0.12 }
       );
       document.querySelectorAll(
-        '.hero__content, .register__panel, .tile:not(.tile--skeleton), .nda-cta__inner, .section-header, .guide-card, .guide-roadmap, .guide-checklist'
+        '.hero__content, .register__panel, .tile:not(.tile--skeleton), .nda-cta__inner, .section-header, .guide-card, .guide-roadmap, .guide-checklist, .hiw-card, .nda-feature-card, .pros-card, .cons-card'
       ).forEach(target => {
         // 이미 뷰포트에 있는 요소는 즉시 표시 (비동기 대기 없음)
         const r = target.getBoundingClientRect();
