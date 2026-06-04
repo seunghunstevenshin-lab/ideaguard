@@ -228,6 +228,59 @@
     .user-badge { display: flex; align-items: center; gap: 0.5rem; }
     .user-badge__email { font-size: 0.8rem; color: var(--text-muted); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+    /* ── 유저 드롭다운 메뉴 ── */
+    .user-menu { position: relative; }
+    .user-menu__trigger {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: none; border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.3rem 0.75rem; cursor: pointer; color: var(--text-primary);
+      font-size: 0.85rem; transition: border-color .2s;
+    }
+    .user-menu__trigger:hover { border-color: var(--accent); }
+    .user-menu__trigger .chevron { font-size: 0.7rem; transition: transform .2s; }
+    .user-menu__trigger.open .chevron { transform: rotate(180deg); }
+    .user-menu__dropdown {
+      position: absolute; top: calc(100% + 6px); right: 0; min-width: 200px;
+      background: var(--glass-bg); backdrop-filter: blur(12px);
+      border: 1px solid var(--border); border-radius: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4); z-index: 200; overflow: hidden;
+    }
+    .user-menu__email {
+      padding: 0.6rem 1rem; font-size: 0.78rem; color: var(--text-dim);
+      border-bottom: 1px solid var(--border); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .user-menu__item {
+      display: flex; align-items: center; gap: 0.6rem; width: 100%;
+      padding: 0.65rem 1rem; background: none; border: none; text-align: left;
+      color: var(--text-primary); font-size: 0.88rem; cursor: pointer; transition: background .15s;
+    }
+    .user-menu__item:hover { background: rgba(0,212,255,.07); }
+    .user-menu__item--danger { color: #f87171; }
+    .user-menu__item--danger:hover { background: rgba(248,113,113,.08); }
+    .user-menu__divider { height: 1px; background: var(--border); margin: 0; }
+
+    /* ── 내 해시 목록 패널 ── */
+    .dash-list { display: flex; flex-direction: column; gap: 0.75rem; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+    .dash-item {
+      background: var(--glass-bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.85rem 1rem; display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .dash-item__hash { font-family: monospace; font-size: 0.78rem; color: var(--accent); word-break: break-all; }
+    .dash-item__meta { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--text-dim); }
+    .dash-item__actions { display: flex; gap: 0.5rem; margin-top: 0.25rem; }
+
+    /* ── Google 로그인 버튼 ── */
+    .btn--google {
+      display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+      background: #fff; color: #3c4043; border: 1px solid #dadce0; border-radius: 8px;
+      padding: 0.75rem 1.25rem; font-size: 0.95rem; font-weight: 500;
+      cursor: pointer; width: 100%; transition: box-shadow .2s, background .2s;
+    }
+    .btn--google:hover { background: #f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
+    .btn--google svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .auth-divider { display: flex; align-items: center; gap: 0.75rem; margin: 1.25rem 0; color: var(--text-dim); font-size: 0.82rem; }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
     /* ─── [6~7. Hamburger & Mobile Menu] ────────────────────── */
     .hamburger { display: none; background: transparent; border: none; cursor: pointer; padding: var(--sp-2); }
     .hamburger__bar { display: block; width: 24px; height: 2px; background-color: var(--text-primary); margin: 5px 0; transition: all var(--duration-md) var(--ease); }
@@ -1037,11 +1090,22 @@
           <i class="fa-regular fa-user" aria-hidden="true"></i>
           <span>로그인</span>
         </button>
-        <div id="user-badge" class="user-badge" hidden>
-          <span id="user-email-display" class="user-badge__email"></span>
-          <button id="btn-logout" class="btn btn--ghost btn--sm">
-            <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+        <div id="user-badge" class="user-menu" hidden>
+          <button id="user-menu-trigger" class="user-menu__trigger" aria-haspopup="true" aria-expanded="false">
+            <i class="fa-solid fa-circle-user" aria-hidden="true"></i>
+            <span id="user-email-display" class="user-badge__email"></span>
+            <i class="fa-solid fa-chevron-down chevron" aria-hidden="true"></i>
           </button>
+          <div id="user-menu-dropdown" class="user-menu__dropdown" hidden>
+            <div id="user-menu-email" class="user-menu__email"></div>
+            <button class="user-menu__item" id="btn-my-hashes">
+              <i class="fa-solid fa-list-check"></i> 내 해시 목록
+            </button>
+            <div class="user-menu__divider"></div>
+            <button class="user-menu__item user-menu__item--danger" id="btn-logout">
+              <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+            </button>
+          </div>
         </div>
         <a href="#register" class="btn btn--primary btn--sm">
           <i class="fa-solid fa-bolt" aria-hidden="true"></i>
@@ -1883,6 +1947,28 @@
   <!-- ═══════════════════════════════════════════════════════════════════
        MODAL — Auth (Login)
   ═══════════════════════════════════════════════════════════════════ -->
+  <!-- 내 해시 목록 대시보드 모달 -->
+  <div class="modal" id="modal-dashboard"
+    role="dialog" aria-modal="true" aria-labelledby="modal-dashboard-title" hidden>
+    <div class="modal__backdrop" id="modal-dashboard-backdrop" aria-hidden="true"></div>
+    <div class="modal__panel glass-card" style="max-width: 600px; width: 92vw;">
+      <button class="modal__close btn btn--icon btn--ghost"
+        id="btn-modal-dashboard-close" aria-label="닫기">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <h3 class="modal__title" id="modal-dashboard-title">
+        <i class="fa-solid fa-list-check" aria-hidden="true"></i> 내 해시 목록
+      </h3>
+      <div class="modal__body">
+        <div id="dashboard-list" class="dash-list">
+          <div style="text-align:center; color:var(--text-dim); padding: 2rem;">
+            <i class="fa-solid fa-spinner fa-spin"></i> 불러오는 중...
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal" id="modal-auth"
     role="dialog" aria-modal="true" aria-labelledby="modal-auth-title" hidden>
     <div class="modal__backdrop" id="modal-auth-backdrop" aria-hidden="true"></div>
@@ -1896,20 +1982,29 @@
         IdeaGuard 로그인
       </h3>
       <div class="modal__body" id="modal-auth-body">
-        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
-          이메일을 입력하면 로그인 링크를 보내드립니다.
-        </p>
+        <!-- Google OAuth (기본) -->
+        <button id="btn-google-login" class="btn--google">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Google로 계속하기
+        </button>
+
+        <div class="auth-divider">또는 이메일로 로그인</div>
+
+        <!-- Magic Link (보조) -->
         <form id="form-auth" onsubmit="event.preventDefault();">
           <div class="form-group">
             <label for="auth-email" class="form-label">이메일 주소</label>
             <input type="email" id="auth-email" class="input" placeholder="이메일 주소 입력" required>
           </div>
-          
           <div class="form-alert form-alert--error" id="auth-form-error" hidden></div>
           <div class="form-alert form-alert--success" id="auth-form-success" hidden></div>
-
-          <div class="form-actions" style="margin-top: 1.5rem;">
-            <button type="submit" class="btn btn--primary btn--block btn--lg" id="btn-auth-submit">
+          <div class="form-actions" style="margin-top: 1rem;">
+            <button type="submit" class="btn btn--ghost btn--block" id="btn-auth-submit">
               <span class="btn__label">로그인 링크 받기</span>
               <span class="btn__spinner" hidden><i class="fa-solid fa-spinner fa-spin"></i> 전송 중...</span>
             </button>
@@ -2947,6 +3042,9 @@
         btnLogin.hidden  = true;
         userBadge.hidden = false;
         if (emailDisplay) emailDisplay.textContent = user.email;
+        // 드롭다운 이메일 표시
+        const menuEmail = $('user-menu-email');
+        if (menuEmail) menuEmail.textContent = user.email;
 
         // 등록 섹션 힌트: 로그인 완료 메시지로 교체
         if (memberHint) {
@@ -2988,7 +3086,7 @@
     }
 
     function setupAuth() {
-      // 세션 복원 (URL hash의 access_token 포함 — magic link 콜백)
+      // 세션 복원
       sb.auth.onAuthStateChange((_event, session) => {
         updateAuthUI(session?.user ?? null);
       });
@@ -3008,26 +3106,144 @@
           resetAuthBtn();
           m.hidden = false;
           document.body.style.overflow = 'hidden';
-          $('auth-email')?.focus();
         });
       }
+
+      // Google OAuth 로그인
+      $('btn-google-login')?.addEventListener('click', async () => {
+        await sb.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: 'https://ideaguard.pages.dev' },
+        });
+      });
 
       // 모달 닫기
       $('btn-modal-auth-close')?.addEventListener('click', closeAuthModal);
       $('modal-auth-backdrop')?.addEventListener('click', closeAuthModal);
       document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && $('modal-auth') && !$('modal-auth').hidden) closeAuthModal();
+        if (e.key === 'Escape') {
+          if ($('modal-auth')       && !$('modal-auth').hidden)       closeAuthModal();
+          if ($('modal-dashboard')  && !$('modal-dashboard').hidden)  closeDashboard();
+        }
+      });
+
+      // ── 유저 드롭다운 ──
+      const trigger  = $('user-menu-trigger');
+      const dropdown = $('user-menu-dropdown');
+      trigger?.addEventListener('click', () => {
+        const isOpen = !dropdown.hidden;
+        dropdown.hidden = isOpen;
+        trigger.classList.toggle('open', !isOpen);
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+      });
+      // 외부 클릭 시 드롭다운 닫기
+      document.addEventListener('click', e => {
+        if (dropdown && !dropdown.hidden && !$('user-badge').contains(e.target)) {
+          dropdown.hidden = true;
+          trigger?.classList.remove('open');
+        }
+      });
+
+      // 내 해시 목록 버튼
+      $('btn-my-hashes')?.addEventListener('click', () => {
+        dropdown.hidden = true;
+        trigger?.classList.remove('open');
+        openDashboard();
       });
 
       // 로그아웃
       $('btn-logout')?.addEventListener('click', async () => {
         await sb.auth.signOut();
         updateAuthUI(null);
+        dropdown.hidden = true;
       });
 
-      // Magic Link 발송
+      // 대시보드 모달 닫기
+      $('btn-modal-dashboard-close')?.addEventListener('click', closeDashboard);
+      $('modal-dashboard-backdrop')?.addEventListener('click', closeDashboard);
+
+      // Magic Link 발송 (보조)
       const formAuth = $('form-auth');
       if (formAuth) formAuth.addEventListener('submit', handleAuthSubmit);
+    }
+
+    /* ── 대시보드 ── */
+    function openDashboard() {
+      const m = $('modal-dashboard');
+      if (!m) return;
+      m.hidden = false;
+      document.body.style.overflow = 'hidden';
+      loadMyHashes();
+    }
+    function closeDashboard() {
+      const m = $('modal-dashboard');
+      if (m) m.hidden = true;
+      document.body.style.overflow = '';
+    }
+
+    async function loadMyHashes() {
+      const list = $('dashboard-list');
+      if (!list) return;
+      list.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:2rem;"><i class="fa-solid fa-spinner fa-spin"></i> 불러오는 중...</div>';
+
+      try {
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) { list.innerHTML = '<p style="color:var(--text-dim);text-align:center;">로그인이 필요합니다.</p>'; return; }
+
+        const res  = await fetch(`${API}/api/records?mine=1&limit=50`, {
+          headers: { 'Authorization': `Bearer ${session.access_token}` },
+        });
+        const data = await res.json();
+        const items = data.records ?? data ?? [];
+
+        if (!items.length) {
+          list.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:2rem;">등록된 해시가 없습니다.</p>';
+          return;
+        }
+
+        const otsBadge = s => ({
+          confirmed: `<span class="tile__ots-badge tile__ots-badge--confirmed"><i class="fa-brands fa-bitcoin"></i> 확정</span>`,
+          submitted:  `<span class="tile__ots-badge tile__ots-badge--submitted"><i class="fa-solid fa-link"></i> 앵커링 중</span>`,
+          pending:    `<span class="tile__ots-badge tile__ots-badge--pending"><i class="fa-solid fa-clock"></i> 대기</span>`,
+          failed:     `<span class="tile__ots-badge tile__ots-badge--failed"><i class="fa-solid fa-xmark"></i> 실패</span>`,
+        }[s] || `<span class="tile__ots-badge tile__ots-badge--pending"><i class="fa-solid fa-clock"></i> 대기</span>`);
+
+        list.innerHTML = items.map(r => `
+          <div class="dash-item">
+            <div class="dash-item__hash">${escHtml(r.hash)}</div>
+            <div class="dash-item__meta">
+              <span><i class="fa-solid fa-calendar-day"></i> ${formatDate(r.created_at)}</span>
+              ${otsBadge(r.ots_status)}
+            </div>
+            <div class="dash-item__actions">
+              <button class="btn btn--ghost btn--sm" onclick="navigator.clipboard.writeText('${escHtml(r.hash)}').then(()=>this.textContent='복사됨!')">
+                <i class="fa-regular fa-copy"></i> 해시 복사
+              </button>
+              ${(r.ots_status==='submitted'||r.ots_status==='confirmed')
+                ? `<a class="btn btn--ghost btn--sm" href="${API}/api/records/${r.id}/ots" download>
+                     <i class="fa-solid fa-download"></i> OTS 다운
+                   </a>`
+                : ''}
+              <button class="btn btn--primary btn--sm" onclick="startNDA('${r.id}')">
+                <i class="fa-solid fa-file-contract"></i> NDA 생성
+              </button>
+            </div>
+          </div>`).join('');
+      } catch(e) {
+        list.innerHTML = '<p style="color:#f87171;text-align:center;">불러오기 실패. 다시 시도해주세요.</p>';
+      }
+    }
+
+    function startNDA(recordId) {
+      closeDashboard();
+      // 기존 NDA 모달 열기 (record_id 자동 주입)
+      const m = $('modal-nda');
+      if (m) {
+        const inp = m.querySelector('[name="record_id"], #nda-record-id');
+        if (inp) inp.value = recordId;
+        m.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
     }
 
     function resetAuthBtn() {
