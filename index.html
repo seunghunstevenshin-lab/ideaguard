@@ -227,6 +227,9 @@
     /* ─── [5-b. User Badge] ──────────────────────────────────── */
     .user-badge { display: flex; align-items: center; gap: 0.5rem; }
     .user-badge__email { font-size: 0.8rem; color: var(--text-muted); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    /* 로그인 후 인라인 유저 영역 */
+    .user-inline { display: flex; align-items: center; gap: 0.4rem; }
+    .user-inline__email { font-size: 0.8rem; color: var(--text-dim); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 0.25rem; }
 
     /* ── 유저 드롭다운 메뉴 ── */
     .user-menu { position: relative; }
@@ -1086,31 +1089,27 @@
 
       <!-- Header Actions -->
       <div class="header-actions">
+        <!-- 비로그인 -->
         <button class="btn btn--ghost btn--sm" id="btn-login">
           <i class="fa-regular fa-user" aria-hidden="true"></i>
           <span>로그인</span>
         </button>
-        <div id="user-badge" class="user-menu" hidden>
-          <button id="user-menu-trigger" class="user-menu__trigger" aria-haspopup="true" aria-expanded="false">
-            <i class="fa-solid fa-circle-user" aria-hidden="true"></i>
-            <span id="user-email-display" class="user-badge__email"></span>
-            <i class="fa-solid fa-chevron-down chevron" aria-hidden="true"></i>
-          </button>
-          <div id="user-menu-dropdown" class="user-menu__dropdown" hidden>
-            <div id="user-menu-email" class="user-menu__email"></div>
-            <button class="user-menu__item" id="btn-my-hashes">
-              <i class="fa-solid fa-list-check"></i> 내 해시 목록
-            </button>
-            <div class="user-menu__divider"></div>
-            <button class="user-menu__item user-menu__item--danger" id="btn-logout">
-              <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
-            </button>
-          </div>
-        </div>
-        <a href="#register" class="btn btn--primary btn--sm">
+        <a href="#register" class="btn btn--primary btn--sm" id="btn-cta">
           <i class="fa-solid fa-bolt" aria-hidden="true"></i>
           <span>지금 등록하기</span>
         </a>
+
+        <!-- 로그인 후 — 인라인 (드롭다운 없음) -->
+        <div id="user-badge" class="user-inline" hidden>
+          <button class="btn btn--ghost btn--sm" id="btn-my-hashes">
+            <i class="fa-solid fa-list-check"></i>
+            <span>내 해시 목록</span>
+          </button>
+          <span id="user-email-display" class="user-inline__email"></span>
+          <button class="btn btn--ghost btn--sm" id="btn-logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Mobile Hamburger -->
@@ -3041,10 +3040,8 @@
       if (user) {
         btnLogin.hidden  = true;
         userBadge.hidden = false;
+        if ($('btn-cta')) $('btn-cta').hidden = true;   // 로그인 후 CTA 숨김
         if (emailDisplay) emailDisplay.textContent = user.email;
-        // 드롭다운 이메일 표시
-        const menuEmail = $('user-menu-email');
-        if (menuEmail) menuEmail.textContent = user.email;
 
         // 등록 섹션 힌트: 로그인 완료 메시지로 교체
         if (memberHint) {
@@ -3059,6 +3056,7 @@
       } else {
         btnLogin.hidden  = false;
         userBadge.hidden = true;
+        if ($('btn-cta')) $('btn-cta').hidden = false;  // 로그아웃 시 CTA 복원
 
         // 등록 섹션 힌트: 원래 메시지 복원
         if (memberHint) {
@@ -3127,35 +3125,13 @@
         }
       });
 
-      // ── 유저 드롭다운 ──
-      const trigger  = $('user-menu-trigger');
-      const dropdown = $('user-menu-dropdown');
-      trigger?.addEventListener('click', () => {
-        const isOpen = !dropdown.hidden;
-        dropdown.hidden = isOpen;
-        trigger.classList.toggle('open', !isOpen);
-        trigger.setAttribute('aria-expanded', String(!isOpen));
-      });
-      // 외부 클릭 시 드롭다운 닫기
-      document.addEventListener('click', e => {
-        if (dropdown && !dropdown.hidden && !$('user-badge').contains(e.target)) {
-          dropdown.hidden = true;
-          trigger?.classList.remove('open');
-        }
-      });
-
       // 내 해시 목록 버튼
-      $('btn-my-hashes')?.addEventListener('click', () => {
-        dropdown.hidden = true;
-        trigger?.classList.remove('open');
-        openDashboard();
-      });
+      $('btn-my-hashes')?.addEventListener('click', openDashboard);
 
       // 로그아웃
       $('btn-logout')?.addEventListener('click', async () => {
         await sb.auth.signOut();
         updateAuthUI(null);
-        dropdown.hidden = true;
       });
 
       // 대시보드 모달 닫기
