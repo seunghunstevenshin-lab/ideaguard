@@ -877,6 +877,86 @@
     .checklist--visual .checklist__item > div > strong { display: block; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 3px; }
     .checklist--visual .checklist__item > div > p { font-size: 0.83rem; color: var(--text-muted); margin: 0; }
 
+    /* ─── [46-pre. Text Warning Banner] ─────────────────────── */
+    .text-warn-banner {
+      display: flex; gap: var(--sp-4); align-items: flex-start;
+      padding: var(--sp-4) var(--sp-5);
+      background: rgba(251, 191, 36, 0.07);
+      border: 1px solid rgba(251, 191, 36, 0.22);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--sp-4);
+      animation: slide-down 0.2s var(--ease);
+    }
+    .text-warn-banner__icon { font-size: 1.15rem; flex-shrink: 0; margin-top: 2px; }
+    .text-warn-banner__body { flex: 1; }
+    .text-warn-banner__body strong {
+      display: block; font-size: 0.87rem; font-weight: 700;
+      color: #fbbf24; margin-bottom: var(--sp-2);
+    }
+    .text-warn-banner__body p {
+      font-size: 0.81rem; color: var(--text-muted); line-height: 1.6; margin: 0 0 var(--sp-2);
+    }
+    .text-warn-banner__body p:last-child { margin-bottom: 0; }
+    .text-warn-banner__action { flex-shrink: 0; align-self: center; }
+
+    /* ─── [46-pre2. 3-Step Verify Result UI] ─────────────────── */
+    .verify-steps { display: flex; flex-direction: column; gap: var(--sp-4); width: 100%; }
+
+    .vs-step {
+      padding: var(--sp-4) var(--sp-5);
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--radius-md);
+    }
+    .vs-step__label {
+      font-size: 0.71rem; font-weight: 800; letter-spacing: 0.08em;
+      color: var(--accent); text-transform: uppercase;
+      margin-bottom: var(--sp-3);
+      display: flex; align-items: center; gap: var(--sp-2);
+    }
+
+    .hash-cmp { display: flex; flex-direction: column; gap: var(--sp-3); }
+    .hash-cmp__row { display: flex; flex-direction: column; gap: var(--sp-1); }
+    .hash-cmp__row-label { font-size: 0.74rem; font-weight: 600; color: var(--text-muted); }
+    .hash-cmp__val {
+      font-family: var(--font-mono); font-size: 0.71rem;
+      color: var(--text-primary); word-break: break-all;
+      padding: var(--sp-2) var(--sp-3);
+      background: rgba(0,0,0,0.25); border-radius: var(--radius-sm); display: block;
+    }
+    .hash-cmp__result {
+      display: flex; align-items: center; gap: var(--sp-2);
+      padding: var(--sp-2) var(--sp-3); border-radius: var(--radius-sm);
+      font-size: 0.84rem; font-weight: 700; margin-top: var(--sp-2);
+    }
+    .hash-cmp__result--match {
+      background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.25); color: var(--success);
+    }
+    .hash-cmp__result--mismatch {
+      background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.25); color: var(--danger);
+    }
+
+    .ts-info { display: flex; flex-direction: column; gap: var(--sp-3); }
+    .ts-row { display: flex; align-items: center; gap: var(--sp-3); font-size: 0.875rem; flex-wrap: wrap; }
+    .ts-row > span:first-child { color: var(--text-muted); min-width: 90px; flex-shrink: 0; }
+    .ts-row > strong { color: var(--text-primary); }
+    .ts-links {
+      display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center;
+      padding: var(--sp-3) var(--sp-4);
+      background: rgba(34,211,238,0.04); border: 1px solid rgba(34,211,238,0.1);
+      border-radius: var(--radius-sm); font-size: 0.81rem;
+    }
+    .ts-links > span { color: var(--text-muted); }
+    .ts-links a { color: var(--accent); text-decoration: underline; white-space: nowrap; }
+
+    .vs-conclusion {
+      margin-top: var(--sp-4); padding: var(--sp-4) var(--sp-5);
+      background: rgba(52,211,153,0.07); border: 1px solid rgba(52,211,153,0.18);
+      border-radius: var(--radius-md); font-size: 0.9rem; color: var(--success);
+      text-align: center; line-height: 1.7;
+    }
+    .vs-conclusion strong { color: var(--text-primary); }
+
     /* ─── [46. Accordion] ────────────────────────────────────── */
     .accordion__header {
       display: flex; align-items: center; justify-content: space-between;
@@ -1270,6 +1350,23 @@
           <!-- Divider -->
           <div class="register__divider" aria-hidden="true">
             <span>또는 텍스트 직접 입력</span>
+          </div>
+
+          <!-- ⚠️ 텍스트 등록 주의 배너 (텍스트 입력 포커스 시 표시) -->
+          <div class="text-warn-banner" id="text-warn-banner" hidden aria-live="polite">
+            <div class="text-warn-banner__icon">
+              <i class="fa-solid fa-triangle-exclamation" style="color:#fbbf24;" aria-hidden="true"></i>
+            </div>
+            <div class="text-warn-banner__body">
+              <strong>텍스트 등록 시 주의</strong>
+              <p>검증 단계에서 원문 텍스트를 그대로 입력해야 합니다. 투자자·파트너 앞에서 데모 시 내용이 그대로 노출됩니다.</p>
+              <p>💡 <strong style="color:var(--text-primary);">아이디어·영업비밀·사업계획</strong>은 파일(PDF, DOCX 등)로 저장한 뒤 파일 등록을 이용하세요. 파일은 해시값만 공개되며, 원본 공개 여부를 직접 선택할 수 있습니다.</p>
+            </div>
+            <div class="text-warn-banner__action">
+              <button type="button" class="btn btn--primary btn--sm" id="btn-use-file">
+                <i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i> 파일로 등록
+              </button>
+            </div>
           </div>
 
           <!-- Text Input -->
@@ -2191,6 +2288,10 @@
     }
 
     async function processFile(file) {
+      // 파일 로드 시 텍스트 경고 배너 숨김
+      const warnBanner = $('text-warn-banner');
+      if (warnBanner) warnBanner.hidden = true;
+
       el.dzFilename.textContent = `${file.name} (${formatBytes(file.size)})`;
       el.dzIdle.hidden   = true;
       el.dzLoaded.hidden = false;
@@ -2224,6 +2325,13 @@
 
     function setupTextInput() {
       let debounceTimer;
+
+      // 텍스트 입력 포커스 시 경고 배너 표시
+      el.textInput.addEventListener('focus', () => {
+        const banner = $('text-warn-banner');
+        if (banner) banner.hidden = false;
+      });
+
       el.textInput.addEventListener('input', () => {
         clearTimeout(debounceTimer);
         // 파일이 로드된 상태면 텍스트 입력 무시
@@ -2605,7 +2713,7 @@
     /* ═════════════════════════════════════════════════════════════
        9. VERIFY
     ═════════════════════════════════════════════════════════════ */
-    async function runVerify(hash) {
+    async function runVerify(hash, fromFile = false) {
       const hex = (hash || el.verifyInput.value.trim()).toLowerCase();
       // 빈 입력
       if (!hex) {
@@ -2633,12 +2741,76 @@
 
         if (data.verified && data.record) {
           const r = data.record;
+          const regDate = formatDate(r.created_at);
+          const otsStatus = r.ots_status || 'pending';
+          const otsCanDownload = (otsStatus === 'submitted' || otsStatus === 'confirmed');
+
+          const otsBadgeHtml = ({
+            confirmed: `<span class="tile__ots-badge tile__ots-badge--confirmed"><i class="fa-brands fa-bitcoin"></i> Bitcoin 확정</span>`,
+            submitted: `<span class="tile__ots-badge tile__ots-badge--submitted"><i class="fa-solid fa-link"></i> 앵커링 중 (~1시간)</span>`,
+            pending:   `<span class="tile__ots-badge tile__ots-badge--pending"><i class="fa-solid fa-clock"></i> 앵커링 대기</span>`,
+            failed:    `<span class="tile__ots-badge tile__ots-badge--failed"><i class="fa-solid fa-xmark"></i> 앵커링 실패</span>`,
+          }[otsStatus] || `<span class="tile__ots-badge tile__ots-badge--pending"><i class="fa-solid fa-clock"></i> 대기</span>`);
+
+          // STEP 2: 해시 비교 (파일에서 검증한 경우만 표시)
+          const hashCompareHtml = fromFile ? `
+            <div class="vs-step">
+              <div class="vs-step__label">
+                <i class="fa-solid fa-check-double" aria-hidden="true"></i> STEP 2 — 해시 일치 확인
+              </div>
+              <div class="hash-cmp">
+                <div class="hash-cmp__row">
+                  <div class="hash-cmp__row-label">방금 계산된 해시 (파일 재계산 · 브라우저 내부)</div>
+                  <code class="hash-cmp__val">${escHtml(hex)}</code>
+                </div>
+                <div class="hash-cmp__row">
+                  <div class="hash-cmp__row-label">등록된 해시</div>
+                  <code class="hash-cmp__val">${escHtml(r.hash)}</code>
+                </div>
+                <div class="hash-cmp__result hash-cmp__result--match">
+                  <i class="fa-solid fa-check-double" aria-hidden="true"></i> 완전 일치 — 파일이 변조되지 않았습니다
+                </div>
+              </div>
+            </div>` : '';
+
+          // STEP 3 (파일 검증) 또는 STEP 2 (해시 직접 입력): 타임스탬프
+          const stepNum = fromFile ? '3' : '2';
           showVerifyResult('success', `
-            <i class="fa-solid fa-circle-check"></i>
-            <div>
-              <strong>등록 확인됨</strong> — ${escHtml(r.nickname)}
-              <br><span class="text--muted">${escHtml(r.title)} · ${formatDate(r.created_at)}</span>
-            </div>`);
+            <div class="verify-steps">
+              ${hashCompareHtml}
+              <div class="vs-step">
+                <div class="vs-step__label">
+                  <i class="fa-brands fa-bitcoin" style="color:#f7931a;" aria-hidden="true"></i>
+                  STEP ${escHtml(stepNum)} — Bitcoin 타임스탬프 확인
+                </div>
+                <div class="ts-info">
+                  <div class="ts-row">
+                    <span>등록 시각</span>
+                    <strong>${escHtml(regDate)}</strong>
+                  </div>
+                  <div class="ts-row">
+                    <span>Bitcoin 앵커링</span>
+                    ${otsBadgeHtml}
+                  </div>
+                  ${otsCanDownload ? `
+                  <div class="ts-links">
+                    <span>🔗 블록체인 직접 확인 (외부 독립 검증)</span>
+                    <a href="https://opentimestamps.org" target="_blank" rel="noopener noreferrer">opentimestamps.org ↗</a>
+                    <a href="https://mempool.space" target="_blank" rel="noopener noreferrer">mempool.space ↗</a>
+                  </div>
+                  <a href="${API}/api/records/${encodeURIComponent(r.id)}/ots"
+                     class="btn btn--ghost btn--sm" style="align-self:flex-start;margin-top:.25rem;">
+                    <i class="fa-solid fa-download" aria-hidden="true"></i> OTS 증명 파일 다운로드
+                  </a>` : ''}
+                </div>
+                <div class="vs-conclusion">
+                  <i class="fa-solid fa-shield-check" aria-hidden="true"></i>
+                  <strong>부인봉쇄 확인 완료</strong><br>
+                  이 파일은 <strong>${escHtml(regDate)}</strong>에 변조 없이 존재했습니다
+                </div>
+              </div>
+            </div>`, true);
+
         } else {
           showVerifyResult('fail', `
             <i class="fa-solid fa-circle-xmark"></i>
@@ -2650,9 +2822,14 @@
       }
     }
 
-    function showVerifyResult(type, html) {
+    function showVerifyResult(type, html, isDetailed = false) {
       el.verifyResult.hidden    = false;
       el.verifyResult.className = `verify-result verify-result--${type}`;
+      if (isDetailed) {
+        el.verifyResult.style.cssText = 'display:block;padding:1.25rem 1.5rem;';
+      } else {
+        el.verifyResult.style.cssText = '';
+      }
       el.verifyResult.innerHTML = html;
     }
 
@@ -2671,7 +2848,7 @@
           '<i class="fa-solid fa-spinner fa-spin"></i> 파일 해시 계산 중...');
         const hex = await hashFile(file);
         el.verifyInput.value = hex;
-        runVerify(hex);
+        runVerify(hex, true);  // fromFile = true → 3단계 UI 표시
         el.verifyFileInput.value = ''; // 같은 파일 재선택 허용
       });
 
@@ -2685,7 +2862,7 @@
           '<i class="fa-solid fa-spinner fa-spin"></i> 파일 해시 계산 중...');
         const hex = await hashFile(file);
         el.verifyInput.value = hex;
-        runVerify(hex);
+        runVerify(hex, true);  // fromFile = true → 3단계 UI 표시
       });
     }
 
@@ -2927,6 +3104,17 @@
 
     function init() {
       setupDropzone();
+
+      // ⚠️ "파일로 등록" 버튼 — 텍스트 경고 배너 내 CTA
+      $('btn-use-file')?.addEventListener('click', () => {
+        el.textInput.value = '';
+        clearHash();
+        const warnBanner = $('text-warn-banner');
+        if (warnBanner) warnBanner.hidden = true;
+        el.dropzone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => el.fileInput.click(), 450);
+      });
+
       setupTextInput();
       setupKeywords();
       setupCopyHash();

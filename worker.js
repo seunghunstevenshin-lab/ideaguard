@@ -114,9 +114,10 @@ async function handleRequest(request, env, ctx) {
 
   if (method === 'OPTIONS') return new Response(null, { status: 204 });
 
-  if (path === '/api/records' && method === 'POST') return handleRegister(request, env);
+  if (path === '/api/records' && method === 'POST') return handleRegister(request, env, ctx);
   if (path === '/api/records' && method === 'GET')  return handleGetTiles(request, env);
   if (path === '/api/records/verify' && method === 'POST') return handleVerify(request, env);
+  if (path === '/api/admin/retry-ots' && method === 'POST') return handleRetryOTS(request, env, ctx);
   if (path === '/api/nda' && method === 'POST') return handleCreateNDA(request, env, ctx);
 
   // OTS 파일 다운로드
@@ -200,7 +201,7 @@ async function anchorToOpenTimestamps(hash, recordId, db) {
 // ──────────────────────────────────────────────────────────────────────────────
 // 핸들러: 해시 등록
 // ──────────────────────────────────────────────────────────────────────────────
-async function handleRegister(request, env) {
+async function handleRegister(request, env, ctx) {
   let body;
   try { body = await request.json(); } catch { return errorResponse('요청 형식 오류'); }
 
@@ -224,16 +225,45 @@ async function handleRegister(request, env) {
     return errorResponse('등록 중 오류가 발생했습니다', 500);
   }
 
-  // OpenTimestamps Bitcoin 앵커링 — 비동기 실행 (응답 블로킹 없음)
-  // Cloudflare Workers의 waitUntil로 응답 후에도 백그라운드 실행 보장
-  // (ctx가 없는 환경에선 그냥 fire-and-forget으로 동작)
-  anchorToOpenTimestamps(data.hash, data.id, db).catch(() => {});
+  // OpenTimestamps Bitcoin 앵커링 — ctx.waitUntil로 응답 후에도 완료 보장
+  const otsPromise = anchorToOpenTimestamps(data.hash, data.id, db).catch(() => {});
+  if (ctx?.waitUntil) ctx.waitUntil(otsPromise);
 
   return jsonResponse({
     success: true,
     record:  data,
     ots:     'submitted',  // Bitcoin 앵커링 비동기 진행 중
   }, 201);
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// 핸들러: pending 레코드 OTS 재시도 (관리자 전용)
+// POST /api/admin/retry-ots  with  { secret: "..." }
+// ──────────────────────────────────────────────────────────────────────────────
+async function handleRetryOTS(request, env, ctx) {
+  let body;
+  try { body = await request.json(); } catch { return errorResponse('요청 형식 오류'); }
+
+  const ADMIN_SECRET = env.ADMIN_SECRET || 'ideaguard-admin-2026';
+  if (body.secret !== ADMIN_SECRET) return errorResponse('인증 실패', 403);
+
+  const db = getSupabase(env);
+  const { data: pending } = await db
+    .from('records')
+    .select('id, hash')
+    .eq('ots_status', 'pending')
+    .limit(20);
+
+  if (!pending || pending.length === 0)
+    return jsonResponse({ message: '재시도할 pending 레코드 없음', count: 0 });
+
+  const retries = pending.map(r =>
+    anchorToOpenTimestamps(r.hash, r.id, db).catch(() => {})
+  );
+  if (ctx?.waitUntil) ctx.waitUntil(Promise.all(retries));
+
+  return jsonResponse({ message: `OTS 재시도 시작`, count: pending.length,
+    ids: pending.map(r => r.id) });
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
