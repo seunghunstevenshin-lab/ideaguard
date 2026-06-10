@@ -1384,9 +1384,14 @@
             <div class="dropzone__state dropzone__state--idle" id="dz-idle">
               <i class="fa-solid fa-cloud-arrow-up dropzone__icon" aria-hidden="true"></i>
               <p class="dropzone__label">
-                파일을 여기에 드래그하거나 <span class="text--accent">클릭</span>하여 선택
+                파일을 여기에 드래그하거나 아래 버튼을 클릭하세요
               </p>
-              <p class="dropzone__hint" id="dropzone-hint">
+              <button type="button" class="btn btn--primary btn--sm" id="btn-select-file"
+                style="margin-top:var(--sp-3);">
+                <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+                파일 선택 &amp; 해시 생성
+              </button>
+              <p class="dropzone__hint" id="dropzone-hint" style="margin-top:var(--sp-2);">
                 모든 파일 형식 지원 · 최대 500MB
               </p>
             </div>
@@ -2324,11 +2329,22 @@
       window.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); }, { capture: true, passive: false });
       window.addEventListener('drop',     e => { e.preventDefault(); e.stopPropagation(); }, { capture: true, passive: false });
 
-      // Click to open file dialog
-      dz.addEventListener('click', e => {
-        if (e.target !== el.btnClearFile && !el.btnClearFile.contains(e.target)) {
+      // "파일 선택 & 해시 생성" 버튼 — 명시적 핸들러 (버블 차단으로 dropzone click 중복 방지)
+      const btnSelectFile = $('btn-select-file');
+      if (btnSelectFile) {
+        btnSelectFile.addEventListener('click', e => {
+          e.stopPropagation();
           el.fileInput.click();
-        }
+        });
+      }
+
+      // Click anywhere on dropzone to open file dialog (버튼 외 영역)
+      dz.addEventListener('click', e => {
+        // "파일 제거" 버튼 클릭은 무시
+        if (el.btnClearFile && (e.target === el.btnClearFile || el.btnClearFile.contains(e.target))) return;
+        // "파일 선택" 버튼은 직접 핸들러가 있으므로 여기서 중복 처리 안 함
+        if (btnSelectFile && (e.target === btnSelectFile || btnSelectFile.contains(e.target))) return;
+        el.fileInput.click();
       });
 
       // Keyboard activation
@@ -2382,8 +2398,17 @@
       el.dzIdle.hidden   = true;
       el.dzLoaded.hidden = false;
       el.textInput.value = '';   // 파일 우선
-      const hex = await hashFile(file);
-      setHash(hex);
+
+      try {
+        const hex = await hashFile(file);
+        setHash(hex);
+      } catch (err) {
+        // 해시 계산 실패 시 UI를 원래 상태로 되돌리고 오류 표시
+        console.error('[IdeaGuard] hashFile 오류:', err);
+        el.dzIdle.hidden   = false;
+        el.dzLoaded.hidden = true;
+        showFormError('파일 해시 계산 중 오류가 발생했습니다. 다른 파일을 시도해 주세요.');
+      }
     }
 
     function clearFileState() {
