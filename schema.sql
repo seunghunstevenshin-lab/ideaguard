@@ -9,7 +9,7 @@
 -- ──────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS records (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  hash        TEXT        NOT NULL UNIQUE,           -- SHA-256 해시값 (소문자 hex 64자)
+  hash        TEXT        NOT NULL,                  -- SHA-256 해시값 (소문자 hex 64자)
   nickname    TEXT        NOT NULL DEFAULT '익명',   -- 게스트/회원 표기명 (NDA 연결 전 기본값)
   title       TEXT        NOT NULL DEFAULT '',       -- 아이디어 제목 (NDA 생성 시 업데이트)
   keywords    TEXT[]      DEFAULT '{}',              -- 공개 키워드 (최대 5개)

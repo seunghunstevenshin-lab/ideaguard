@@ -211,6 +211,17 @@ async function handleRegister(request, env, ctx) {
   if (!isValidHash(hash)) return errorResponse('유효하지 않은 해시값');
 
   const db = getSupabase(env);
+
+  // 1) 동일 해시 기존 등록 여부 확인
+  const { data: existing } = await db
+    .from('records')
+    .select('id, created_at')
+    .eq('hash', hash.toLowerCase())
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  // 2) 항상 신규 record 생성 (중복 허용)
   const { data, error } = await db.from('records').insert({
     hash: hash.toLowerCase(),
     nickname: '익명',           // 기본값 — 회원 로그인 후 NDA 시 실명 사용
@@ -220,7 +231,6 @@ async function handleRegister(request, env, ctx) {
   }).select().single();
 
   if (error) {
-    if (error.code === '23505') return errorResponse('이미 등록된 해시값입니다', 409);
     console.error('[register error]', error.code, error.message);
     return errorResponse('등록 중 오류가 발생했습니다', 500);
   }
@@ -233,6 +243,8 @@ async function handleRegister(request, env, ctx) {
     success: true,
     record:  data,
     ots:     'submitted',  // Bitcoin 앵커링 비동기 진행 중
+    is_duplicate: !!existing,
+    first_registered_at: existing?.created_at || null,
   }, 201);
 }
 

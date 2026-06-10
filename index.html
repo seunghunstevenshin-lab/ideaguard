@@ -465,6 +465,7 @@
     }
     .form-alert--error { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); }
     .form-alert--success { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.3); color: var(--success); }
+    .form-alert--warning { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); color: var(--warning, #fbbf24); }
 
     /* ─── [27. Form Actions] ─────────────────────────────────── */
     .form-actions { margin-top: var(--sp-6); }
@@ -1507,6 +1508,12 @@
               해시가 성공적으로 등록되었습니다! 타임스탬프가 공표되었습니다.
             </div>
 
+            <!-- Alert: Warning (Duplicate Hash) -->
+            <div class="form-alert form-alert--warning" id="form-warning" role="status" hidden>
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+              <span id="form-warning-msg"></span>
+            </div>
+
             <!-- Submit -->
             <div class="form-actions">
               <div class="register__submit-row">
@@ -2292,6 +2299,8 @@
       formError:    $('form-error'),
       formErrorMsg: $('form-error-msg'),
       formSuccess:  $('form-success'),
+      formWarning:  $('form-warning'),
+      formWarningMsg: $('form-warning-msg'),
       btnRegister:  $('btn-register'),
       // Tileboard
       tileboard:    $('tileboard'),
@@ -2592,7 +2601,13 @@
             state.newRecordId = data.record?.id ?? null;
             setTimeout(() => { state.newRecordId = null; }, 8000);
 
-            el.formSuccess.hidden = false;
+            if (data.is_duplicate) {
+              const formattedDate = formatDate(data.first_registered_at);
+              el.formWarningMsg.innerHTML = `⚠️ 동일한 해시값이 <strong>${formattedDate}</strong>에 이미 등록되어 있습니다.<br>타임스탬프 선취권은 해당 시점에 있습니다. 귀하의 등록은 현재 시간으로 별도 기록되었습니다.`;
+              el.formWarning.hidden = false;
+            } else {
+              el.formSuccess.hidden = false;
+            }
             resetForm();
             state.currentPage = 1;
             await fetchTiles(1);
@@ -2623,6 +2638,7 @@
     function hideFormMessages() {
       el.formError.hidden   = true;
       el.formSuccess.hidden = true;
+      el.formWarning.hidden = true;
     }
 
     function resetForm() {
