@@ -494,8 +494,50 @@
       background: var(--mid-glow); border-color: var(--mid);
       color: var(--text-primary);
     }
-    .verify-bar { display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-4) var(--sp-5); margin-bottom: var(--sp-8); }
+    /* ─── Verify Panel (2-section redesign) ────────────────────── */
+    .verify-panel { padding: var(--sp-6); margin-bottom: var(--sp-8); }
+
+    .verify-section--primary { padding-bottom: var(--sp-5); }
+    .verify-section__head {
+      display: flex; align-items: center; gap: var(--sp-3); margin-bottom: var(--sp-3);
+    }
+    .verify-section__badge {
+      font-size: 0.67rem; font-weight: 800; padding: 2px 9px;
+      background: rgba(99,102,241,.15); color: var(--mid); border-radius: 20px;
+    }
+    .verify-section__title {
+      font-size: 1rem; font-weight: 700; color: var(--text-primary);
+      display: flex; align-items: center; gap: var(--sp-2);
+    }
+    .verify-section__title i { color: var(--accent); }
+    .verify-section__desc {
+      font-size: 0.85rem; color: var(--text-muted);
+      margin-bottom: var(--sp-4); line-height: 1.65; max-width: 520px;
+    }
+    .verify-section__cta { margin-bottom: var(--sp-3); }
+    .verify-section__warn {
+      font-size: 0.78rem; color: var(--text-dim);
+      display: flex; gap: var(--sp-2); align-items: flex-start;
+    }
+    .verify-section__warn i { color: #fbbf24; flex-shrink: 0; margin-top: 2px; }
+
+    .verify-alt-divider {
+      position: relative; text-align: center; margin: var(--sp-5) 0;
+    }
+    .verify-alt-divider::before {
+      content: ''; position: absolute; top: 50%; left: 0; right: 0;
+      height: 1px; background: var(--border);
+    }
+    .verify-alt-divider span {
+      position: relative; background: var(--bg-secondary);
+      padding: 0 var(--sp-4); font-size: 0.78rem; color: var(--text-dim);
+    }
+    .verify-section--secondary {
+      display: flex; gap: var(--sp-3); align-items: center;
+    }
     .verify-bar__input { flex: 1; }
+
+    /* .verify-bar 기존 클래스 유지 (JS el.verifyResult 등 호환) */
     .verify-result {
       padding: var(--sp-4); border-radius: var(--radius-md);
       display: flex; align-items: center; gap: var(--sp-3);
@@ -506,6 +548,20 @@
     .verify-result--loading { background: var(--mid-glow); border: 1px solid var(--mid-border); color: var(--mid); }
     .verify-result--invalid { background: var(--glass-bg); border: 1px solid var(--border-hover); color: var(--text-dim); }
     .verify-result--error   { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); color: var(--danger); }
+
+    /* 해시 직접 입력 검증 시 파일 업로드 프롬프트 */
+    .vs-file-prompt {
+      display: flex; gap: var(--sp-3); align-items: flex-start;
+      padding: var(--sp-3) var(--sp-4);
+      background: rgba(99,102,241,0.05);
+      border: 1px solid rgba(99,102,241,0.14);
+      border-radius: var(--radius-md); margin-top: var(--sp-4);
+      font-size: 0.83rem;
+    }
+    .vs-file-prompt > i { color: var(--mid); flex-shrink: 0; margin-top: 3px; font-size: 1.05rem; }
+    .vs-file-prompt strong { display: block; color: var(--text-primary); margin-bottom: 3px; font-size: 0.85rem; }
+    .vs-file-prompt p { color: var(--text-muted); margin: 0; line-height: 1.5; }
+    .vs-file-prompt__action { margin-top: var(--sp-3); }
 
     /* ─── [31~32. Tile Grid & Tile Card] ────────────────────── */
     .tile-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-5); }
@@ -1495,26 +1551,56 @@
           </div>
         </header>
 
-        <!-- Verify Bar -->
-        <div class="verify-bar glass-card" role="search" aria-label="해시 검증">
-          <div class="input-group verify-bar__input">
-            <i class="fa-solid fa-magnifying-glass input-group__icon" aria-hidden="true"></i>
-            <input
-              type="text" id="verify-input"
-              class="input" placeholder="해시값을 직접 입력하거나 파일을 선택하세요..."
-              aria-label="검증할 해시값 입력">
+        <!-- Verify Panel (2-section: primary file + secondary hash) -->
+        <div class="verify-panel glass-card" role="search" aria-label="해시 검증">
+
+          <!-- ① Primary: 파일 업로드 검증 (권장) -->
+          <div class="verify-section verify-section--primary">
+            <div class="verify-section__head">
+              <span class="verify-section__badge">권장</span>
+              <strong class="verify-section__title">
+                <i class="fa-solid fa-file-shield" aria-hidden="true"></i>
+                원본 파일로 완전 검증 (3단계)
+              </strong>
+            </div>
+            <p class="verify-section__desc">
+              등록할 때 사용한 <strong>원본 파일</strong>을 선택하면,
+              브라우저에서 해시를 재계산해 <strong>변조 여부</strong>까지
+              단계별로 확인합니다. 파일은 서버로 전송되지 않습니다.
+            </p>
+            <!-- 파일 선택 (숨김 input) -->
+            <input type="file" id="verify-file-input" hidden aria-hidden="true">
+            <button class="btn btn--primary verify-section__cta" id="btn-verify-file"
+              aria-label="파일을 선택해 해시 검증">
+              <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
+              원본 파일 선택
+            </button>
+            <p class="verify-section__warn">
+              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+              아이디어·영업비밀은 파일로 등록하세요. 텍스트 검증은 원문이 상대방에게 노출됩니다.
+            </p>
           </div>
-          <!-- 파일 선택 (숨김 input) -->
-          <input type="file" id="verify-file-input" hidden aria-hidden="true">
-          <button class="btn btn--ghost" id="btn-verify-file"
-            aria-label="파일을 선택해 해시 검증">
-            <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
-            파일 열기
-          </button>
-          <button class="btn btn--primary" id="btn-verify">
-            <i class="fa-solid fa-shield-check" aria-hidden="true"></i>
-            검증
-          </button>
+
+          <!-- 구분선 -->
+          <div class="verify-alt-divider" aria-hidden="true">
+            <span>또는 해시값을 이미 알고 있는 경우</span>
+          </div>
+
+          <!-- ② Secondary: 해시 직접 입력 -->
+          <div class="verify-section verify-section--secondary">
+            <div class="input-group verify-bar__input">
+              <i class="fa-solid fa-magnifying-glass input-group__icon" aria-hidden="true"></i>
+              <input
+                type="text" id="verify-input"
+                class="input" placeholder="SHA-256 해시값 64자리를 직접 입력..."
+                aria-label="검증할 해시값 입력">
+            </div>
+            <button class="btn btn--ghost" id="btn-verify">
+              <i class="fa-solid fa-shield-check" aria-hidden="true"></i>
+              검증
+            </button>
+          </div>
+
         </div>
 
         <!-- Verify Result (Live Region) -->
@@ -2775,6 +2861,17 @@
 
           // STEP 3 (파일 검증) 또는 STEP 2 (해시 직접 입력): 타임스탬프
           const stepNum = fromFile ? '3' : '2';
+
+          // 해시 직접 입력 검증 시: 원본 파일 업로드 유도 프롬프트
+          const filePromptHtml = !fromFile ? `
+            <div class="vs-file-prompt">
+              <i class="fa-solid fa-file-circle-plus" aria-hidden="true"></i>
+              <div>
+                <strong>원본 파일로 해시 재계산 비교 추가 가능</strong>
+                <p>위의 <strong>원본 파일 선택</strong> 버튼으로 파일을 올리면 방금 계산된 해시와 등록된 해시를 나란히 비교해 변조 여부까지 확인할 수 있습니다.</p>
+              </div>
+            </div>` : '';
+
           showVerifyResult('success', `
             <div class="verify-steps">
               ${hashCompareHtml}
@@ -2809,6 +2906,7 @@
                   이 파일은 <strong>${escHtml(regDate)}</strong>에 변조 없이 존재했습니다
                 </div>
               </div>
+              ${filePromptHtml}
             </div>`, true);
 
         } else {
