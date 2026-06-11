@@ -330,13 +330,16 @@ async function handleVerify(request, env) {
   if (!isValidHash(hash)) return errorResponse('유효하지 않은 해시값');
 
   const db = getSupabase(env);
+  // UNIQUE 제거 후 동일 해시 복수 레코드 가능 → 최초 등록(created_at 오름차순) 1건만 조회
   const { data, error } = await db
     .from('records')
     .select('id, hash, nickname, title, keywords, ots_status, created_at')
     .eq('hash', hash.toLowerCase())
-    .single();
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
 
-  if (error && error.code !== 'PGRST116') {
+  if (error) {
     console.error('[verify error]', error.message);
     return errorResponse('검증 중 오류가 발생했습니다', 500);
   }

@@ -364,7 +364,7 @@
     .register__panel { max-width: 760px; margin: 0 auto; padding: var(--sp-8); }
     .dropzone {
       border: 2px dashed var(--border); border-radius: var(--radius-md);
-      padding: var(--sp-10); text-align: center; cursor: pointer;
+      padding: var(--sp-5); text-align: center; cursor: pointer;
       transition: border-color var(--duration-md) var(--ease), background var(--duration-md) var(--ease);
     }
     .dropzone--over { border-color: var(--mid); background: var(--mid-glow); }
@@ -423,12 +423,20 @@
     /* ─── [24-b. Hash Guidance] ─────────────────────────────── */
     .hash-guidance {
       margin-top: var(--sp-3);
-      padding: var(--sp-4) var(--sp-5);
+      padding: var(--sp-3) var(--sp-4);
       background: rgba(0, 212, 255, 0.04);
       border: 1px solid rgba(0, 212, 255, 0.16);
       border-radius: var(--radius-sm);
-      display: flex; flex-direction: column; gap: var(--sp-4);
     }
+    .hash-guidance__header {
+      background: none; border: none; cursor: pointer; width: 100%;
+      text-align: left; display: flex; align-items: center; gap: var(--sp-2);
+      padding: 0; color: var(--text-primary); font-size: 0.8rem; font-weight: 700;
+    }
+    .hash-guidance__header > i:first-child { color: var(--accent); font-size: 0.85rem; }
+    .hash-guidance__header .accordion__hint { font-size: 0.7rem; color: var(--text-dim); margin-left: auto; }
+    .hash-guidance__header .accordion__toggle-icon { font-size: 0.65rem; color: var(--text-dim); }
+    .hash-guidance .accordion__body { margin-top: var(--sp-3); display: flex; flex-direction: column; gap: var(--sp-3); }
     .hash-guidance__item { display: flex; gap: var(--sp-3); align-items: flex-start; }
     .hash-guidance__item > i {
       font-size: 0.95rem; color: var(--accent); margin-top: 3px;
@@ -1466,28 +1474,36 @@
 
           <!-- Hash 생성 후 안내 (hidden until hash is computed) -->
           <div class="hash-guidance" id="hash-guidance" hidden aria-live="polite">
-            <div class="hash-guidance__item">
+            <button class="hash-guidance__header accordion__header" type="button"
+              tabindex="0" role="button" aria-expanded="false">
               <i class="fa-solid fa-bolt" aria-hidden="true"></i>
-              <div>
-                <strong>지금 이 해시가 증거입니다</strong>
-                <p>파일이나 텍스트가 바뀌지 않는 한, 이 64자리 코드로 원본의 존재를 언제든 증명할 수 있습니다. 등록하면 서버 타임스탬프가 공식 기록됩니다.</p>
+              <strong>지금 이 해시가 증거입니다</strong>
+              <span class="accordion__hint">클릭해 펼치기</span>
+              <i class="fa-solid fa-chevron-down accordion__toggle-icon" aria-hidden="true"></i>
+            </button>
+            <div class="accordion__body">
+              <div class="hash-guidance__item">
+                <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                <div>
+                  <p>파일이나 텍스트가 바뀌지 않는 한, 이 64자리 코드로 원본의 존재를 언제든 증명할 수 있습니다. 등록하면 서버 타임스탬프가 공식 기록됩니다.</p>
+                </div>
               </div>
-            </div>
-            <div class="hash-guidance__item">
-              <i class="fa-brands fa-bitcoin" aria-hidden="true"></i>
-              <div>
-                <strong>등록 즉시 Bitcoin 블록체인에 영구 기록됩니다</strong>
-                <p>IdeaGuard 서비스가 없어지더라도, Bitcoin OTS 타임스탬프는 수만 대 컴퓨터에 분산 저장되어 삭제가 불가능합니다. <strong>타일에서 OTS 파일을 꼭 보관하세요.</strong></p>
+              <div class="hash-guidance__item">
+                <i class="fa-brands fa-bitcoin" aria-hidden="true"></i>
+                <div>
+                  <strong>등록 즉시 Bitcoin 블록체인에 영구 기록됩니다</strong>
+                  <p>IdeaGuard 서비스가 없어지더라도, Bitcoin OTS 타임스탬프는 수만 대 컴퓨터에 분산 저장되어 삭제가 불가능합니다. <strong>타일에서 OTS 파일을 꼭 보관하세요.</strong></p>
+                </div>
               </div>
-            </div>
-            <div class="hash-guidance__item">
-              <i class="fa-solid fa-shield-check" aria-hidden="true"></i>
-              <div>
-                <strong>검증 방법 — 원본 + OTS 파일이면 충분합니다</strong>
-                <p>나중에 원본 파일(또는 텍스트)과 OTS 파일을 함께 제출하면
-                  <a href="https://opentimestamps.org" target="_blank" rel="noopener noreferrer">opentimestamps.org</a>
-                  또는 어떤 호환 도구로도 등록 시각을 독립적으로 확인할 수 있습니다.
-                  검증은 이 서비스 없이도 가능합니다.</p>
+              <div class="hash-guidance__item">
+                <i class="fa-solid fa-shield-check" aria-hidden="true"></i>
+                <div>
+                  <strong>검증 방법 — 원본 + OTS 파일이면 충분합니다</strong>
+                  <p>나중에 원본 파일(또는 텍스트)과 OTS 파일을 함께 제출하면
+                    <a href="https://opentimestamps.org" target="_blank" rel="noopener noreferrer">opentimestamps.org</a>
+                    또는 어떤 호환 도구로도 등록 시각을 독립적으로 확인할 수 있습니다.
+                    검증은 이 서비스 없이도 가능합니다.</p>
+                </div>
               </div>
             </div>
           </div>
@@ -2601,13 +2617,7 @@
             state.newRecordId = data.record?.id ?? null;
             setTimeout(() => { state.newRecordId = null; }, 8000);
 
-            if (data.is_duplicate) {
-              const formattedDate = formatDate(data.first_registered_at);
-              el.formWarningMsg.innerHTML = `⚠️ 동일한 해시값이 <strong>${formattedDate}</strong>에 이미 등록되어 있습니다.<br>타임스탬프 선취권은 해당 시점에 있습니다. 귀하의 등록은 현재 시간으로 별도 기록되었습니다.`;
-              el.formWarning.hidden = false;
-            } else {
-              el.formSuccess.hidden = false;
-            }
+            el.formSuccess.hidden = false;
             resetForm();
             state.currentPage = 1;
             await fetchTiles(1);
