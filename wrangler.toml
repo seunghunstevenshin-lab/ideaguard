@@ -8,7 +8,7 @@ account_id = "6791b067e330ffa38de2b341d95b0452"
 # 환경 변수 (민감 정보는 wrangler secret put 으로 별도 설정)
 # ──────────────────────────────────────────────────────────────
 [vars]
-ENVIRONMENT = "development"
+ENVIRONMENT = "production"
 APP_NAME = "IdeaGuard"
 
 # ──────────────────────────────────────────────────────────────

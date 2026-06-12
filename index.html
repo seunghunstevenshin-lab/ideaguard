@@ -1524,12 +1524,6 @@
               해시가 성공적으로 등록되었습니다! 타임스탬프가 공표되었습니다.
             </div>
 
-            <!-- Alert: Warning (Duplicate Hash) -->
-            <div class="form-alert form-alert--warning" id="form-warning" role="status" hidden>
-              <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
-              <span id="form-warning-msg"></span>
-            </div>
-
             <!-- Submit -->
             <div class="form-actions">
               <div class="register__submit-row">
@@ -2315,8 +2309,6 @@
       formError:    $('form-error'),
       formErrorMsg: $('form-error-msg'),
       formSuccess:  $('form-success'),
-      formWarning:  $('form-warning'),
-      formWarningMsg: $('form-warning-msg'),
       btnRegister:  $('btn-register'),
       // Tileboard
       tileboard:    $('tileboard'),
@@ -2376,7 +2368,18 @@
     function clearHash() {
       state.currentHash = null;
       el.hashPreview.hidden = true;
-      if (el.hashGuidance) el.hashGuidance.hidden = true;
+      if (el.hashGuidance) {
+        el.hashGuidance.hidden = true;
+        // 아코디언 상태 초기화 (다음 파일 드롭 시 닫힌 상태로 시작)
+        const body   = el.hashGuidance.querySelector('.accordion__body');
+        const icon   = el.hashGuidance.querySelector('.accordion__toggle-icon');
+        const hint   = el.hashGuidance.querySelector('.accordion__hint');
+        const header = el.hashGuidance.querySelector('.accordion__header');
+        if (body)   body.classList.remove('is-open');
+        if (icon)   icon.classList.remove('is-open');
+        if (hint)   hint.textContent = '클릭해 펼치기';
+        if (header) header.setAttribute('aria-expanded', 'false');
+      }
       el.hashDisplay.textContent = '—';
       updateRegisterBtn();
     }
@@ -2648,7 +2651,6 @@
     function hideFormMessages() {
       el.formError.hidden   = true;
       el.formSuccess.hidden = true;
-      el.formWarning.hidden = true;
     }
 
     function resetForm() {
@@ -2778,15 +2780,16 @@
              </button>`
           : '';
 
+        // 타일 제목: 등록된 제목 우선, 없으면 해시 앞 16자
+        const tileTitle = r.title
+          ? escHtml(r.title)
+          : `<code style="font-size:0.78rem;letter-spacing:0.04em;opacity:0.6">${escHtml(r.hash.slice(0,16))}…</code>`;
+
         tile.innerHTML = `
           <div class="tile__head">
-            <span class="tile__author">
-              <i class="fa-regular fa-user" aria-hidden="true"></i>
-              ${escHtml(r.nickname)}
-            </span>
             <time class="tile__date" datetime="${r.created_at}">${dateStr}</time>
           </div>
-          <h3 class="tile__title">${escHtml(r.title)}</h3>
+          <h3 class="tile__title">${tileTitle}</h3>
           <button class="tile__hash" data-hash="${escHtml(r.hash)}"
             aria-label="전체 해시값 보기: ${escHtml(r.hash)}">
             <i class="fa-solid fa-hashtag" aria-hidden="true"></i>
@@ -2822,9 +2825,40 @@
           runVerify(r.hash);
         });
 
-        // OTS 파일 다운로드 (무료)
-        tile.querySelector('.tile__ots-btn')?.addEventListener('click', () => {
-          window.location.href = `${API}/api/records/${r.id}/ots`;
+        // OTS 파일 다운로드 — fetch로 상태 먼저 확인 후 다운로드
+        tile.querySelector('.tile__ots-btn')?.addEventListener('click', async (e) => {
+          const btn = e.currentTarget;
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+          try {
+            const res = await fetch(`${API}/api/records/${r.id}/ots`);
+            if (res.status === 202) {
+              // ots_proof 아직 없음 — 상태 메시지 표시
+              const d = await res.json();
+              btn.disabled = false;
+              btn.innerHTML = '<i class="fa-solid fa-download"></i> OTS';
+              showVerifyResult('loading',
+                `<i class="fa-solid fa-clock"></i> ${d.message || 'OTS 파일 준비 중입니다. 잠시 후 다시 시도해주세요.'}`);
+              return;
+            }
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            // 정상 다운로드
+            const blob = await res.blob();
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href     = url;
+            a.download = `ideaguard_${r.hash.slice(0, 16)}.ots`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+          } catch (err) {
+            showVerifyResult('error',
+              '<i class="fa-solid fa-triangle-exclamation"></i> OTS 파일을 가져올 수 없습니다.');
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-download"></i> OTS';
+          }
         });
 
         // NDA 모달 열기 (비로그인 시 로그인 유도)
